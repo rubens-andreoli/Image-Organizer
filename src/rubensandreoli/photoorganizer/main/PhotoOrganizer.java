@@ -1,3 +1,5 @@
+package rubensandreoli.photoorganizer.main;
+
 import java.awt.EventQueue;
 import javax.swing.JOptionPane;
 
@@ -12,7 +14,7 @@ public class PhotoOrganizer {
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "ERROR: Data Scrambler Exception.");
+					JOptionPane.showMessageDialog(null, "ERROR: Exception.");
 				}
 			}
 		});

@@ -1,3 +1,9 @@
+package rubensandreoli.photoorganizer.main;
+
+import rubensandreoli.photoorganizer.actions.CreateFolder;
+import rubensandreoli.photoorganizer.actions.TransferFile;
+import rubensandreoli.photoorganizer.readers.FolderReader;
+
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;

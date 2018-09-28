@@ -1,7 +1,11 @@
+package rubensandreoli.photoorganizer.readers;
+import rubensandreoli.photoorganizer.main.Frame;
+
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
 
 public class FileReader {
@@ -26,16 +30,16 @@ public class FileReader {
 			double newWidth = img.getWidth()*reduction;
 			scaledImg = img.getScaledInstance((int)newWidth ,(int)newHeight , Image.SCALE_SMOOTH);
 		}else{
-			scaledImg = img;
-			/*double scaling;
+			//scaledImg = img;
+			double scaling;
 			if(img.getHeight() >= img.getWidth()){
-				scaling = PoFrame.getLabelHeight()/(double)img.getHeight();
+				scaling = Frame.getLabelHeight()/(double)img.getHeight();
 			}else{
-				scaling = PoFrame.getLabelWidth()/(double)img.getWidth();
+				scaling = Frame.getLabelWidth()/(double)img.getWidth();
 			}
 			double newHeight = img.getHeight()*scaling;
 			double newWidth = img.getWidth()*scaling;
-			scaledImg = img.getScaledInstance((int)newWidth ,(int)newHeight , Image.SCALE_SMOOTH);*/
+			scaledImg = img.getScaledInstance((int)newWidth ,(int)newHeight , Image.SCALE_SMOOTH);
 		}
 	}
 

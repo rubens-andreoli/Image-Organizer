@@ -1,4 +1,9 @@
+package rubensandreoli.photoorganizer.actions;
+
+import rubensandreoli.photoorganizer.readers.FolderReader;
+
 import java.io.File;
+
 import javax.swing.JOptionPane;
 
 public class CreateFolder {

@@ -1,3 +1,7 @@
+package rubensandreoli.photoorganizer.actions;
+import rubensandreoli.photoorganizer.main.FillFrame;
+import rubensandreoli.photoorganizer.readers.FolderReader;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

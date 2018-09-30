@@ -10,14 +10,14 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import rubensandreoli.imageorganizer.model.FolderIO;
-import rubensandreoli.imageorganizer.model.HistoryIO;
+import rubensandreoli.imageorganizer.io.FolderIO;
+import rubensandreoli.imageorganizer.io.HistoryIO;
 
-//icon - https://all-free-download.com/free-icon/download/free-folder-icons-icons-pack_120784.html
+//icon.png: https://all-free-download.com/free-icon/download/free-folder-icons-icons-pack_120784.html
 
 public class MainFrame extends javax.swing.JFrame {
 
-    private static final String PROGRAM_NAME = "PhotoOrganizer";
+    private static final String PROGRAM_NAME = "ImageOrganizer";
     private static final String PROGRAM_VERSION = "v1.0.0";
     private static final String PROGRAM_YEAR = "2018";
     
@@ -339,7 +339,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void changeFolder(String folderPath){
 	if(folderIO != null && currentPos > 0){
-	    historyIO.addHistory(folderIO.getFolderPath(), currentPos);
+	    historyIO.setFolderHistory(folderIO.getFolderPath(), currentPos);
 	}
 	setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	folderIO = new FolderIO(folderPath);
@@ -349,13 +349,17 @@ public class MainFrame extends javax.swing.JFrame {
 	populateList(true);
 	populateList(false);
 	if(folderIO.getNumImages() > 0){
-	    currentPos = historyIO.getHistory(folderPath);
+	    currentPos = historyIO.getFolderHistory(folderPath);
 	    loadImage();
 	}
     }
   
     private void loadImage(){
 	if(folderIO == null) return;
+	if(folderIO.getNumImages() == 0){ 
+	    ((ImagePanel)pnlImage).clear();
+	    return;
+	}
 	try {
 	    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	    ((ImagePanel)pnlImage).setImage(folderIO.loadImage(currentPos));
@@ -363,10 +367,11 @@ public class MainFrame extends javax.swing.JFrame {
 	    txfImagePos.setText(currentPos+1+"");
 	    txfImageName.setText(folderIO.getImagePath(currentPos));
 	    testButtons();
-	    historyIO.addHistory(folderIO.getFolderPath(), currentPos);
+	    historyIO.setFolderHistory(folderIO.getFolderPath(), currentPos);
 	    this.requestFocus();
 	} catch (IOException ex) {
 	    showError(ex);
+	    btnNext.doClick();
 	}
     }
     

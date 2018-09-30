@@ -1,4 +1,4 @@
-package rubensandreoli.imageorganizer.model;
+package rubensandreoli.imageorganizer.io;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,6 +12,8 @@ import java.util.Map;
 public class HistoryIO {
     
     private static final String FILENAME = "history.dat";
+    private static final String SPLIT = ";";
+    
     private final File file;
     private final HashMap<String, Integer> history;
     
@@ -27,25 +29,29 @@ public class HistoryIO {
 	try (BufferedReader br = new BufferedReader(new FileReader(FILENAME))) {
 	    String line;
 	    while ((line = br.readLine()) != null) {
-	       String[] tokens = line.split(";");
+	       String[] tokens = line.split(SPLIT);
 	       history.put(tokens[0], Integer.parseInt(tokens[1]));
 	    }
 	}
     }
     
-    public void addHistory(String folder, int pos){
+    public void setFolderHistory(String folder, int pos){
 	history.put(folder, pos);
     }
     
-    public int getHistory(String folder){
-	Integer r = history.get(folder);
-	return r == null? 0:r;
+    public int getFolderHistory(String folder){
+	Integer pos = history.get(folder);
+	if(pos == null){
+	    history.put(folder, 0);
+	    pos = 0;
+	} 
+	return pos;
     }
     
     public void saveHistory() throws IOException{
 	 try (BufferedWriter br = new BufferedWriter(new FileWriter(FILENAME))) {
 	     for(Map.Entry<String, Integer> e : history.entrySet()){
-		 br.write(e.getKey()+";"+e.getValue()+"\n");
+		if(e.getValue() != 0) br.write(e.getKey()+SPLIT+e.getValue()+"\n");
 	     }
 	 }
     }

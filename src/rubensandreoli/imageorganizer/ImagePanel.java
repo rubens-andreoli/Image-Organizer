@@ -19,7 +19,7 @@ public class ImagePanel extends JPanel{
     private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     private static final Cursor DEFAULT_CURSOR = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
     private static final Font SCALE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 18);
-    private static final float SCALE_RATE = 50; //higher = smaller increments
+    private static final float SCALE_RATE = 40; //higher = smaller increments
     
     private BufferedImage image;
     private float clickX, clickY, xOffset, yOffset, scale;
@@ -123,6 +123,11 @@ public class ImagePanel extends JPanel{
 //	}
 	xOffset = (getWidth()/2)-((image.getWidth()/2)*scale);
 	yOffset = (getHeight()/2)-((image.getHeight()/2)*scale);
+	repaint();
+    }
+    
+    public void clear(){
+	image = null;
 	repaint();
     }
 

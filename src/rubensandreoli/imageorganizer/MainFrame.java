@@ -22,28 +22,23 @@ public class MainFrame extends javax.swing.JFrame {
     private static final String PROGRAM_YEAR = "2018";
     
     private FolderIO folderIO;
-    private DefaultListModel<String> modelIn;
-    private DefaultListModel<String> modelOut;
     private HistoryIO historyIO;
     
     private int currentPos = -1;
     
     public MainFrame() {
-	modelIn = new DefaultListModel<String>();
-	modelOut = new DefaultListModel<String>();
 	initComponents();
 	historyIO = new HistoryIO();
 	try {
 	    historyIO.loadHistory();
 	} catch (IOException ex) {
-	    //TODO: no history file
+	    showError(ex);
 	}
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         flcFolder = new javax.swing.JFileChooser();
         pnlImage = new ImagePanel();
@@ -67,6 +62,11 @@ public class MainFrame extends javax.swing.JFrame {
         setTitle("Photo Organizer");
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("images/icon.png")));
         setMinimumSize(new java.awt.Dimension(747, 551));
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                formComponentResized(evt);
+            }
+        });
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -98,7 +98,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         sclFoldersOut.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-        lstFoldersOut.setModel(modelOut);
+        lstFoldersOut.setModel(new DefaultListModel<String>());
         lstFoldersOut.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         lstFoldersOut.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -109,7 +109,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         sclFoldersIn.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-        lstFoldersIn.setModel(modelIn);
+        lstFoldersIn.setModel(new DefaultListModel<String>());
         lstFoldersIn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lstFoldersInMouseClicked(evt);
@@ -135,13 +135,6 @@ public class MainFrame extends javax.swing.JFrame {
         txfFolderPath.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         txfFolderPath.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         txfFolderPath.setEnabled(false);
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, txfImageName, org.jdesktop.beansbinding.ELProperty.create("${maximumSize}"), txfFolderPath, org.jdesktop.beansbinding.BeanProperty.create("maximumSize"));
-        bindingGroup.addBinding(binding);
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, txfImageName, org.jdesktop.beansbinding.ELProperty.create("${minimumSize}"), txfFolderPath, org.jdesktop.beansbinding.BeanProperty.create("minimumSize"));
-        bindingGroup.addBinding(binding);
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, txfImageName, org.jdesktop.beansbinding.ELProperty.create("${preferredSize}"), txfFolderPath, org.jdesktop.beansbinding.BeanProperty.create("preferredSize"));
-        bindingGroup.addBinding(binding);
 
         txfNumImages.setEditable(false);
         txfNumImages.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -190,31 +183,36 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnlImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txfNumImages, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txfFolderPath))
-                        .addGap(18, 18, 18)
-                        .addComponent(sclFoldersOut, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
-                                    .addComponent(btnNext, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnBack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(46, 46, 46)
-                                .addComponent(lblInfo)))
-                        .addGap(18, 18, 18)
-                        .addComponent(sclFoldersIn, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(txfImagePos, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txfImageName))))
+                    .addComponent(txfNumImages, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txfFolderPath))
+                .addGap(18, 18, 18)
+                .addComponent(sclFoldersOut, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnNext, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnBack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(sclFoldersIn, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txfImagePos, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txfImageName, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
+                .addGap(349, 349, 349)
+                .addComponent(lblInfo)
+                .addGap(350, 350, 350))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(pnlImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(10, 10, 10))
         );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnBack, btnDelete, btnNext});
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {sclFoldersIn, sclFoldersOut});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
@@ -245,8 +243,6 @@ public class MainFrame extends javax.swing.JFrame {
                         .addComponent(sclFoldersIn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
-
-        bindingGroup.bind();
 
         pack();
         setLocationRelativeTo(null);
@@ -287,16 +283,18 @@ public class MainFrame extends javax.swing.JFrame {
     private void txfImagePosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txfImagePosKeyReleased
 	if(evt.getKeyCode() == KeyEvent.VK_ENTER){
 	    if(folderIO == null){ 
-		txfImagePos.setText(currentPos+1+"");
-		return;
-	    }
-	    try{
-		int pos = Integer.parseInt(txfImagePos.getText()) - 1;
-		if(pos > folderIO.getNumImages()-1) throw new NumberFormatException();
-		currentPos = pos;
-		loadImage();
-	    }catch (NumberFormatException ex){
-		txfImagePos.setText(currentPos+1+"");
+		txfImagePos.setText("0");
+	    }else{
+		try{
+		    int pos = Integer.parseInt(txfImagePos.getText())-1;
+		    if(pos <= folderIO.getNumImages()-1){
+			currentPos = pos;
+			loadImage();
+		    }
+		}catch (NumberFormatException ex){ 
+		}finally{
+		    txfImagePos.setText(String.valueOf(currentPos+1));
+		}
 	    }
 	}
     }//GEN-LAST:event_txfImagePosKeyReleased
@@ -312,7 +310,7 @@ public class MainFrame extends javax.swing.JFrame {
 	    if(choice == JOptionPane.YES_OPTION){
 		try {
 		    folderIO.deleteImage(currentPos);
-		    txfNumImages.setText(folderIO.getNumImages()+"");
+		    txfNumImages.setText(String.valueOf(folderIO.getNumImages()));
 		    loadImage();
 		} catch (IOException ex) {
 		    showError(ex);
@@ -332,20 +330,22 @@ public class MainFrame extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
 	try {
 	    historyIO.saveHistory();
-	} catch (IOException ex) {
-	    //TODO: history not saved
-	}
+	} catch (IOException ex) {}
     }//GEN-LAST:event_formWindowClosing
 
+    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
+//        System.out.println(txfFolderPath.getWidth()+":"+txfImageName.getWidth());
+    }//GEN-LAST:event_formComponentResized
+
     private void changeFolder(String folderPath){
-	if(folderIO != null && currentPos > 0){
+	if(folderIO != null && currentPos > 0){ //add to history if not at initial position
 	    historyIO.setFolderHistory(folderIO.getFolderPath(), currentPos);
 	}
 	setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	folderIO = new FolderIO(folderPath);
 	setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	txfFolderPath.setText(folderPath);
-	txfNumImages.setText(folderIO.getNumImages()+"");
+	txfNumImages.setText(String.valueOf(folderIO.getNumImages()));
 	populateList(true);
 	populateList(false);
 	if(folderIO.getNumImages() > 0){
@@ -356,23 +356,29 @@ public class MainFrame extends javax.swing.JFrame {
   
     private void loadImage(){
 	if(folderIO == null) return;
-	if(folderIO.getNumImages() == 0){ 
+	if(folderIO.getNumImages() == 0){ //all images got deleted
 	    ((ImagePanel)pnlImage).clear();
-	    return;
+	    txfImagePos.setText("0");
+	    txfImageName.setText("");
+	}else{
+	    if(currentPos >= folderIO.getNumImages()){ //restart position when last image is deleted
+		currentPos = 0;
+	    }
+	    try { //load image
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		((ImagePanel)pnlImage).setImage(folderIO.loadImage(currentPos));
+	    } catch (IOException ex) { //clear last image if fail
+		showError(ex);
+		((ImagePanel)pnlImage).clear();
+	    } finally { //fill info even if fail
+		txfImageName.setText(folderIO.getImagePath(currentPos));
+		historyIO.setFolderHistory(folderIO.getFolderPath(), currentPos);
+		txfImagePos.setText(String.valueOf(currentPos+1));
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	    }
 	}
-	try {
-	    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	    ((ImagePanel)pnlImage).setImage(folderIO.loadImage(currentPos));
-	    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	    txfImagePos.setText(currentPos+1+"");
-	    txfImageName.setText(folderIO.getImagePath(currentPos));
-	    testButtons();
-	    historyIO.setFolderHistory(folderIO.getFolderPath(), currentPos);
-	    this.requestFocus();
-	} catch (IOException ex) {
-	    showError(ex);
-	    btnNext.doClick();
-	}
+	requestFocus();
+	testButtons();
     }
     
     private void testButtons(){
@@ -392,8 +398,12 @@ public class MainFrame extends javax.swing.JFrame {
     }
     
     private void populateList(boolean subFolders){
+	if(folderIO == null) return;
 	List<String> list = subFolders? folderIO.getSubFolders():folderIO.getRootFolders();
-	DefaultListModel<String> model = subFolders? modelIn:modelOut;
+	DefaultListModel<String> model = (DefaultListModel)(
+		subFolders? lstFoldersIn.getModel():lstFoldersOut.getModel()
+	    );
+	
 	model.clear();
 	list.stream().forEach((folder) -> {
 	    model.addElement(folder);
@@ -403,19 +413,20 @@ public class MainFrame extends javax.swing.JFrame {
     private void clickList(MouseEvent e, boolean subFolders){
 	if(folderIO == null) return;
 	JList<String> list = (JList<String>)e.getSource();
-	if (!list.isSelectionEmpty()){
-	    if(!folderIO.testFolder(list.getSelectedValue(), subFolders)) populateList(subFolders);
+	if (!list.isSelectionEmpty()){ //check if folder exist
+	    if(!folderIO.testFolder(list.getSelectedValue(), subFolders)){ 
+		populateList(subFolders);
+	    }
 	}
-	if (e.getClickCount() == 2 && !list.isSelectionEmpty()){
+	if (e.getButton() == 1 && e.getClickCount() == 2 && !list.isSelectionEmpty()){ //tranfer image
 	    try {
 		folderIO.tranferImage(currentPos, list.getSelectedValue(), subFolders);
-		txfNumImages.setText(folderIO.getNumImages()+"");
+		txfNumImages.setText(String.valueOf(folderIO.getNumImages()));
 		loadImage();
 	    } catch (IOException ex) {
 		showError(ex);
 	    }
-	}
-	if(e.getModifiers() == MouseEvent.BUTTON3_MASK){
+	}else if(e.getButton() == 3){ //create new folder
 	    String newFolderName = JOptionPane.showInputDialog(
 		    this, 
 		    "New folder name:", 
@@ -430,6 +441,10 @@ public class MainFrame extends javax.swing.JFrame {
 		    showError(ex);
 		}
 	    }
+	}else if(e.getButton() == 4){ 
+	    btnBack.doClick();
+	}else if(e.getButton() == 5){
+	    btnNext.doClick();
 	}
     }
     
@@ -458,6 +473,5 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JTextField txfImageName;
     private javax.swing.JTextField txfImagePos;
     private javax.swing.JTextField txfNumImages;
-    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

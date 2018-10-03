@@ -21,13 +21,13 @@ public class FolderIO {
 	IMAGE_EXT.add(".png");
 	IMAGE_EXT.add(".bmp");
     }
-    
-    public class Image{
+
+    public class Image {
 	public final String path;
 	public final String name;
 	public final String extension;
 	
-	private Image(String path, String fullName, String extension){
+	private Image(final String path, final String fullName, final String extension){
 	    this.path = path;
 	    this.extension = extension;
 	    name = fullName.substring(0, fullName.length()-4);
@@ -54,9 +54,11 @@ public class FolderIO {
 	for (File f : listOfFiles) {
 	    String fileFullName = f.getName();
 	    if (!f.isDirectory()) {
-		String fileExtension = fileFullName.substring(fileFullName.lastIndexOf("."));
+		int startIndex = fileFullName.lastIndexOf(".");
+		if(startIndex == -1) continue;
+		String fileExtension = fileFullName.substring(startIndex);
 		if(IMAGE_EXT.contains(fileExtension)){
-		    images.add(new Image(f.getAbsolutePath(), f.getName(), fileExtension));
+		    images.add(new Image(f.getAbsolutePath(), fileFullName, fileExtension));
 		}
 	    } else {
 		subFolders.add(fileFullName);
@@ -80,10 +82,10 @@ public class FolderIO {
 	if(folderList.contains(folderName))
 	    throw new IOException("Folder \""+folderName+"\" already exists!");
 	
-	String path = (subFolder? folderPath:rootPath);
+	String path = subFolder? folderPath:rootPath;
 	File newDir = new File(path+"\\"+folderName);
 	if(newDir.mkdir()) folderList.add(folderName);
-	else throw new IOException("Folder \""+newDir.getName()+"\" could not be created!");
+	else throw new IOException("Folder \""+newDir.getAbsolutePath()+"\" could not be created!");
     }
 
     public void tranferImage(int imagePos, String folderName, boolean subFolder) throws IOException{
@@ -111,8 +113,8 @@ public class FolderIO {
     }
 
     public boolean testFolder(String folderName, boolean subFolder) {
-	String path = subFolder? folderPath+"\\"+folderName : rootPath+"\\"+folderName;
-	File folder = new File(path);
+	String path = subFolder? folderPath:rootPath;
+	File folder = new File(path+"\\"+folderName);
 	if(folder.exists() && folder.isDirectory()){ 
 	    return true;
 	}else{
@@ -129,7 +131,7 @@ public class FolderIO {
     public void deleteImage(int imagePos) throws IOException{
 	File f = new File(images.get(imagePos).path);
 	if(f.delete()) images.remove(imagePos);
-	else throw new IOException("Image \""+images.get(imagePos).path+"\" could not be deleted!");
+	else throw new IOException("Image \""+f.getAbsolutePath()+"\" could not be deleted!");
     }
     
     public ArrayList<String> getRootFolders() {return rootFolders;}

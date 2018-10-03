@@ -29,10 +29,10 @@ public class ImagePanel extends JPanel{
 	this.addMouseListener(new MouseListener(){
 	    @Override
 	    public void mousePressed(MouseEvent e) {
-		if(click == false){
+		if(click == false && image != null){
 		    clickX = e.getX()-xOffset;
 		    clickY = e.getY()-yOffset;
-		    if(image != null) setCursor(MOVE_CURSOR);
+		    setCursor(MOVE_CURSOR);
 		    click = true;
 		}
 	    }
@@ -51,8 +51,8 @@ public class ImagePanel extends JPanel{
 	this.addMouseMotionListener(new MouseMotionListener(){
 	    @Override
 	    public void mouseDragged(MouseEvent e) {
-		xOffset = (e.getX()-(clickX));
-		yOffset = (e.getY()-(clickY));
+		xOffset = e.getX()-clickX;
+		yOffset = e.getY()-clickY;
 		repaint();
 	    }
 
@@ -83,17 +83,15 @@ public class ImagePanel extends JPanel{
 	super.paintComponent(g);
 	if(image == null) return;
 	Graphics2D g2d = (Graphics2D) g;
-	// to prevent this method to apply g2d features from preceding methods
-	g2d = (Graphics2D) g2d.create();
 	// g2d.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
-	// g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 	g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 	g2d.drawImage(image, 
 		(int) xOffset, 
 		(int) yOffset,
 		(int) (image.getWidth()*scale),
 		(int) (image.getHeight()*scale),
-		this
+		null
 	);
 	g2d.setFont(SCALE_FONT);
 	g2d.drawString(String.format("%.3fx", scale), getWidth()-75, getHeight());
@@ -107,12 +105,12 @@ public class ImagePanel extends JPanel{
     
     private void ajustImage(){
 	if(image == null) return;
-	if(getHeight() < getWidth()){
+	if(getHeight() < getWidth()){ //scale to fit
 	    scale = getHeight()/(float)image.getHeight();
 	}else{
 	    scale = getWidth()/(float)image.getWidth();
 	}
-//	if(image.getHeight() > getHeight() || image.getWidth() > getWidth()){
+//	if(image.getHeight() > getHeight() || image.getWidth() > getWidth()){ //reduce to fit
 //	    if(getHeight() < getWidth()){
 //		scale = getHeight()/(float)image.getHeight();
 //	    }else{

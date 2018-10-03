@@ -23,6 +23,7 @@
     <SyntheticProperty name="generateCenter" type="boolean" value="true"/>
   </SyntheticProperties>
   <Events>
+    <EventHandler event="componentResized" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="formComponentResized"/>
     <EventHandler event="windowClosing" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="formWindowClosing"/>
     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="formKeyReleased"/>
   </Events>
@@ -45,38 +46,35 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="pnlImage" max="32767" attributes="0"/>
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="txfNumImages" min="-2" pref="80" max="-2" attributes="0"/>
-                          <Component id="txfFolderPath" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-                      <Component id="sclFoldersOut" min="-2" pref="200" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="btnDelete" pref="75" max="32767" attributes="0"/>
-                                  <Component id="btnNext" max="32767" attributes="0"/>
-                                  <Component id="btnBack" max="32767" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="46" max="-2" attributes="0"/>
-                              <Component id="lblInfo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-                      <Component id="sclFoldersIn" min="-2" pref="200" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="txfImagePos" min="-2" pref="80" max="-2" attributes="0"/>
-                          <Component id="txfImageName" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
+                  <Component id="txfNumImages" min="-2" pref="80" max="-2" attributes="0"/>
+                  <Component id="txfFolderPath" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+              <Component id="sclFoldersOut" linkSize="3" min="-2" pref="200" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="btnNext" linkSize="2" alignment="0" max="32767" attributes="0"/>
+                  <Component id="btnBack" linkSize="2" alignment="0" max="32767" attributes="0"/>
+                  <Component id="btnDelete" linkSize="2" alignment="0" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+              <Component id="sclFoldersIn" linkSize="3" min="-2" pref="200" max="-2" attributes="0"/>
+              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="txfImagePos" min="-2" pref="80" max="-2" attributes="0"/>
+                  <Component id="txfImageName" pref="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="2" attributes="0">
+              <EmptySpace min="349" pref="349" max="-2" attributes="0"/>
+              <Component id="lblInfo" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="350" pref="350" max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" attributes="0">
+              <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
+              <Component id="pnlImage" max="32767" attributes="0"/>
+              <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -157,7 +155,7 @@
         <Component class="javax.swing.JList" name="lstFoldersOut">
           <Properties>
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="modelOut" type="code"/>
+              <Connection code="new DefaultListModel&lt;String&gt;()" type="code"/>
             </Property>
             <Property name="selectionMode" type="int" value="0"/>
           </Properties>
@@ -183,7 +181,7 @@
         <Component class="javax.swing.JList" name="lstFoldersIn">
           <Properties>
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="modelIn" type="code"/>
+              <Connection code="new DefaultListModel&lt;String&gt;()" type="code"/>
             </Property>
           </Properties>
           <Events>
@@ -230,11 +228,6 @@
         </Property>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
-      <BindingProperties>
-        <BindingProperty name="maximumSize" source="txfImageName" sourcePath="${maximumSize}" target="txfFolderPath" targetPath="maximumSize" updateStrategy="0" immediately="false"/>
-        <BindingProperty name="minimumSize" source="txfImageName" sourcePath="${minimumSize}" target="txfFolderPath" targetPath="minimumSize" updateStrategy="0" immediately="false"/>
-        <BindingProperty name="preferredSize" source="txfImageName" sourcePath="${preferredSize}" target="txfFolderPath" targetPath="preferredSize" updateStrategy="0" immediately="false"/>
-      </BindingProperties>
     </Component>
     <Component class="javax.swing.JTextField" name="txfNumImages">
       <Properties>

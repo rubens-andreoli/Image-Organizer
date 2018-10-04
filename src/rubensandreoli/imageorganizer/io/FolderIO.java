@@ -13,7 +13,6 @@ import javax.imageio.ImageIO;
 
 public class FolderIO {
 	    
-    private static final String FOLDER_NAME_REGEX = "^(\\w+\\.?)*\\w+$";
     private static final HashSet<String> IMAGE_EXT;
     static  {
 	IMAGE_EXT = new HashSet<>();
@@ -75,9 +74,6 @@ public class FolderIO {
     }
 
     public void createFolder(String folderName, boolean subFolder) throws IOException{
-	if(!folderName.matches(FOLDER_NAME_REGEX))
-	    throw new IOException("Folder name \""+folderName+"\" not valid!");
-	
 	List<String> folderList = subFolder? subFolders:rootFolders;
 	if(folderList.contains(folderName))
 	    throw new IOException("Folder \""+folderName+"\" already exists!");

@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 public class FolderIO {
 	    
     private static final HashSet<String> IMAGE_EXT;
-    static  {
+    static {
 	IMAGE_EXT = new HashSet<>();
 	IMAGE_EXT.add(".jpg");
 	IMAGE_EXT.add(".png");

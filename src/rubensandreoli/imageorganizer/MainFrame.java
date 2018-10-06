@@ -79,7 +79,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        pnlImage.setToolTipText("");
+        pnlImage.setToolTipText("<html>Image preview<hr>Right-Click: load folder<br>Left-Click: move image<br>Mouse-Wheel: zoom</html>");
         pnlImage.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 pnlImageMouseClicked(evt);
@@ -100,6 +100,7 @@ public class MainFrame extends javax.swing.JFrame {
         txfImagePos.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         txfImagePos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txfImagePos.setText("0");
+        txfImagePos.setToolTipText("<html>Image position<hr>Enter: change to typed position</html>");
         txfImagePos.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 txfImagePosKeyReleased(evt);
@@ -108,11 +109,13 @@ public class MainFrame extends javax.swing.JFrame {
 
         txfImageName.setEditable(false);
         txfImageName.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        txfImageName.setToolTipText("Image path");
         txfImageName.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         txfImageName.setEnabled(false);
 
         txfFolderPath.setEditable(false);
         txfFolderPath.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        txfFolderPath.setToolTipText("Selected folder path");
         txfFolderPath.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         txfFolderPath.setEnabled(false);
 
@@ -120,10 +123,12 @@ public class MainFrame extends javax.swing.JFrame {
         txfNumImages.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         txfNumImages.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txfNumImages.setText("0");
+        txfNumImages.setToolTipText("Number of images in selected folder");
         txfNumImages.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         txfNumImages.setEnabled(false);
 
         btnBack.setText("Back");
+        btnBack.setToolTipText("<html>Previous image<hr>Shortcut: left arrow; mouse button 4</html>");
         btnBack.setEnabled(false);
         btnBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -132,7 +137,7 @@ public class MainFrame extends javax.swing.JFrame {
         });
 
         lblInfo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/rubensandreoli/imageorganizer/images/about.png"))); // NOI18N
-        lblInfo.setToolTipText("about");
+        lblInfo.setToolTipText("About");
         lblInfo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblInfoMouseClicked(evt);
@@ -140,6 +145,7 @@ public class MainFrame extends javax.swing.JFrame {
         });
 
         btnNext.setText("Next");
+        btnNext.setToolTipText("<html>Next image<hr>Shortcut: right arrow; mouse button 5</html>");
         btnNext.setEnabled(false);
         btnNext.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -151,6 +157,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         lstFoldersOut.setModel(new DefaultListModel<String>());
         lstFoldersOut.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        lstFoldersOut.setToolTipText("<html>Folders in the same level<hr>Double-Click: transfer image to folder<br>Right-Click: create new folder</html>");
         lstFoldersOut.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lstFoldersOutMouseClicked(evt);
@@ -162,6 +169,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         lstFoldersIn.setModel(new DefaultListModel<String>());
         lstFoldersIn.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        lstFoldersIn.setToolTipText("<html>Folders inside<hr>Double-Click: transfer image to folder<br>Right-Click: create new folder</html>");
         lstFoldersIn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lstFoldersInMouseClicked(evt);
@@ -170,6 +178,7 @@ public class MainFrame extends javax.swing.JFrame {
         sclFoldersIn.setViewportView(lstFoldersIn);
 
         btnDelete.setText("Delete");
+        btnDelete.setToolTipText("<html>Delete image<hr>Shortcut: delete key</html>");
         btnDelete.setEnabled(false);
         btnDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

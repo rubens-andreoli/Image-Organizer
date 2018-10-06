@@ -12,7 +12,7 @@ import java.util.Map;
 public class HistoryIO {
     
     private static final String FILENAME = "history.dat";
-    private static final String SPLIT = ";";
+    private static final String SEPARATOR = ";";
     
     private final File file;
     private final HashMap<String, Integer> history;
@@ -26,10 +26,10 @@ public class HistoryIO {
 	if(!file.exists() || file.isDirectory()){
 	    file.createNewFile();
 	}
-	try (BufferedReader br = new BufferedReader(new FileReader(FILENAME))) {
+	try(BufferedReader br = new BufferedReader(new FileReader(FILENAME))){
 	    String line;
-	    while ((line = br.readLine()) != null) {
-	       String[] tokens = line.split(SPLIT);
+	    while((line = br.readLine()) != null){
+	       String[] tokens = line.split(SEPARATOR);
 	       history.put(tokens[0], Integer.parseInt(tokens[1]));
 	    }
 	}
@@ -49,11 +49,11 @@ public class HistoryIO {
     }
     
     public void saveHistory() throws IOException{
-	 try (BufferedWriter br = new BufferedWriter(new FileWriter(FILENAME))) {
-	     for(Map.Entry<String, Integer> e : history.entrySet()){
-		if(e.getValue() != 0) br.write(e.getKey()+SPLIT+e.getValue()+"\n");
-	     }
-	 }
+	try(BufferedWriter br = new BufferedWriter(new FileWriter(FILENAME))){
+	    for(Map.Entry<String, Integer> e : history.entrySet()){
+	       if(e.getValue() != 0) br.write(e.getKey()+SEPARATOR+e.getValue()+"\n");
+	    }
+	}
     }
     
 }

@@ -105,7 +105,7 @@ public class ImagePanel extends JPanel{
     
     private void ajustImage(){
 	if(image == null) return;
-	if(getHeight() < getWidth()){ //scale to fit
+	if(getHeight() < getWidth()){ //scale or reduce to fit
 	    scale = getHeight()/(float)image.getHeight();
 	}else{
 	    scale = getWidth()/(float)image.getWidth();

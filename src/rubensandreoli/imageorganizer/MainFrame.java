@@ -169,13 +169,14 @@ public class MainFrame extends javax.swing.JFrame {
 
         lstFoldersIn.setModel(new DefaultListModel<String>());
         lstFoldersIn.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        lstFoldersIn.setToolTipText("<html>Folders inside<hr>Double-Click: transfer image to folder<br>Right-Click: create new folder</html>");
+        lstFoldersIn.setToolTipText("<html>Folders inside<hr>Double-Click: transfer image to folder<br>Right-Click: create new folder<br>Middle-Click: splitter</html>");
         lstFoldersIn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lstFoldersInMouseClicked(evt);
             }
         });
         sclFoldersIn.setViewportView(lstFoldersIn);
+        lstFoldersIn.getAccessibleContext().setAccessibleDescription("<html>Folders inside<hr>Double-Click: transfer image to folder<br>Right-Click: create new folder<br>Middle-Click: splitter</html>");
 
         btnDelete.setText("Delete");
         btnDelete.setToolTipText("<html>Delete image<hr>Shortcut: delete key</html>");
@@ -272,12 +273,7 @@ public class MainFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void lblInfoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInfoMouseClicked
-        if(evt.getButton() == MouseEvent.BUTTON3 && folderIO != null){
-	    new SplitterDialog(this, folderIO).setVisible(true);
-	    loadImage();
-	}else{
-	    new AboutDialog(this, PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_YEAR).setVisible(true);
-	}
+	new AboutDialog(this, PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_YEAR).setVisible(true);
     }//GEN-LAST:event_lblInfoMouseClicked
 
     private void lstFoldersOutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lstFoldersOutMouseClicked
@@ -471,6 +467,10 @@ public class MainFrame extends javax.swing.JFrame {
 		    showError(ex);
 		}
 	    }
+	}else if(e.getButton() == 2 && subFolders){
+	    new SplitterDialog(this, folderIO).setVisible(true);
+	    populateList(true);
+	    loadImage();
 	}else if(e.getButton() == 4){ 
 	    btnBack.doClick();
 	}else if(e.getButton() == 5){

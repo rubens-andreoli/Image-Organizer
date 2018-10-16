@@ -291,8 +291,11 @@
                   <Connection code="new DefaultListModel&lt;String&gt;()" type="code"/>
                 </Property>
                 <Property name="selectionMode" type="int" value="0"/>
-                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Folders inside&lt;hr&gt;Double-Click: transfer image to folder&lt;br&gt;Right-Click: create new folder&lt;/html&gt;"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Folders inside&lt;hr&gt;Double-Click: transfer image to folder&lt;br&gt;Right-Click: create new folder&lt;br&gt;Middle-Click: splitter&lt;/html&gt;"/>
               </Properties>
+              <AccessibilityProperties>
+                <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value="&lt;html&gt;Folders inside&lt;hr&gt;Double-Click: transfer image to folder&lt;br&gt;Right-Click: create new folder&lt;br&gt;Middle-Click: splitter&lt;/html&gt;"/>
+              </AccessibilityProperties>
               <Events>
                 <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="lstFoldersInMouseClicked"/>
               </Events>

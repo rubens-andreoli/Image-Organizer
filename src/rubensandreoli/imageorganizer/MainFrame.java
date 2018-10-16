@@ -315,7 +315,7 @@ public class MainFrame extends javax.swing.JFrame {
 	    }else{
 		try{
 		    int pos = Integer.parseInt(txfImagePos.getText())-1;
-		    if(pos <= folderIO.getNumImages()-1){
+		    if(pos <= folderIO.getNumImages()-1 && pos >= 0 && pos != currentPos){
 			currentPos = pos;
 			loadImage();
 		    }

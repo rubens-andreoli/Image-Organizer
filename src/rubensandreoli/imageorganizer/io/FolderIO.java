@@ -7,9 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.imageio.ImageIO;
+import javax.swing.JProgressBar;
 
 public class FolderIO {
 	    
@@ -85,7 +87,11 @@ public class FolderIO {
     }
 
     public void tranferImage(int imagePos, String folderName, boolean subFolder) throws IOException{
-	Image img = images.get(imagePos);
+	tranfer(images.get(imagePos), folderName, subFolder);
+	deleteImage(imagePos);
+    }
+    
+    private void tranfer(Image img, String folderName, boolean subFolder) throws IOException{
 	File source = new File(img.path);
 	
 	String path = subFolder? folderPath:rootPath;
@@ -99,12 +105,6 @@ public class FolderIO {
 	    Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 	}catch(IOException e){
 	    throw new IOException("Image could not be copied to destination!\n"+dest.getAbsolutePath(), e);
-	}
-
-	if(source.delete()){
-	    images.remove(imagePos);
-	}else{
-	    throw new IOException("Source image \""+img.path+"\" could not be deleted!");
 	}
     }
 
@@ -129,6 +129,44 @@ public class FolderIO {
 	if(f.delete()) images.remove(imagePos);
 	else throw new IOException("Image \""+f.getAbsolutePath()+"\" could not be deleted!");
     }
+    
+    private transient boolean splitting = true;
+    
+    public void startSplitter(int charPos, JProgressBar progress){
+	if(charPos <= 0) return;
+	progress.setMaximum(images.size());
+	progress.setValue(0);
+	splitting = true;
+	Iterator<Image> itr = images.iterator();
+	new Thread(new Runnable(){
+	    @Override
+	    public void run() {
+		while(itr.hasNext() && splitting){
+		    Image i = itr.next();
+		    if(i.name.length() > charPos){
+			String folderName = i.name.substring(0, charPos);
+			if(!(new File(folderPath+"\\"+folderName).isDirectory())){
+			    try {
+				createFolder(folderName, true);
+				subFolders.add(folderName);
+			    } catch (IOException ex) {}
+			}
+			try {
+			    tranfer(i, folderName, true);
+			    if(new File(i.path).delete()) itr.remove();
+			    else throw new IOException("Image \""+i.path+"\" could not be deleted!");
+			} catch (IOException ex) {}
+		    }
+		    progress.setValue(progress.getValue()+1);
+		}
+	    }
+	}).start();
+    }
+    
+    public void stopSplitter(){
+	splitting = false;
+    }
+    
     
     public ArrayList<String> getRootFolders() {return rootFolders;}
     public ArrayList<String> getSubFolders() {return subFolders;}

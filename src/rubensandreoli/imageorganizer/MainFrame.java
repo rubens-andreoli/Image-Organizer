@@ -272,7 +272,12 @@ public class MainFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void lblInfoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInfoMouseClicked
-        new AboutDialog(this, PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_YEAR).setVisible(true);
+        if(evt.getButton() == MouseEvent.BUTTON3 && folderIO != null){
+	    new SplitterDialog(this, folderIO).setVisible(true);
+	    loadImage();
+	}else{
+	    new AboutDialog(this, PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_YEAR).setVisible(true);
+	}
     }//GEN-LAST:event_lblInfoMouseClicked
 
     private void lstFoldersOutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lstFoldersOutMouseClicked
@@ -296,7 +301,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void pnlImageMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pnlImageMouseClicked
-        if (evt.getModifiers() == MouseEvent.BUTTON3_MASK){
+        if (evt.getButton() == MouseEvent.BUTTON3){
             if(flcFolder.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
                 changeFolder(flcFolder.getSelectedFile().getAbsolutePath());
             }
@@ -364,9 +369,11 @@ public class MainFrame extends javax.swing.JFrame {
 	if(folderIO != null && currentPos > 0){ //add to history if not at initial position
 	    historyIO.setFolderHistory(folderIO.getFolderPath(), currentPos);
 	}
-	setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	pnlImage.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+//	setCursor();
 	folderIO = new FolderIO(folderPath);
-	setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+//	setCursor();
+	pnlImage.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	txfFolderPath.setText(folderPath);
 	txfNumImages.setText(String.valueOf(folderIO.getNumImages()));
 	populateList(true);

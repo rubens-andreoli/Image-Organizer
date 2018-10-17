@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.imageio.ImageIO;
-import javax.swing.JProgressBar;
 
 public class FolderIO {
 	    
@@ -23,6 +22,7 @@ public class FolderIO {
 	IMAGE_EXT.add(".bmp");
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Image">
     public class Image {
 	public final String path;
 	public final String name;
@@ -34,6 +34,7 @@ public class FolderIO {
 	    name = fullName.substring(0, fullName.length()-4);
 	}
     }
+    //</editor-fold>
     
     private final String folderPath;
     private final String rootPath;
@@ -85,6 +86,18 @@ public class FolderIO {
 	if(newDir.mkdir()) folderList.add(folderName);
 	else throw new IOException("Folder \""+newDir.getAbsolutePath()+"\" could not be created!");
     }
+    
+    public boolean testFolder(String folderName, boolean subFolder) {
+	String path = subFolder? folderPath:rootPath;
+	File folder = new File(path+"\\"+folderName);
+	if(folder.exists() && folder.isDirectory()){ 
+	    return true;
+	}else{
+	    if(subFolder) subFolders.remove(folderName);
+	    else rootFolders.remove(folderName);
+	    return false;
+	}
+    }
 
     public void tranferImage(int imagePos, String folderName, boolean subFolder) throws IOException{
 	tranfer(images.get(imagePos), folderName, subFolder);
@@ -107,22 +120,6 @@ public class FolderIO {
 	    throw new IOException("Image could not be copied to destination!\n"+dest.getAbsolutePath(), e);
 	}
     }
-
-    public boolean testFolder(String folderName, boolean subFolder) {
-	String path = subFolder? folderPath:rootPath;
-	File folder = new File(path+"\\"+folderName);
-	if(folder.exists() && folder.isDirectory()){ 
-	    return true;
-	}else{
-	    if(subFolder) subFolders.remove(folderName);
-	    else rootFolders.remove(folderName);
-	    return false;
-	}
-    }
-    
-    public BufferedImage loadImage(int imagePos) throws IOException{
-	return ImageIO.read(new File(images.get(imagePos).path));
-    }
     
     public void deleteImage(int imagePos) throws IOException{
 	File f = new File(images.get(imagePos).path);
@@ -130,12 +127,16 @@ public class FolderIO {
 	else throw new IOException("Image \""+f.getAbsolutePath()+"\" could not be deleted!");
     }
     
-    private transient boolean splitting = true;
+    public BufferedImage loadImage(int imagePos) throws IOException{
+	return ImageIO.read(new File(images.get(imagePos).path));
+    }
     
-    public void startSplitter(int charPos, JProgressBar progress){
+    private volatile boolean splitting = true;
+    
+    public void startSplitter(int charPos, Progressable progress){
 	if(charPos <= 0) return;
 	progress.setMaximum(images.size());
-	progress.setValue(0);
+	progress.reset();
 	splitting = true;
 	Iterator<Image> itr = images.iterator();
 	new Thread(new Runnable(){
@@ -157,8 +158,9 @@ public class FolderIO {
 			    else throw new IOException("Image \""+i.path+"\" could not be deleted!");
 			} catch (IOException ex) {}
 		    }
-		    progress.setValue(progress.getValue()+1);
+		    progress.increase();
 		}
+		progress.done();
 	    }
 	}).start();
     }
@@ -166,7 +168,6 @@ public class FolderIO {
     public void stopSplitter(){
 	splitting = false;
     }
-    
     
     public ArrayList<String> getRootFolders() {return rootFolders;}
     public ArrayList<String> getSubFolders() {return subFolders;}

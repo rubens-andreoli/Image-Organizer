@@ -63,6 +63,11 @@ public class MainFrame extends javax.swing.JFrame {
         setTitle("Photo Organizer");
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("images/icon.png")));
         setMinimumSize(new java.awt.Dimension(747, 551));
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                formMouseReleased(evt);
+            }
+        });
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 formComponentResized(evt);
@@ -163,6 +168,11 @@ public class MainFrame extends javax.swing.JFrame {
                 lstFoldersOutMouseClicked(evt);
             }
         });
+        lstFoldersOut.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                lstFoldersOutKeyReleased(evt);
+            }
+        });
         sclFoldersOut.setViewportView(lstFoldersOut);
 
         sclFoldersIn.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -175,8 +185,12 @@ public class MainFrame extends javax.swing.JFrame {
                 lstFoldersInMouseClicked(evt);
             }
         });
+        lstFoldersIn.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                lstFoldersInKeyReleased(evt);
+            }
+        });
         sclFoldersIn.setViewportView(lstFoldersIn);
-        lstFoldersIn.getAccessibleContext().setAccessibleDescription("<html>Folders inside<hr>Double-Click: transfer image to folder<br>Right-Click: create new folder<br>Middle-Click: splitter</html>");
 
         btnDelete.setText("Delete");
         btnDelete.setToolTipText("<html>Delete image<hr>Shortcut: delete key</html>");
@@ -297,11 +311,13 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void pnlImageMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pnlImageMouseClicked
-        if (evt.getButton() == MouseEvent.BUTTON3){
+        if(evt.getButton() == MouseEvent.BUTTON3){
             if(flcFolder.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
                 changeFolder(flcFolder.getSelectedFile().getAbsolutePath());
             }
-        }
+        }else{
+	    doShortcuts(evt, null);
+	}
     }//GEN-LAST:event_pnlImageMouseClicked
 
     private void txfImagePosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txfImagePosKeyReleased
@@ -344,11 +360,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
-         if(folderIO != null){
-	    if(evt.getKeyCode() == KeyEvent.VK_RIGHT) btnNext.doClick();
-	    if(evt.getKeyCode() == KeyEvent.VK_LEFT) btnBack.doClick();
-	    if(evt.getKeyCode() == KeyEvent.VK_DELETE) btnDelete.doClick();
-	 }
+	doShortcuts(null, evt);
     }//GEN-LAST:event_formKeyReleased
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -360,6 +372,18 @@ public class MainFrame extends javax.swing.JFrame {
     private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
 //        System.out.println(txfFolderPath.getWidth()+":"+txfImageName.getWidth());
     }//GEN-LAST:event_formComponentResized
+
+    private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
+        doShortcuts(evt, null);
+    }//GEN-LAST:event_formMouseReleased
+
+    private void lstFoldersInKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lstFoldersInKeyReleased
+        doShortcuts(null, evt);
+    }//GEN-LAST:event_lstFoldersInKeyReleased
+
+    private void lstFoldersOutKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lstFoldersOutKeyReleased
+        doShortcuts(null, evt);
+    }//GEN-LAST:event_lstFoldersOutKeyReleased
 
     private void changeFolder(String folderPath){
 	if(folderIO != null && currentPos > 0){ //add to history if not at initial position
@@ -436,15 +460,28 @@ public class MainFrame extends javax.swing.JFrame {
 	});
     }
     
-    private void clickList(MouseEvent e, boolean subFolders){
+    private void doShortcuts(MouseEvent me, KeyEvent ke){
 	if(folderIO == null) return;
-	JList<String> list = (JList<String>)e.getSource();
+	if(me != null){
+	    if(me.getButton() == 4) btnBack.doClick();
+	    else if(me.getButton() == 5) btnNext.doClick();
+	}
+	if(ke != null){
+	    if(ke.getKeyCode() == KeyEvent.VK_RIGHT) btnNext.doClick();
+	    else if(ke.getKeyCode() == KeyEvent.VK_LEFT) btnBack.doClick();
+	    else if(ke.getKeyCode() == KeyEvent.VK_DELETE) btnDelete.doClick();
+	}
+    }
+    
+    private void clickList(MouseEvent evt, boolean subFolders){
+	if(folderIO == null) return;
+	JList<String> list = (JList<String>)evt.getSource();
 	if (!list.isSelectionEmpty()){ //check if folder exist
 	    if(!folderIO.testFolder(list.getSelectedValue(), subFolders)){ 
 		populateList(subFolders);
 	    }
 	}
-	if (e.getButton() == 1 && e.getClickCount() == 2 && !list.isSelectionEmpty()){ //tranfer image
+	if (evt.getButton() == 1 && evt.getClickCount() == 2 && !list.isSelectionEmpty()){ //tranfer image
 	    try {
 		folderIO.tranferImage(currentPos, list.getSelectedValue(), subFolders);
 		txfNumImages.setText(String.valueOf(folderIO.getNumImages()));
@@ -452,7 +489,7 @@ public class MainFrame extends javax.swing.JFrame {
 	    } catch (IOException ex) {
 		showError(ex);
 	    }
-	}else if(e.getButton() == 3){ //create new folder
+	}else if(evt.getButton() == 3){ //create new folder
 	    String newFolderName = JOptionPane.showInputDialog(
 		    this, 
 		    "New folder name:", 
@@ -467,15 +504,17 @@ public class MainFrame extends javax.swing.JFrame {
 		    showError(ex);
 		}
 	    }
-	}else if(e.getButton() == 2 && subFolders){
+	}else if(evt.getButton() == 2 && subFolders){
 	    new SplitterDialog(this, folderIO).setVisible(true);
 	    populateList(true);
 	    loadImage();
-	}else if(e.getButton() == 4){ 
-	    btnBack.doClick();
-	}else if(e.getButton() == 5){
-	    btnNext.doClick();
-	}
+	}else{
+	    doShortcuts(evt, null);
+	}//else if(e.getButton() == 4){ 
+//	    btnBack.doClick();
+//	}else if(e.getButton() == 5){
+//	    btnNext.doClick();
+//	}
     }
     
     private void showError(Exception ex){

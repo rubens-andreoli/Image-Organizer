@@ -78,6 +78,7 @@
     <Component class="javax.swing.JLabel" name="lblPos">
       <Properties>
         <Property name="text" type="java.lang.String" value="Split at position:"/>
+        <Property name="toolTipText" type="java.lang.String" value="Split images into sub-folders by filename until set position"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txfCharAt">

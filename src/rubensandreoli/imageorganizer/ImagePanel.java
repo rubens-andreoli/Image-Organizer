@@ -29,7 +29,7 @@ public class ImagePanel extends JPanel{
 	this.addMouseListener(new MouseListener(){
 	    @Override
 	    public void mousePressed(MouseEvent e) {
-		if(click == false && image != null){
+		if(click == false && image != null && e.getButton() == 1){
 		    clickX = e.getX()-xOffset;
 		    clickY = e.getY()-yOffset;
 		    setCursor(MOVE_CURSOR);
@@ -39,8 +39,9 @@ public class ImagePanel extends JPanel{
 
 	    @Override
 	    public void mouseReleased(MouseEvent e) {
-		 click = false;
-		 setCursor(DEFAULT_CURSOR);
+		if(e.getButton() != 1) return; 
+		click = false;
+		setCursor(DEFAULT_CURSOR);
 	    }
 
 	    public @Override void mouseClicked(MouseEvent e) {}
@@ -51,9 +52,11 @@ public class ImagePanel extends JPanel{
 	this.addMouseMotionListener(new MouseMotionListener(){
 	    @Override
 	    public void mouseDragged(MouseEvent e) {
-		xOffset = e.getX()-clickX;
-		yOffset = e.getY()-clickY;
-		repaint();
+		if(click == true){ 
+		    xOffset = e.getX()-clickX;
+		    yOffset = e.getY()-clickY;
+		    repaint();
+		}
 	    }
 
 	    public @Override void mouseMoved(MouseEvent e) {}

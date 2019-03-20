@@ -51,6 +51,7 @@ public class SplitterDialog extends javax.swing.JDialog {
         txfFolder.setEditable(false);
 
         lblPos.setText("Split at position:");
+        lblPos.setToolTipText("Split images into sub-folders by filename until set position");
 
         txfCharAt.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txfCharAt.setText("0");

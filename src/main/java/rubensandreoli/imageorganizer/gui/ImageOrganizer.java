@@ -18,7 +18,6 @@ package rubensandreoli.imageorganizer.gui;
 
 import rubensandreoli.imageorganizer.gui.support.ToolsListener;
 import java.awt.Cursor;
-import static java.awt.Frame.WAIT_CURSOR;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -213,7 +212,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
         if(imageFolder != null){
             if(currentPos > 0){ //add to history if not at initial position
                 history.addEntry(imageFolder.getFolderPath(), currentPos);
-            }else if(history.cotains(folderPath)){ //remove if contains and new position is 0
+            }else if(history.contains(folderPath)){ //remove if contains and new position is 0
                 history.removeEntry(folderPath);
             }
         }
@@ -223,8 +222,8 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         
         pnlTools.setFolderPath(folderPath);
-        pnlTools.fillRootFolders(imageFolder.getRootFolders());
-        pnlTools.fillSubFolders(imageFolder.getSubFolders());
+        pnlTools.setRootFolders(imageFolder.getRootFolders());
+        pnlTools.setSubFolders(imageFolder.getSubFolders());
         pnlTools.setImageTotal(imageFolder.getNumImages());
         
         currentPos = history.getPosition(folderPath);
@@ -323,7 +322,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
     
     public void move(String folder){
         try {
-            imageFolder.transferImage(currentPos, folder);
+            imageFolder.transferImageTo(currentPos, folder);
             imageRemoved();
         } catch (IOException ex) {
             showException(ex);
@@ -333,7 +332,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
     @Override
     public void move(String folderName, boolean subfolder) {
         try {
-            imageFolder.transferImage(currentPos, folderName, subfolder);
+            imageFolder.transferImageTo(currentPos, folderName, subfolder);
             imageRemoved();
         } catch (IOException ex) {
             showException(ex);
@@ -358,7 +357,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
                 "Create New Folder", 
                 JOptionPane.PLAIN_MESSAGE
         );
-        if(folderName != null){
+        if(folderName != null && !folderName.isBlank()){
             try {
                 imageFolder.createFolder(folderName, subfolder);
                 fillFolders(subfolder);
@@ -380,9 +379,9 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
     
     private void fillFolders(boolean subfolder){
         if(subfolder){
-            pnlTools.fillSubFolders(imageFolder.getSubFolders());
+            pnlTools.setSubFolders(imageFolder.getSubFolders());
         }else{
-            pnlTools.fillRootFolders(imageFolder.getRootFolders());
+            pnlTools.setRootFolders(imageFolder.getRootFolders());
         }
     }
 

@@ -19,24 +19,19 @@ package rubensandreoli.imageorganizer.gui;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import javax.swing.JPanel;
-import rubensandreoli.commons.others.Configuration;
 import rubensandreoli.commons.others.Logger;
+import rubensandreoli.commons.others.PickConsumer;
 import rubensandreoli.imageorganizer.gui.support.Settings;
 import rubensandreoli.imageorganizer.gui.support.Shortcut;
-import rubensandreoli.imageorganizer.gui.support.ShortcutCreationListener;
-import rubensandreoli.imageorganizer.gui.support.ShortcutMap;
 
-public class SettingsDialog extends javax.swing.JDialog implements ShortcutCreationListener {
+public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<Shortcut> {
     private static final long serialVersionUID = 1L;
 
     private final Settings curSettings;
     private Settings newSettings;
     
     
-    public SettingsDialog(java.awt.Frame parent, boolean modal, Settings settings) {
+    public SettingsDialog(Frame parent, boolean modal, Settings settings) {
         super(parent, modal);
         initComponents();
         
@@ -206,8 +201,7 @@ public class SettingsDialog extends javax.swing.JDialog implements ShortcutCreat
     }
     
     private void listShortcut(Shortcut shortcut){
-        String d = shortcut.description;
-        pnlShortcuts.add(new ShortcutPanel(shortcut.action+ (d == null? "":"->"+d), shortcut.key, e -> deleteShortcut(e, shortcut)));
+        pnlShortcuts.add(new ShortcutPanel(shortcut, e -> deleteShortcut(e, shortcut)));
         pnlShortcuts.validate();
     }
 
@@ -219,7 +213,7 @@ public class SettingsDialog extends javax.swing.JDialog implements ShortcutCreat
     }
 
     @Override
-    public boolean shortcutCreated(Shortcut shortcut) {
+    public boolean accept(Shortcut shortcut) {
         if(!newSettings.containsShortcut(shortcut.key)){
             newSettings.addShortcut(shortcut);
             listShortcut(shortcut);

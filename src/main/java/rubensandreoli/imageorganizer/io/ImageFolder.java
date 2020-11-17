@@ -19,8 +19,6 @@ package rubensandreoli.imageorganizer.io;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,10 +27,15 @@ import javax.imageio.ImageIO;
 import rubensandreoli.commons.others.CachedFile;
 import rubensandreoli.commons.utils.FileUtils;
 
+/** References:
+ * https://www.journaldev.com/861/java-copy-file
+ * 
+ * @author Rubens A. Andreoli Jr.
+ */
 public class ImageFolder {
 	   
-    private final String folderPath;
-    private final String rootPath;
+    private final CachedFile folder;
+    private final CachedFile root;
     
     private final Collection<String> rootFolders;
     private final Collection<String> subFolders;
@@ -47,13 +50,11 @@ public class ImageFolder {
 	subFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	images = new LinkedList<>();
 	
-	this.folderPath = folderPath;
-	rootPath = FileUtils.getParent(folderPath);
+	folder = new CachedFile(folderPath);
+	root = folder.getParentCachedFile();
 	
-	final File folder = new File(folderPath);
-	File[] listOfFiles = folder.listFiles();
-	for (File f : listOfFiles) {
-	    if(f.isDirectory() && (showHidden || !f.isHidden())){
+        FileUtils.visitChildren(folder, FileUtils.FILES_AND_DIRECTORIES, showHidden, f -> {
+            if(f.isDirectory()) {
                 subFolders.add(f.getName());
             }else{
                 final CachedFile cf = new CachedFile(f);
@@ -61,33 +62,29 @@ public class ImageFolder {
                     images.add(cf);
                 }
             }
-	}
-
-	final File rootFolder = new File(rootPath);
-	listOfFiles = rootFolder.listFiles();
-	for (File f : listOfFiles) {
-	    if (f.isDirectory() && (showHidden || !f.isHidden())) {
-		rootFolders.add(f.getName());
-	    }
-	}
-//        rootFolders.add(".");
+        });
+        FileUtils.visitChildren(root, FileUtils.DIRECTORIES_ONLY, showHidden, f -> rootFolders.add(f.getName()));
     }
-
+ 
     public void createFolder(String folderName, boolean subfolder) throws IOException{
-	final Collection<String> folderList = subfolder? subFolders:rootFolders;
-	if(folderList.contains(folderName)){
-	    throw new IOException("Folder \""+folderName+"\" already exists!");
+        final Collection<String> list = (subfolder? subFolders:rootFolders);
+        final File newFolder = new File((subfolder? folder:root), folderName);
+        
+        if(list.contains(folderName)){
+            throw new IOException("Folder \""+newFolder.getPath()+"\" already exists!");
         }
-	final String path = subfolder? folderPath:rootPath;
-        final File folder = new File(path + "\\" + folderName);
-	if(folder.mkdir()) folderList.add(folderName);
-	else throw new IOException("Folder \""+folder.getAbsolutePath()+"\" could not be created!");
+        
+        try{
+            FileUtils.createFolder(newFolder);
+            list.add(folderName);
+        } catch (IOException ex) {
+            throw new IOException("Folder \""+newFolder.getPath()+"\" could not be created!");
+        }
     }
     
     public boolean testFolder(String folderName, boolean subfolder) {
-	final String path = subfolder? folderPath:rootPath;
-        final File folder = new File(path + "\\" + folderName);
-	if(folder.exists() && folder.isDirectory()){ 
+        final File newFolder = new File((subfolder? folder:root), folderName);
+	if(newFolder.isDirectory()){ 
 	    return true;
 	}else{
 	    if(subfolder) subFolders.remove(folderName);
@@ -95,41 +92,27 @@ public class ImageFolder {
 	    return false;
 	}
     }
+        
+    public BufferedImage loadImage(int imagePos) throws IOException{
+	return ImageIO.read(images.get(imagePos));
+    }
+    
+    public void transferImageTo(int imagePos, String folderName, boolean subfolder) throws IOException{
+        transferImageTo(imagePos, new File((subfolder? folder:root), folderName).getPath());
+    }
 
-    public void transferImage(int imagePos, String folder) throws IOException{
-       transfer(images.get(imagePos), folder);
-       deleteImage(imagePos);
-    }
-    
-    public void transferImage(int imagePos, String folderName, boolean subfolder) throws IOException{
-	final String folder = (subfolder? folderPath:rootPath) + "\\" +folderName;
-        transfer(images.get(imagePos), folder);
-	deleteImage(imagePos);
-    }
-    
-    //TODO: change to Commons FileUtils
-    private void transfer(CachedFile source, String folder) throws IOException{
-	File dest = new File(String.format("%s\\%s%s", folder, source.getFilename(), source.getExtension()));
-	
-	for(int i=1; dest.exists(); i++){
-	    dest = new File(String.format("%s\\%s (%d)%s", folder, source.getFilename(), i, source.getExtension()));
-	}
-	
-	try{
-	    Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-	}catch(IOException e){
-	    throw new IOException("Image could not be copied to destination!\n"+dest.getAbsolutePath(), e);
-	}
+    public void transferImageTo(int imagePos, String folder) throws IOException{
+        if(FileUtils.moveFileTo(images.get(imagePos), folder)){
+            images.remove(imagePos);
+        }else{
+            throw new IOException("Image could not be moved to destination!\n"+folder);
+        }
     }
     
     public void deleteImage(int imagePos) throws IOException{
 	final File image = images.get(imagePos);
 	if(image.delete()) images.remove(imagePos);
 	else throw new IOException("Image \""+image.getAbsolutePath()+"\" could not be deleted!");
-    }
-    
-    public BufferedImage loadImage(int imagePos) throws IOException{
-	return ImageIO.read(images.get(imagePos));
     }
 
     // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 
@@ -150,11 +133,11 @@ public class ImageFolder {
     }
     
     public String getFolderPath() {
-        return folderPath;
+        return folder.getPath();
     }
     
     public String getRootPath(){
-        return rootPath;
+        return root.getPath();
     }
     // </editor-fold>
 

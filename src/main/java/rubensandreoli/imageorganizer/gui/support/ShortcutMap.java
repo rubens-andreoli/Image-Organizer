@@ -16,16 +16,22 @@
  */
 package rubensandreoli.imageorganizer.gui.support;
 
-public class ShortcutMap extends java.util.HashMap<Integer, Shortcut>{
+import java.util.HashMap;
+
+public class ShortcutMap extends HashMap<Integer, Shortcut>{
     private static final long serialVersionUID = 1L;
 
-    public static final String SEPARATOR = ";";
+    public static final String SEPARATOR = ";"; //can't use ':' due to drive, can't be same as Shortcut.SEPARATOR
         
-    public void put(String entry){
-        for (String token : entry.split(";")){
+    public void put(String list){
+        for (String token : list.split(";")){
             final Shortcut shortcut = Shortcut.createShortcut(token);
-            this.put(shortcut.key, shortcut);
+            put(shortcut);
         }
+    }
+    
+    public void put(Shortcut shortcut){
+        put(shortcut.key, shortcut);
     }
 
     @Override

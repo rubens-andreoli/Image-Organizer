@@ -407,10 +407,6 @@ public class ToolsPanel extends javax.swing.JPanel {
             listener.load(list.getSelectedValue(), subfolder);
         }
     }
-    
-    public void setListener(ToolsListener l){
-        listener = l;
-    }
 
     private void fillFolders(Collection<String> folders, JList list){
         final DefaultListModel<String> model = new DefaultListModel<>();
@@ -419,44 +415,50 @@ public class ToolsPanel extends javax.swing.JPanel {
 	    model.addElement(folder);
 	});
     }
-    
+       
     private void deselectList(FocusEvent evt){
         ((JList)evt.getComponent()).clearSelection();
     }
-    
-    public void fillRootFolders(Collection<String> folders){
+  
+    // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
+    public void setListener(ToolsListener l){
+        listener = l;
+    }
+        
+    public void setRootFolders(Collection<String> folders){
 	fillFolders(folders, lstRootFolders);
     }
-    
-    public void fillSubFolders(Collection<String> folders){
+        
+    public void setSubFolders(Collection<String> folders){
         fillFolders(folders, lstSubFolders);
     }
-    
+        
     public void setFolderPath(String path){
         txfFolderPath.setText(path);
     }
-    
+        
     public void setImageTotal(int amount){
         txfNumImages.setText(String.valueOf(amount));
         txfImagePos.setMaxValue(amount);
     }
-    
+       
     public void setImagePosition(int pos){
         txfImagePos.setInt(pos);
     }
-    
+       
     public void setImageName(String name){
         txfImageName.setText(name);
     }
-
+    
     public void setButtonsEnabled(boolean b){
         btnNext.setEnabled(b);
 	btnBack.setEnabled(b);
 	btnDelete.setEnabled(b);
     }
-    
+        
     public void setDeleteEnabled(boolean b){
         btnDelete.setEnabled(b);
     }
+    // </editor-fold>
 
 }

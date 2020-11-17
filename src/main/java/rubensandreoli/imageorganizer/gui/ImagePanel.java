@@ -24,11 +24,9 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -38,7 +36,8 @@ import java.awt.image.BufferedImage;
  * https://stackoverflow.com/questions/7065309/jsplitpane-set-resizable-false/54458846#54458846
  */
 public class ImagePanel extends javax.swing.JPanel {
-
+    private static final long serialVersionUID = 1L;
+    
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
     private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     private static final Cursor DEFAULT_CURSOR = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);

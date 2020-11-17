@@ -16,28 +16,24 @@
  */
 package rubensandreoli.imageorganizer.gui;
 
-import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.event.ItemEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import javax.swing.DefaultComboBoxModel;
 import rubensandreoli.commons.others.Level;
-import rubensandreoli.commons.utils.FileUtils;
+import rubensandreoli.commons.others.PickConsumer;
 import rubensandreoli.commons.utils.SwingUtils;
 import rubensandreoli.imageorganizer.gui.support.Shortcut;
-import rubensandreoli.imageorganizer.gui.support.ShortcutCreationListener;
 
 public class ShortcutCreationDialog extends javax.swing.JDialog {
     private static final long serialVersionUID = 1L;
 
-    private final Component parent;
-    private final ShortcutCreationListener listener;
+    private final PickConsumer<Shortcut> listener;
     private final DefaultComboBoxModel<String> model;
     
-    public ShortcutCreationDialog(java.awt.Dialog parent, ShortcutCreationListener listener) {
+    public ShortcutCreationDialog(Dialog parent, PickConsumer<Shortcut> listener) {
         super(parent, true);
 
-        this.parent = parent;
         this.listener = listener;
         
         model = new DefaultComboBoxModel<>();
@@ -46,6 +42,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
         }
         
         initComponents();
+        setLocationRelativeTo(parent);
     }
 
     @SuppressWarnings("unchecked")
@@ -149,7 +146,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
             sb.append(Shortcut.SEPARATOR).append(txfFolder.getText());
         }
         
-        if(!listener.shortcutCreated(Shortcut.createShortcut(sb.toString()))){
+        if(!listener.accept(Shortcut.createShortcut(sb.toString()))){
              SwingUtils.showMessageDialog(
                      this, 
                      "This key is already associated with an action.\nPlease, change the key or delete the shortcut\ncontaining it before adding a new one.", 
@@ -163,11 +160,10 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
 
     private void cmbActionItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbActionItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            final String item = (String)evt.getItem();
-            if(item.equals(Shortcut.Action.MOVE.name())){
+            if(((String)evt.getItem()).equals(Shortcut.Action.MOVE.name())){
                 final File file = SwingUtils.selectFile(this, SwingUtils.DIRECTORIES_ONLY);
                 if(file != null){
-                    txfFolder.setText(/*FileUtils.maskPathname(*/file.getPath()/*, 40)*/);
+                    txfFolder.setText(/*FileUtils.maskPathname(*/file.getPath()/*, 40)*/); //TODO: change PathField to permit this
                 }else{
                     cmbAction.setSelectedIndex(0);
                 }
@@ -186,11 +182,5 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
     private javax.swing.JTextField txfFolder;
     private rubensandreoli.commons.swing.KeyField txfKey;
     // End of variables declaration//GEN-END:variables
-
-    @Override
-    public void setVisible(boolean b) {
-        setLocationRelativeTo(parent);
-        super.setVisible(b);
-    }
-    
+ 
 }

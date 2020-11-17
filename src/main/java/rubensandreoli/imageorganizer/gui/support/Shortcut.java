@@ -23,7 +23,7 @@ public class Shortcut {
     
     public enum Action{NEXT, PREVIOUS, DELETE, MOVE}
     
-    public static final String SEPARATOR = ","; //can't use ':' due to 'c:\\'
+    public static final String SEPARATOR = ","; //can't use ':' due to drive
 
     public final int key;
     public final Action action;
@@ -32,15 +32,14 @@ public class Shortcut {
     private Shortcut(int key, Action action, String description) {
         this.key = key;
         this.action = action;
-//        this.description = description == null? "" : description;
         this.description = description;
     }
         
     public static Shortcut createShortcut(String entry){
         final String[] tokens = entry.split(SEPARATOR);
         try{
-            int k = Integer.valueOf(tokens[0].trim());
-            Action a = Action.valueOf(tokens[1].trim().toUpperCase());
+            final int k = Integer.valueOf(tokens[0].trim());
+            final Action a = Action.valueOf(tokens[1].trim().toUpperCase());
             String d = null;
             if(tokens.length == 3){
                 d = tokens[2].trim();

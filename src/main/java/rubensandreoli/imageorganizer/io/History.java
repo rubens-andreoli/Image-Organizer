@@ -62,8 +62,12 @@ public class History {
     public void addEntry(String folder, int pos){
 	history.put(folder, pos);
     }
+
+    public void removeEntry(String folderPath) {
+        history.remove(folderPath);
+    }
     
-    public boolean cotains(String folder){
+    public boolean contains(String folder){
         Integer pos = history.get(folder);
 	return pos != null;
     }
@@ -71,10 +75,6 @@ public class History {
     public int getPosition(String folder){
 	final Integer pos = history.get(folder);
 	return pos == null ? 0 : pos;
-    }
-
-    public void removeEntry(String folderPath) {
-        history.remove(folderPath);
     }
     
 }

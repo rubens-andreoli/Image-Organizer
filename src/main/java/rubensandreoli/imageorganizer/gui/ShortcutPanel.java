@@ -18,21 +18,28 @@ package rubensandreoli.imageorganizer.gui;
 
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import rubensandreoli.imageorganizer.gui.support.Shortcut;
 
 public class ShortcutPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
 
+    private static final String MOVE_SEPARATOR = "->";
+    
     public ShortcutPanel() {
         initComponents();
     }
 
-    public ShortcutPanel(String action, int key, ActionListener listener) {
+    public ShortcutPanel(Shortcut shortcut, ActionListener listener){
         this();
-        txfAction.setText(action);
-        txfKey.setText(KeyEvent.getKeyText(key));
+        final StringBuilder sb = new StringBuilder(shortcut.action.toString());
+        if(shortcut.action == Shortcut.Action.MOVE){
+            sb.append(MOVE_SEPARATOR).append(shortcut.description);
+        }
+        txfAction.setText(sb.toString());
+        txfKey.setText(KeyEvent.getKeyText(shortcut.key));
         btnDelete.addActionListener(listener);
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

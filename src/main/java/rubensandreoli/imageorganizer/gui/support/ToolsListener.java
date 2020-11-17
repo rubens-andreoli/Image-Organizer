@@ -24,6 +24,7 @@ public interface ToolsListener {
     void delete();
     
     void create(boolean subfolder);
+    
     void move(String folderName, boolean subfolder);
     void load(String folderName, boolean subfolder);
     

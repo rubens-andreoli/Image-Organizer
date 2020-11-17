@@ -167,7 +167,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
             if(item.equals(Shortcut.Action.MOVE.name())){
                 final File file = SwingUtils.selectFile(this, SwingUtils.DIRECTORIES_ONLY);
                 if(file != null){
-                    txfFolder.setText(FileUtils.maskPathname(file.getPath(), 40));
+                    txfFolder.setText(/*FileUtils.maskPathname(*/file.getPath()/*, 40)*/);
                 }else{
                     cmbAction.setSelectedIndex(0);
                 }

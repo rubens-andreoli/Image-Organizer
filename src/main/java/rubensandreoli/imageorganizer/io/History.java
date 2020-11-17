@@ -63,13 +63,18 @@ public class History {
 	history.put(folder, pos);
     }
     
+    public boolean cotains(String folder){
+        Integer pos = history.get(folder);
+	return pos != null;
+    }
+    
     public int getPosition(String folder){
-	Integer pos = history.get(folder);
-	if(pos == null){
-	    history.put(folder, 0);
-	    pos = 0;
-	} 
-	return pos;
+	final Integer pos = history.get(folder);
+	return pos == null ? 0 : pos;
+    }
+
+    public void removeEntry(String folderPath) {
+        history.remove(folderPath);
     }
     
 }

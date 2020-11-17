@@ -59,6 +59,8 @@ public class ImagePanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        setToolTipText("<html>Image preview<hr>  Double-Click: fit to panel<br> Right-Click: choose folder<br>  Drag-and-Drop: folder</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(

@@ -18,8 +18,11 @@ package rubensandreoli.imageorganizer.gui;
 
 import rubensandreoli.imageorganizer.gui.support.ToolsListener;
 import java.awt.Cursor;
+import static java.awt.Frame.WAIT_CURSOR;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -39,6 +42,8 @@ import rubensandreoli.imageorganizer.io.ImageFolder;
 
 /** References:
  * http://www.java2s.com/Tutorial/Java/0240__Swing/SettingtheLocationofaToolTip.htm
+ *
+ * @author Rubens A. Andreoli Jr.
  */
 public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
     private static final long serialVersionUID = 1L;
@@ -51,17 +56,15 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
     // </editor-fold>
 
     private ImageFolder imageFolder;
-    private History history;
-    private Settings settings;
-    private SettingsDialog settingsDialog;
+    private final History history;
+    private final Settings settings;
     private int currentPos = -1;
     
     public ImageOrganizer() {
         initComponents();
-    
+        
         // <editor-fold defaultstate="collapsed" desc=" LOAD "> 
         settings = new Settings();
-        settingsDialog = new SettingsDialog(this, true, settings);
         history = new History();
 	try {
 	    history.load();
@@ -70,28 +73,29 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
 	}        
         // </editor-fold>
 
-        // <editor-fold defaultstate="collapsed" desc=" EVENT LISTENERS "> 
+        // <editor-fold defaultstate="collapsed" desc=" LISTENERS "> 
         SwingUtils.addDroppable(pnlImage, file -> {
-            boolean found = false;
-            if(found = file.isDirectory()){
+            if(file.isDirectory()){
                 loadFolder(file.getPath());
+                return true;
             }
-            return found;
-        }, true);
+            return false;
+        });
         
         pnlImage.addMouseListener(new MouseAdapter() {
-            public @Override void mouseClicked(MouseEvent e) {
-                if(e.getButton() == MouseEvent.BUTTON3){
-                    File file = SwingUtils.selectFile(pnlSplit, SwingUtils.DIRECTORIES_ONLY);
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if(evt.getButton() == MouseEvent.BUTTON3){
+                    final File file = SwingUtils.selectFile(pnlSplit, SwingUtils.DIRECTORIES_ONLY);
                     if(file != null) loadFolder(file.getAbsolutePath());
                 }
             }
         });
         
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
-            if(imageFolder != null && this.isActive()){
-                int code = e.getKeyCode();
-                if(settings.containsShortcut(code) && e.paramString().startsWith("KEY_PRESSED")){
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
+            if(imageFolder != null && isActive()){
+                final int code = evt.getKeyCode();
+                if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_PRESSED")){
                     final Shortcut shortcut = settings.getShortcut(code);
                     switch(shortcut.action){
                         case NEXT:
@@ -113,16 +117,23 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
         });
         // </editor-fold>
 
-        // <editor-fold defaultstate="collapsed" desc=" SPLITPANE "> 
-        final BasicSplitPaneDivider divider = ((BasicSplitPaneUI)pnlSplit.getUI()).getDivider();
-        divider.setEnabled(false);//disable dragging
+        // <editor-fold defaultstate="collapsed" desc=" SPLITPANE ">
+        final BasicSplitPaneDivider divider = ((BasicSplitPaneUI) pnlSplit.getUI()).getDivider();
+        divider.setEnabled(false); //disable dragging cursor
+        divider.removeMouseListener(divider.getMouseListeners()[0]);//disable dragging
         final JButton btnUp = (JButton)divider.getComponent(0);
         final JButton btnDown = (JButton)divider.getComponent(1);
 
+        addComponentListener(new ComponentAdapter() { //fix restore after minimized drag
+            @Override
+            public void componentResized(ComponentEvent evt) {
+                pnlSplit.setLastDividerLocation(pnlSplit.getHeight() - pnlTools.getHeight());
+            }
+        });
         btnUp.setVisible(false);
         final ActionListener listener = evt -> {
+            btnDown.setVisible(btnUp.isVisible());
             btnUp.setVisible(!btnUp.isVisible());
-            btnDown.setVisible(!btnDown.isVisible());
         };
         btnUp.addActionListener(listener);
         btnDown.addActionListener(listener);        
@@ -143,6 +154,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
         setTitle(PROGRAM_NAME);
         setIconImage(FileUtils.loadIcon(PROGRAM_ICON).getImage());
         setLocation(new java.awt.Point(0, 0));
+        setMinimumSize(new java.awt.Dimension(695, 300));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -155,7 +167,6 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
         pnlSplit.setOneTouchExpandable(true);
 
         pnlImage.setBackground(new java.awt.Color(255, 255, 255));
-        pnlImage.setToolTipText("<html>Image preview<hr> \nRight-Click: choose folder<br> \nDrag-and-Drop: folder</html>");
 
         javax.swing.GroupLayout pnlImageLayout = new javax.swing.GroupLayout(pnlImage);
         pnlImage.setLayout(pnlImageLayout);
@@ -199,59 +210,56 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
     // End of variables declaration//GEN-END:variables
 
     private void loadFolder(String folderPath){
-        if(imageFolder != null && currentPos > 0){ //add to history if not at initial position
-	    history.addEntry(imageFolder.getFolderPath(), currentPos);
-	}
+        if(imageFolder != null){
+            if(currentPos > 0){ //add to history if not at initial position
+                history.addEntry(imageFolder.getFolderPath(), currentPos);
+            }else if(history.cotains(folderPath)){ //remove if contains and new position is 0
+                history.removeEntry(folderPath);
+            }
+        }
 
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         imageFolder = new ImageFolder(folderPath, settings.isShowHidden());
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         
+        pnlTools.setFolderPath(folderPath);
         pnlTools.fillRootFolders(imageFolder.getRootFolders());
         pnlTools.fillSubFolders(imageFolder.getSubFolders());
-        pnlTools.setFolderPath(folderPath);
         pnlTools.setImageTotal(imageFolder.getNumImages());
         
-        if(imageFolder.getNumImages() > 0){
-	    currentPos = history.getPosition(folderPath);
-	    loadImage();
-        }else{
-            pnlTools.setImagePosition(0);
-            pnlImage.clear();
-        }
+        currentPos = history.getPosition(folderPath);
+        loadImage();
     }
-    
+
     private void loadImage(){
 	if(imageFolder == null) return;
         
-        if(imageFolder.getNumImages() == 0){ //all images got deleted
+        final int numImages = imageFolder.getNumImages();
+        if(numImages == 0){ //no images or all images got deleted
             pnlImage.clear();
-            pnlTools.setImageName("");
             pnlTools.setImagePosition(0);
+            pnlTools.setImageName("");
 	}else{
 	    try {
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		pnlImage.setImage(imageFolder.loadImage(currentPos));
-	    } catch (IOException ex) { //clear last image if fail
+	    } catch (IOException ex) { //clear last image if fail to load
 		pnlImage.clear();
 		showException(ex);
-	    } finally { //fill info even if fail
+	    } finally { //fill info even if failed loading
 		pnlTools.setImageName(imageFolder.getImagePath(currentPos));
-		history.addEntry(imageFolder.getFolderPath(), currentPos);
 		pnlTools.setImagePosition(currentPos+1);
+		history.addEntry(imageFolder.getFolderPath(), currentPos);
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	    }
 	}
     
         pnlTools.setButtonsEnabled(false);
-	if(imageFolder != null){
-	    final int numImages = imageFolder.getNumImages();
-	    if(numImages > 1){
-		pnlTools.setButtonsEnabled(true);
-	    }else if(numImages == 1){
-		pnlTools.setDeleteEnabled(true);
-	    }
-	}
+        if(numImages > 1){
+            pnlTools.setButtonsEnabled(true);
+        }else if(numImages == 1){
+            pnlTools.setDeleteEnabled(true);
+        }
     }
     
     private void showException(Exception ex){
@@ -380,7 +388,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
 
     @Override
     public void settings() {
-        settingsDialog.setVisible(true);
+        new SettingsDialog(this, true, settings).setVisible(true);
     }
 
 }

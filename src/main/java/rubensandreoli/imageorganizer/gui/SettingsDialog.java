@@ -32,8 +32,7 @@ import rubensandreoli.imageorganizer.gui.support.ShortcutMap;
 public class SettingsDialog extends javax.swing.JDialog implements ShortcutCreationListener {
     private static final long serialVersionUID = 1L;
 
-    private final Frame parent;
-    private Settings curSettings;
+    private final Settings curSettings;
     private Settings newSettings;
     
     
@@ -41,10 +40,11 @@ public class SettingsDialog extends javax.swing.JDialog implements ShortcutCreat
         super(parent, modal);
         initComponents();
         
-        this.parent = parent;
+        setLocationRelativeTo(parent);
         setIconImage(parent.getIconImage());
         
         curSettings = settings;
+        fillSettings();
         
         Logger.log.setEnabled(settings.isDebug());
     }
@@ -216,13 +216,6 @@ public class SettingsDialog extends javax.swing.JDialog implements ShortcutCreat
         pnlShortcuts.remove(((Component) e.getSource()).getParent());
         pnlShortcuts.repaint(); //remove from panel
         pnlShortcuts.validate(); //update others to ocupy space
-    }
-    
-    @Override
-    public void setVisible(boolean b) {
-        setLocationRelativeTo(parent);
-        fillSettings();
-        super.setVisible(b);
     }
 
     @Override

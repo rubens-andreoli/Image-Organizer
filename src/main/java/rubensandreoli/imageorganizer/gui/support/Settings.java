@@ -67,7 +67,7 @@ public class Settings {
         return changed;
     }
 
-    public void setShowHidden(boolean b) {
+    public void setShowHidden(boolean b) { //TODO: reload folders lists
         showHidden = b;
     }
 

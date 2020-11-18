@@ -42,6 +42,8 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
         }
         
         initComponents();
+        txfFolder.setLenght(42);
+        txfFolder.setDragEnabled(false);
         setLocationRelativeTo(parent);
     }
 
@@ -51,11 +53,11 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
 
         lblAction = new javax.swing.JLabel();
         cmbAction = new javax.swing.JComboBox<>();
-        txfFolder = new javax.swing.JTextField();
         lblKey = new javax.swing.JLabel();
         btnAdd = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
         txfKey = new rubensandreoli.commons.swing.KeyField();
+        txfFolder = new rubensandreoli.commons.swing.PathField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Create shortcut:");
@@ -70,8 +72,6 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
                 cmbActionItemStateChanged(evt);
             }
         });
-
-        txfFolder.setEditable(false);
 
         lblKey.setText("Key:");
 
@@ -102,15 +102,14 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(cmbAction, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(txfKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(txfFolder))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 127, Short.MAX_VALUE)
+                        .addGap(0, 115, Short.MAX_VALUE)
                         .addComponent(btnCancel)
                         .addGap(9, 9, 9)
-                        .addComponent(btnAdd)))
+                        .addComponent(btnAdd))
+                    .addComponent(txfFolder, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -119,8 +118,8 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cmbAction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txfFolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblAction))
+                    .addComponent(lblAction)
+                    .addComponent(txfFolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblKey)
@@ -163,7 +162,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
             if(((String)evt.getItem()).equals(Shortcut.Action.MOVE.name())){
                 final File file = SwingUtils.selectFile(this, SwingUtils.DIRECTORIES_ONLY);
                 if(file != null){
-                    txfFolder.setText(/*FileUtils.maskPathname(*/file.getPath()/*, 40)*/); //TODO: change PathField to permit this
+                    txfFolder.setText(file);
                 }else{
                     cmbAction.setSelectedIndex(0);
                 }
@@ -179,7 +178,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
     private javax.swing.JComboBox<String> cmbAction;
     private javax.swing.JLabel lblAction;
     private javax.swing.JLabel lblKey;
-    private javax.swing.JTextField txfFolder;
+    private rubensandreoli.commons.swing.PathField txfFolder;
     private rubensandreoli.commons.swing.KeyField txfKey;
     // End of variables declaration//GEN-END:variables
  

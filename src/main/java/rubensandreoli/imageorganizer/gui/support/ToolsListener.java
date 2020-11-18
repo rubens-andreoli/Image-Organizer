@@ -18,15 +18,14 @@ package rubensandreoli.imageorganizer.gui.support;
 
 public interface ToolsListener {
     
-    void position(int pos);
+    void load(int position);
     void next();
     void previous();
     void delete();
-    
-    void create(boolean subfolder);
-    
     void move(String folderName, boolean subfolder);
-    void load(String folderName, boolean subfolder);
+    
+    void createFolder(boolean subfolder);
+    void loadFolder(String folderName, boolean subfolder);
     
     void about();
     void settings();

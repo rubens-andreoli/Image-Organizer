@@ -336,7 +336,7 @@ public class ToolsPanel extends javax.swing.JPanel {
     private void txfImagePosKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txfImagePosKeyPressed
         if(listener == null) return;
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            listener.position(txfImagePos.getInt());
+            listener.load(txfImagePos.getInt());
         }
     }//GEN-LAST:event_txfImagePosKeyPressed
 
@@ -402,9 +402,9 @@ public class ToolsPanel extends javax.swing.JPanel {
 	if (evt.getButton() == 1 && evt.getClickCount() == 2 && !list.isSelectionEmpty()){
             listener.move(list.getSelectedValue(), subfolder);
 	} else if(evt.getButton() == 3){
-            listener.create(subfolder);
+            listener.createFolder(subfolder);
         } else if(evt.getButton() == 2 && !list.isSelectionEmpty()){
-            listener.load(list.getSelectedValue(), subfolder);
+            listener.loadFolder(list.getSelectedValue(), subfolder);
         }
     }
 

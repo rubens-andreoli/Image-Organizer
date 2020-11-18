@@ -73,6 +73,10 @@ public class ImageFolder {
         else throw new IOException("Folder \""+newFolder.getPath()+"\" could not be created!");
     }
     
+    public boolean checkFolder(String folder) {
+        return new File(folder).isDirectory();
+    }
+    
     public boolean checkFolder(String folderName, boolean subfolder) {
         final File newFolder = new File((subfolder? folder:root), folderName);
 	if(newFolder.isDirectory()){ 
@@ -129,6 +133,10 @@ public class ImageFolder {
     
     public String getRootPath(){
         return root.getPath();
+    }
+    
+    public String buildFolderPath(String folderName, boolean subfolder){
+        return (new File((subfolder? folder:root), folderName)).getPath();
     }
     // </editor-fold>
     

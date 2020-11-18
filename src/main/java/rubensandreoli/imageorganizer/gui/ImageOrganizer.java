@@ -54,6 +54,13 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private static final String PROGRAM_VERSION = "v1.0.0";
     private static final String PROGRAM_YEAR = "2018";
     private static final String PROGRAM_ICON = "images/icon.png";
+    
+    private static final String DELETE_ALERT_TITLE = "Delete Image";
+    private static final String DELETE_ALERT_MSG = "Do you like to permanently delete this image?";
+    private static final String FOLDER_FAIL_TITLE = "Shortcut Failed";
+    private static final String FOLDER_FAIL_MSG_MASK = "Folder \"%s\" couldn't be found, all associated shortcuts were removed!";
+    private static final String FOLDER_NAME_TITLE = "Folder Creation";
+    private static final String FOLDER_NAME_MSG = "Type the new folder name:";
     // </editor-fold>
 
     private ImageFolder imageFolder;
@@ -78,7 +85,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         // <editor-fold defaultstate="collapsed" desc=" LISTENERS "> 
         SwingUtils.addDroppable(pnlImage, file -> {
             if(file.isDirectory()){
-                loadFolder(file.getPath());
+                ImageOrganizer.this.loadFolder(file.getPath());
                 return true;
             }
             return false;
@@ -89,7 +96,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             public void mouseClicked(MouseEvent evt) {
                 if(evt.getButton() == MouseEvent.BUTTON3){
                     final File file = SwingUtils.selectFile(pnlSplit, SwingUtils.DIRECTORIES_ONLY);
-                    if(file != null) loadFolder(file.getAbsolutePath());
+                    if(file != null) ImageOrganizer.this.loadFolder(file.getPath());
                 }
             }
         });
@@ -210,12 +217,16 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private javax.swing.JSplitPane pnlSplit;
     private rubensandreoli.imageorganizer.gui.ToolsPanel pnlTools;
     // End of variables declaration//GEN-END:variables
-
+ 
+    private void showException(Exception ex){
+        SwingUtils.showMessageDialog(this, ex, Level.WARNING, true);
+    }
+    
     private void loadFolder(String folderPath){
         if(imageFolder != null){
-            if(currentPos > 0){ //add to history if not at initial position
+            if(currentPos > 0){ //add to history if not at initial load
                 history.addEntry(imageFolder.getFolderPath(), currentPos);
-            }else if(history.contains(folderPath)){ //remove if contains and new position is 0
+            }else if(history.contains(folderPath)){ //remove if contains and new load is 0
                 history.removeEntry(folderPath);
             }
         }
@@ -225,12 +236,34 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         
         pnlTools.setFolderPath(folderPath);
-        pnlTools.setRootFolders(imageFolder.getRootFolders());
-        pnlTools.setSubFolders(imageFolder.getSubFolders());
         pnlTools.setImageTotal(imageFolder.getNumImages());
+        fillFolders();
         
         currentPos = history.getPosition(folderPath);
         loadImage();
+    }
+    
+    
+    @Override
+    public void loadFolder(String folderName, boolean subfolder) {
+        final String folder = imageFolder.buildFolderPath(folderName, subfolder);
+        if(!imageFolder.checkFolder(folder, subfolder)){ 
+            fillFolders(subfolder);
+        }
+        loadFolder(folder);
+    }
+    
+    private void fillFolders(){
+        pnlTools.setRootFolders(imageFolder.getRootFolders());
+        pnlTools.setSubFolders(imageFolder.getSubFolders());
+    }
+
+    private void fillFolders(boolean subfolder){
+        if(subfolder){
+            pnlTools.setSubFolders(imageFolder.getSubFolders());
+        }else{
+            pnlTools.setRootFolders(imageFolder.getRootFolders());
+        }
     }
 
     private void loadImage(){
@@ -245,7 +278,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
 	    try {
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		pnlImage.setImage(imageFolder.loadImage(currentPos));
-	    } catch (IOException ex) { //clear last image if fail to load
+	    } catch (IOException ex) { //clear last image if fail to loadFolder
 		pnlImage.clear();
 		showException(ex);
 	    } finally { //fill info even if failed loading
@@ -263,20 +296,21 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             pnlTools.setDeleteEnabled(true);
         }
     }
-    
-    private void showException(Exception ex){
-        SwingUtils.showMessageDialog(this, ex, Level.WARNING, true);
-    }
-     
+
     @Override
-    public void about() {
-        new AboutDialog(this, PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_YEAR)
-                .addAtribution("Program icon", "Iconshock", "https://www.iconshock.com/")
-                .addAtribution("About icon", "Gregor Cresnar", "https://www.flaticon.com/authors/gregor-cresnar")
-                .addAtribution("Settings icons", "Vectors Market", "https://www.flaticon.com/authors/vectors-market")
-                .setVisible(true);
+    public void createFolder(boolean subfolder) {
+        if(imageFolder == null) return;
+        final String folderName = JOptionPane.showInputDialog(this, FOLDER_NAME_MSG, FOLDER_NAME_TITLE, JOptionPane.PLAIN_MESSAGE);
+        if(folderName != null && !folderName.isBlank()){
+            try {
+                imageFolder.createFolder(folderName, subfolder);
+                fillFolders(subfolder);
+            } catch (IOException ex) {
+                showException(ex);
+            }
+        } 
     }
- 
+    
     @Override
     public void next() {
         if(currentPos >= imageFolder.getNumImages()-1) currentPos = 0;
@@ -290,9 +324,9 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
 	else currentPos = imageFolder.getNumImages()-1;
 	loadImage();
     }
-
+    
     @Override
-    public void position(int pos) {
+    public void load(int pos) {
         if(imageFolder == null){ 
             pnlTools.setImagePosition(0);
         }else{
@@ -300,45 +334,46 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
            loadImage();
         }
     }
-
+    
+    public void move(String folder){
+        if(imageFolder.checkFolder(folder)){
+            try {
+                imageFolder.transferImageTo(currentPos, folder);
+                imageRemoved();
+            } catch (IOException ex) {
+                showException(ex);
+            }
+        }else{
+            settings.removeShortcut(folder);
+            SwingUtils.showMessageDialog(this, String.format(FOLDER_FAIL_MSG_MASK, folder), FOLDER_FAIL_TITLE, Level.INFO, true);
+        }
+    }
 
     @Override
-    public void delete() {
-        int choice = JOptionPane.YES_OPTION;
-        if(settings.isShowAlert()){
-            choice = JOptionPane.showConfirmDialog(
-                    this, 
-                    "Do you like to permanently delete this image?", 
-                    "Delete Image", 
-                    JOptionPane.YES_NO_OPTION
-            );
+    public void move(String folderName, boolean subfolder) {
+        if(imageFolder.checkFolder(folderName, subfolder)){
+            try {
+                imageFolder.transferImageTo(currentPos, folderName, subfolder);
+                imageRemoved();
+            } catch (IOException ex) {
+                showException(ex);
+            }
+        }else{
+           fillFolders(subfolder);
         }
-        if(choice == JOptionPane.YES_OPTION){
+    }
+    
+    @Override
+    public void delete() {
+        if(settings.isShowAlert() && 
+                JOptionPane.showConfirmDialog(this, DELETE_ALERT_MSG, DELETE_ALERT_TITLE, JOptionPane.YES_NO_OPTION) == 
+                JOptionPane.YES_OPTION){
             try {
                 imageFolder.deleteImage(currentPos);
                 imageRemoved();
             } catch (IOException ex) {
                 showException(ex);
             }
-        }
-    }
-    
-    public void move(String folder){
-        try {
-            imageFolder.transferImageTo(currentPos, folder);
-            imageRemoved();
-        } catch (IOException ex) {
-            showException(ex);
-        }
-    }
-
-    @Override
-    public void move(String folderName, boolean subfolder) {
-        try {
-            imageFolder.transferImageTo(currentPos, folderName, subfolder);
-            imageRemoved();
-        } catch (IOException ex) {
-            showException(ex);
         }
     }
     
@@ -350,52 +385,23 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         }
         loadImage();    
     }
-
-    @Override
-    public void create(boolean subfolder) {
-        if(imageFolder == null) return;
-        String folderName = JOptionPane.showInputDialog(
-                this, 
-                "New folder name:", 
-                "Create New Folder", 
-                JOptionPane.PLAIN_MESSAGE
-        );
-        if(folderName != null && !folderName.isBlank()){
-            try {
-                imageFolder.createFolder(folderName, subfolder);
-                fillFolders(subfolder);
-            } catch (IOException ex) {
-                showException(ex);
-            }
-        } 
-    }
-
-    @Override
-    public void load(String folderName, boolean subfolder) {
-        final String path = subfolder ? 
-                imageFolder.getFolderPath()+FileUtils.SEPARATOR+folderName : imageFolder.getRootPath()+FileUtils.SEPARATOR+folderName;
-        if(!imageFolder.checkFolder(folderName, subfolder)){ 
-            fillFolders(subfolder);
-        }
-        loadFolder(path);
-    }
     
-    private void fillFolders(boolean subfolder){
-        if(subfolder){
-            pnlTools.setSubFolders(imageFolder.getSubFolders());
-        }else{
-            pnlTools.setRootFolders(imageFolder.getRootFolders());
-        }
-    }
-
     @Override
     public void settings() {
         new SettingsDialog(this, settings).setVisible(true);
     }
-
+  
+    @Override
+    public void about() {
+        new AboutDialog(this, PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_YEAR)
+                .addAtribution("Program icon", "Iconshock", "https://www.iconshock.com/")
+                .addAtribution("About icon", "Gregor Cresnar", "https://www.flaticon.com/authors/gregor-cresnar")
+                .addAtribution("Settings icons", "Vectors Market", "https://www.flaticon.com/authors/vectors-market")
+                .setVisible(true);
+    }
+    
     @Override
     public void settingsChange(SettingsChangeEvent evt) {
-        System.out.println(evt.getSettingsKey());
         if(evt.isSetting(Settings.KEY_SHOW_HIDDEN)){
             loadFolder(imageFolder.getFolderPath());
         }

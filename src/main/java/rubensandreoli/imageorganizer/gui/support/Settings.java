@@ -19,6 +19,9 @@ package rubensandreoli.imageorganizer.gui.support;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import rubensandreoli.commons.others.Configuration;
 
 public class Settings {
@@ -143,6 +146,24 @@ public class Settings {
     
     public void removeShortcut(Shortcut shortcut) {
         shortcuts.remove(shortcut.key);
+    }
+    
+    public void removeShortcut(String description){
+        Iterator<Map.Entry<Integer, Shortcut>> i = shortcuts.entrySet().iterator();
+        boolean changed = false;
+        while(i.hasNext()){
+            final Map.Entry<Integer, Shortcut> entry = i.next();
+            final String desc = entry.getValue().description;
+            if(desc != null && desc.toLowerCase().contains(description.toLowerCase())){
+                i.remove();
+                changed = true;
+            }
+        }
+        if(changed){
+            Configuration.values.put(KEY_SHORTCUTS, shortcuts.toString());
+            fireSettingsChanged(KEY_SHORTCUTS, this.shortcuts);
+            Configuration.values.save();
+        }
     }
     
     public boolean addSettingsListener(SettingsListener listener){

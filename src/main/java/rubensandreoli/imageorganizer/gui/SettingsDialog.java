@@ -21,7 +21,7 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import rubensandreoli.commons.others.Logger;
 import rubensandreoli.commons.others.PickConsumer;
-import rubensandreoli.imageorganizer.gui.support.Settings;
+import rubensandreoli.imageorganizer.io.Settings;
 import rubensandreoli.imageorganizer.gui.support.Shortcut;
 
 /** References:

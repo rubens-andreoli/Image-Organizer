@@ -14,15 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package rubensandreoli.imageorganizer.gui.support;
+package rubensandreoli.imageorganizer.io;
 
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import rubensandreoli.commons.others.Configuration;
+import rubensandreoli.imageorganizer.io.support.SettingsChangeEvent;
+import rubensandreoli.imageorganizer.io.support.SettingsListener;
+import rubensandreoli.imageorganizer.gui.support.Shortcut;
+import rubensandreoli.imageorganizer.gui.support.ShortcutMap;
 
 public class Settings {
 
@@ -48,12 +51,13 @@ public class Settings {
     private Collection<SettingsListener> listeners;
 
     public Settings() {
+        shortcuts = new ShortcutMap();
+        listeners = new HashSet<>();
+        
         debug = Configuration.values.get(KEY_DEBUG, DEFAULT_DEBUG);
         showHidden = Configuration.values.get(KEY_SHOW_HIDDEN, DEFAULT_SHOW_HIDDEN);
         showAlert = Configuration.values.get(KEY_SHOW_ALERT, DEFAULT_SHOW_ALERT);
-        shortcuts = new ShortcutMap();
         shortcuts.put(Configuration.values.get(KEY_SHORTCUTS, DEFAULT_SHORTCUTS));
-        listeners = new HashSet<>();
     }
 
     public Settings(boolean showHidden, boolean showAlert, ShortcutMap shortcuts) {
@@ -124,7 +128,7 @@ public class Settings {
     
     public ShortcutMap getShortcutMap(boolean copy) {
         if(copy){
-            ShortcutMap sm = new ShortcutMap();
+            final ShortcutMap sm = new ShortcutMap();
             sm.putAll(shortcuts);
             return sm;
         } else return shortcuts;
@@ -149,7 +153,7 @@ public class Settings {
     }
     
     public void removeShortcut(String description){
-        Iterator<Map.Entry<Integer, Shortcut>> i = shortcuts.entrySet().iterator();
+        final Iterator<Map.Entry<Integer, Shortcut>> i = shortcuts.entrySet().iterator();
         boolean changed = false;
         while(i.hasNext()){
             final Map.Entry<Integer, Shortcut> entry = i.next();

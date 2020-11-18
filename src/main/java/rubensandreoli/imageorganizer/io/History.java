@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class History {
     
-    private static final String FILENAME = "history.dat";
+    private static final String FILENAME = "history.log";
     private static final String SEPARATOR = ";";
     
     private final File file;

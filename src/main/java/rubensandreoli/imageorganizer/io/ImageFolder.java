@@ -41,10 +41,6 @@ public class ImageFolder {
     private final Collection<String> subFolders;
     private final List<File> images;
 
-    public ImageFolder(String folderPath){
-        this(folderPath, false);
-    }
-    
     public ImageFolder(String folderPath, boolean showHidden){
 	rootFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	subFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);

@@ -25,9 +25,8 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
     public static final String SEPARATOR = ";"; //can't use ':' due to drive, can't be same as Shortcut.SEPARATOR
         
     public void put(String list){
-        for (String token : list.split(";")){
-            final Shortcut shortcut = Shortcut.createShortcut(token);
-            put(shortcut);
+        for (String token : list.split(SEPARATOR)){
+            put(Shortcut.createShortcut(token));
         }
     }
     
@@ -38,14 +37,12 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        Iterator<Shortcut> it = this.values().iterator();
+        final Iterator<Shortcut> it = this.values().iterator();
         while(it.hasNext()){
             final Shortcut s = it.next();
             sb.append(s.key).append(Shortcut.SEPARATOR).append(s.action);
             final String d = s.description;
-            if(d != null){
-                sb.append(Shortcut.SEPARATOR).append(s.description);
-            }
+            if(d != null) sb.append(Shortcut.SEPARATOR).append(s.description);
             if(it.hasNext()) sb.append(SEPARATOR);
         }
         return sb.toString();

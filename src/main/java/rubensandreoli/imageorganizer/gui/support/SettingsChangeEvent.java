@@ -31,7 +31,7 @@ public class SettingsChangeEvent extends EventObject{
     }
     
     public boolean isSetting(String settingsKey){
-        return settingsKey.equals(settingsKey);
+        return this.settingsKey.equals(settingsKey);
     }
 
     public String getSettingsKey() {

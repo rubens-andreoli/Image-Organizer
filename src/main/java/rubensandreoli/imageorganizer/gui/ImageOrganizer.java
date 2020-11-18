@@ -402,7 +402,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     
     @Override
     public void settingsChange(SettingsChangeEvent evt) {
-        if(evt.isSetting(Settings.KEY_SHOW_HIDDEN)){
+        if(imageFolder != null && evt.isSetting(Settings.KEY_SHOW_HIDDEN)){
             loadFolder(imageFolder.getFolderPath());
         }
     }

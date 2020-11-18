@@ -17,6 +17,7 @@
 package rubensandreoli.imageorganizer.gui.support;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class ShortcutMap extends HashMap<Integer, Shortcut>{
     private static final long serialVersionUID = 1L;
@@ -37,18 +38,15 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        
-        int i = 0;
-        for (Shortcut shortcut : this.values()) {
-            sb.append(shortcut.key).append(Shortcut.SEPARATOR).append(shortcut.action);
-            final String d = shortcut.description;
+        Iterator<Shortcut> it = this.values().iterator();
+        while(it.hasNext()){
+            final Shortcut s = it.next();
+            sb.append(s.key).append(Shortcut.SEPARATOR).append(s.action);
+            final String d = s.description;
             if(d != null){
-                sb.append(Shortcut.SEPARATOR).append(shortcut.description);
+                sb.append(Shortcut.SEPARATOR).append(s.description);
             }
-            if(i != size()-1){
-                sb.append(SEPARATOR);
-            }
-            i++;
+            if(it.hasNext()) sb.append(SEPARATOR);
         }
         return sb.toString();
     }

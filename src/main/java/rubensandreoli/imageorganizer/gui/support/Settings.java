@@ -17,19 +17,22 @@
 package rubensandreoli.imageorganizer.gui.support;
 
 import java.awt.event.KeyEvent;
+import java.util.Collection;
+import java.util.HashSet;
 import rubensandreoli.commons.others.Configuration;
 
 public class Settings {
-    
+
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS ">
-    private static final String KEY_DEBUG = "debug";
-    private static final boolean DEFAULT_DEBUG = true;
-    private static final String KEY_SHOW_HIDDEN = "hidden_folders";
-    private static final boolean DEFAULT_SHOW_HIDDEN = false;
-    private static final String KEY_SHOW_ALERT = "delete_alert";
-    private static final boolean DEFAULT_SHOW_ALERT = true;
-    private static final String KEY_SHORTCUTS = "shortcuts";
-    private static final String DEFAULT_SHORTCUTS = 
+    public static final String KEY_DEBUG = "debug";
+    public static final String KEY_SHOW_HIDDEN = "hidden_folders";
+    public static final String KEY_SHOW_ALERT = "delete_alert";
+    public static final String KEY_SHORTCUTS = "shortcuts";
+    
+    public static final boolean DEFAULT_DEBUG = true;
+    public static final boolean DEFAULT_SHOW_HIDDEN = false;
+    public static final boolean DEFAULT_SHOW_ALERT = true;
+    public static final String DEFAULT_SHORTCUTS = 
             KeyEvent.VK_RIGHT+Shortcut.SEPARATOR+"NEXT"+ShortcutMap.SEPARATOR+
             KeyEvent.VK_LEFT+Shortcut.SEPARATOR+"PREVIOUS"+ShortcutMap.SEPARATOR+
             KeyEvent.VK_DELETE+Shortcut.SEPARATOR+"DELETE";
@@ -39,6 +42,7 @@ public class Settings {
     private boolean showHidden;
     private boolean showAlert;
     private ShortcutMap shortcuts;
+    private Collection<SettingsListener> listeners;
 
     public Settings() {
         debug = Configuration.values.get(KEY_DEBUG, DEFAULT_DEBUG);
@@ -46,6 +50,7 @@ public class Settings {
         showAlert = Configuration.values.get(KEY_SHOW_ALERT, DEFAULT_SHOW_ALERT);
         shortcuts = new ShortcutMap();
         shortcuts.put(Configuration.values.get(KEY_SHORTCUTS, DEFAULT_SHORTCUTS));
+        listeners = new HashSet<>();
     }
 
     public Settings(boolean showHidden, boolean showAlert, ShortcutMap shortcuts) {
@@ -56,29 +61,40 @@ public class Settings {
     }
 
     public boolean update(Settings newSettings){
-        return update(newSettings.isShowHidden(), newSettings.isShowAlert(), newSettings.getShortcuts(false));
+        return update(newSettings.isShowHidden(), newSettings.isShowAlert(), newSettings.getShortcutMap(false));
     }
 
     public boolean update(boolean showHidden, boolean showAlert, ShortcutMap shortcuts){
         boolean changed = false;
+        
         if(showHidden != this.showHidden){
             this.showHidden = showHidden;
             Configuration.values.put(KEY_SHOW_HIDDEN, String.valueOf(showHidden));
             changed = true;
+            fireSettingsChanged(KEY_SHOW_HIDDEN, showHidden);
         }
+        
         if(showAlert != this.showAlert){
             this.showAlert = showAlert;
             Configuration.values.put(KEY_SHOW_ALERT, String.valueOf(showAlert));
             changed = true;
+            fireSettingsChanged(KEY_SHOW_ALERT, showAlert);
         }
+        
         if(shortcuts != null && (this.shortcuts.size() != shortcuts.size() || !this.shortcuts.equals(shortcuts))){
             this.shortcuts.clear();
             this.shortcuts.putAll(shortcuts);
             Configuration.values.put(KEY_SHORTCUTS, shortcuts.toString());
             changed = true;
+            fireSettingsChanged(KEY_SHORTCUTS, this.shortcuts);
         }
+        
         Configuration.values.save();
         return changed;
+    }
+    
+    public void fireSettingsChanged(String settingsKey, Object newValue){
+        listeners.forEach(l -> l.settingsChange(new SettingsChangeEvent(this, settingsKey, newValue)));
     }
     
     public boolean containsShortcut(int code) {
@@ -103,7 +119,7 @@ public class Settings {
          return shortcuts.get(code);
     }
     
-    public ShortcutMap getShortcuts(boolean copy) {
+    public ShortcutMap getShortcutMap(boolean copy) {
         if(copy){
             ShortcutMap sm = new ShortcutMap();
             sm.putAll(shortcuts);
@@ -113,7 +129,7 @@ public class Settings {
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
-    public void setShowHidden(boolean b) { //TODO: reload folders lists
+    public void setShowHidden(boolean b) {
         showHidden = b;
     }
 
@@ -127,6 +143,14 @@ public class Settings {
     
     public void removeShortcut(Shortcut shortcut) {
         shortcuts.remove(shortcut.key);
+    }
+    
+    public boolean addSettingsListener(SettingsListener listener){
+        return this.listeners.add(listener);
+    }
+    
+    public boolean removeSettingsListener(SettingsListener listener){
+        return this.listeners.remove(listener);
     }
     // </editor-fold>
 

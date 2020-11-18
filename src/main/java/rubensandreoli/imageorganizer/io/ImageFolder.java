@@ -34,12 +34,12 @@ import rubensandreoli.commons.utils.FileUtils;
  */
 public class ImageFolder {
 	   
-    private final CachedFile folder;
-    private final CachedFile root;
+    private final File folder;
+    private final File root;
     
     private final Collection<String> rootFolders;
     private final Collection<String> subFolders;
-    private final List<CachedFile> images;
+    private final List<File> images;
 
     public ImageFolder(String folderPath){
         this(folderPath, false);
@@ -50,17 +50,15 @@ public class ImageFolder {
 	subFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	images = new LinkedList<>();
 	
-	folder = new CachedFile(folderPath);
-	root = folder.getParentCachedFile();
+	folder = new File(folderPath);
+	root = folder.getParentFile();
 	
         FileUtils.visitChildren(folder, FileUtils.FILES_AND_DIRECTORIES, showHidden, f -> {
             if(f.isDirectory()) {
                 subFolders.add(f.getName());
             }else{
                 final CachedFile cf = new CachedFile(f);
-                if(FileUtils.IMAGES_EXT.contains(cf.getExtension())){
-                    images.add(cf);
-                }
+                if(FileUtils.IMAGES_EXT.contains(cf.getExtension())) images.add(cf);
             }
         });
         FileUtils.visitChildren(root, FileUtils.DIRECTORIES_ONLY, showHidden, f -> rootFolders.add(f.getName()));
@@ -70,19 +68,12 @@ public class ImageFolder {
         final Collection<String> list = (subfolder? subFolders:rootFolders);
         final File newFolder = new File((subfolder? folder:root), folderName);
         
-        if(list.contains(folderName)){
-            throw new IOException("Folder \""+newFolder.getPath()+"\" already exists!");
-        }
-        
-        try{
-            FileUtils.createFolder(newFolder);
-            list.add(folderName);
-        } catch (IOException ex) {
-            throw new IOException("Folder \""+newFolder.getPath()+"\" could not be created!");
-        }
+        if(list.contains(folderName)) throw new IOException("Folder \""+newFolder.getPath()+"\" already exists!");
+        if(FileUtils.createFolder(newFolder) != null)  list.add(folderName);
+        else throw new IOException("Folder \""+newFolder.getPath()+"\" could not be created!");
     }
     
-    public boolean testFolder(String folderName, boolean subfolder) {
+    public boolean checkFolder(String folderName, boolean subfolder) {
         final File newFolder = new File((subfolder? folder:root), folderName);
 	if(newFolder.isDirectory()){ 
 	    return true;
@@ -111,8 +102,8 @@ public class ImageFolder {
     
     public void deleteImage(int imagePos) throws IOException{
 	final File image = images.get(imagePos);
-	if(image.delete()) images.remove(imagePos);
-	else throw new IOException("Image \""+image.getAbsolutePath()+"\" could not be deleted!");
+        if(FileUtils.deleteFile(image)) images.remove(imagePos);
+	else throw new IOException("Image \""+image.getPath()+"\" could not be deleted!");
     }
 
     // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 
@@ -140,5 +131,5 @@ public class ImageFolder {
         return root.getPath();
     }
     // </editor-fold>
-
+    
 }

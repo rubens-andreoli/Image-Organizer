@@ -29,7 +29,7 @@ public class Shortcut {
     public final Action action;
     public final String description;
 
-    private Shortcut(int key, Action action, String description) {
+    public Shortcut(int key, Action action, String description) {
         this.key = key;
         this.action = action;
         this.description = description;

@@ -35,6 +35,8 @@ import rubensandreoli.commons.swing.AboutDialog;
 import rubensandreoli.commons.utils.FileUtils;
 import rubensandreoli.commons.utils.SwingUtils;
 import rubensandreoli.imageorganizer.gui.support.Settings;
+import rubensandreoli.imageorganizer.gui.support.SettingsChangeEvent;
+import rubensandreoli.imageorganizer.gui.support.SettingsListener;
 import rubensandreoli.imageorganizer.gui.support.Shortcut;
 import rubensandreoli.imageorganizer.io.History;
 import rubensandreoli.imageorganizer.io.ImageFolder;
@@ -44,7 +46,7 @@ import rubensandreoli.imageorganizer.io.ImageFolder;
  *
  * @author Rubens A. Andreoli Jr.
  */
-public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
+public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener, SettingsListener{
     private static final long serialVersionUID = 1L;
 
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
@@ -64,6 +66,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
         
         // <editor-fold defaultstate="collapsed" desc=" LOAD "> 
         settings = new Settings();
+        settings.addSettingsListener(this);
         history = new History();
 	try {
 	    history.load();
@@ -371,7 +374,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
     public void load(String folderName, boolean subfolder) {
         final String path = subfolder ? 
                 imageFolder.getFolderPath()+FileUtils.SEPARATOR+folderName : imageFolder.getRootPath()+FileUtils.SEPARATOR+folderName;
-        if(!imageFolder.testFolder(folderName, subfolder)){ 
+        if(!imageFolder.checkFolder(folderName, subfolder)){ 
             fillFolders(subfolder);
         }
         loadFolder(path);
@@ -387,7 +390,15 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener{
 
     @Override
     public void settings() {
-        new SettingsDialog(this, true, settings).setVisible(true);
+        new SettingsDialog(this, settings).setVisible(true);
+    }
+
+    @Override
+    public void settingsChange(SettingsChangeEvent evt) {
+        System.out.println(evt.getSettingsKey());
+        if(evt.isSetting(Settings.KEY_SHOW_HIDDEN)){
+            loadFolder(imageFolder.getFolderPath());
+        }
     }
 
 }

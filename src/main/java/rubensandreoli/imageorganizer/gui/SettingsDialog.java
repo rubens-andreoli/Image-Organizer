@@ -24,6 +24,12 @@ import rubensandreoli.commons.others.PickConsumer;
 import rubensandreoli.imageorganizer.gui.support.Settings;
 import rubensandreoli.imageorganizer.gui.support.Shortcut;
 
+/** References:
+ * https://stackoverflow.com/questions/291115/java-swing-using-jscrollpane-and-having-it-scroll-back-to-top
+ * https://stackoverflow.com/questions/13510641/add-controls-vertically-instead-of-horizontally-using-flow-layout
+ * 
+ * @author Rubens A. Andreoli Jr.
+ */
 public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<Shortcut> {
     private static final long serialVersionUID = 1L;
 
@@ -65,9 +71,8 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         sclShortcuts.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         sclShortcuts.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-        pnlShortcuts.setName("income"); // NOI18N
-        pnlShortcuts.setPreferredSize(new java.awt.Dimension(120, 30));
-        pnlShortcuts.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 4, 4));
+        pnlShortcuts.setMaximumSize(new java.awt.Dimension(228, 32767));
+        pnlShortcuts.setLayout(new javax.swing.BoxLayout(pnlShortcuts, javax.swing.BoxLayout.Y_AXIS));
         sclShortcuts.setViewportView(pnlShortcuts);
 
         btnAddShotcut.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -148,7 +153,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
                         .addGap(2, 2, 2)
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sclShortcuts, javax.swing.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
+                .addComponent(sclShortcuts, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAddShotcut)
@@ -210,6 +215,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         pnlShortcuts.remove(((Component) e.getSource()).getParent());
         pnlShortcuts.repaint(); //remove from panel
         pnlShortcuts.validate(); //update others to ocupy space
+        sclShortcuts.getVerticalScrollBar().setValue(0);
     }
 
     @Override
@@ -217,6 +223,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         if(!newSettings.containsShortcut(shortcut.key)){
             newSettings.addShortcut(shortcut);
             listShortcut(shortcut);
+            sclShortcuts.validate();
             return true;
         }
         return false;

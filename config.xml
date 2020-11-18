@@ -3,7 +3,7 @@
 <properties>
 <comment>CONFIGURATIONS</comment>
 <entry key="debug">true</entry>
-<entry key="delete_alert">false</entry>
-<entry key="shortcuts">68,MOVE,D:/;37,PREVIOUS;39,NEXT;127,DELETE</entry>
+<entry key="delete_alert">true</entry>
+<entry key="shortcuts">96,NEXT;97,NEXT;68,MOVE,D:/;37,PREVIOUS;39,NEXT;105,NEXT;127,DELETE</entry>
 <entry key="hidden_folders">false</entry>
 </properties>

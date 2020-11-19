@@ -45,7 +45,10 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         setIconImage(parent.getIconImage());
         
         curSettings = settings;
-        fillSettings();
+        newSettings = new Settings(curSettings.isShowHidden(), curSettings.isShowAlert(), curSettings.getShortcutMap(true));
+        chbHidden.setSelected(curSettings.isShowHidden());
+        chbAlert.setSelected(curSettings.isShowAlert());
+        curSettings.getShortcutMap(false).values().forEach(s -> listShortcut(s));
         
         Logger.log.setEnabled(settings.isDebug());
     }
@@ -72,11 +75,6 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         sclShortcuts.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         pnlShortcuts.setMaximumSize(new java.awt.Dimension(228, 32767));
-        pnlShortcuts.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                pnlShortcutsPropertyChange(evt);
-            }
-        });
         pnlShortcuts.setLayout(new javax.swing.BoxLayout(pnlShortcuts, javax.swing.BoxLayout.Y_AXIS));
         sclShortcuts.setViewportView(pnlShortcuts);
 
@@ -191,10 +189,6 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         newSettings.setShowAlert(chbAlert.isSelected());
     }//GEN-LAST:event_chbAlertActionPerformed
 
-    private void pnlShortcutsPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_pnlShortcutsPropertyChange
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pnlShortcutsPropertyChange
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddShotcut;
     private javax.swing.JButton btnCancel;
@@ -206,14 +200,6 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
     private javax.swing.JScrollPane sclShortcuts;
     // End of variables declaration//GEN-END:variables
 
-    private void fillSettings(){
-        newSettings = new Settings(curSettings.isShowHidden(), curSettings.isShowAlert(), curSettings.getShortcutMap(true));
-        chbHidden.setSelected(curSettings.isShowHidden());
-        chbAlert.setSelected(curSettings.isShowAlert());
-        pnlShortcuts.removeAll();
-        curSettings.getShortcutMap(false).values().forEach(s -> listShortcut(s));
-    }
-    
     private void listShortcut(Shortcut shortcut){
         pnlShortcuts.add(new ShortcutPanel(shortcut, e -> deleteShortcut(e, shortcut)));
         pnlShortcuts.validate();
@@ -222,8 +208,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
     private void deleteShortcut(ActionEvent e, Shortcut shortcut) {
         newSettings.removeShortcut(shortcut);
         pnlShortcuts.remove(((Component) e.getSource()).getParent());
-        pnlShortcuts.repaint(); //remove from panel
-        pnlShortcuts.validate(); //update others to ocupy space
+        pnlShortcuts.validate();
         sclShortcuts.getVerticalScrollBar().setValue(0);
     }
 

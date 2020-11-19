@@ -28,6 +28,14 @@ import rubensandreoli.imageorganizer.gui.support.Shortcut;
 public class ShortcutCreationDialog extends javax.swing.JDialog {
     private static final long serialVersionUID = 1L;
 
+    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
+    private static final String EMPTY_TITLE = "Empty Key";
+    private static final String EMPTY_MSG = "Please, type a key to create the shortcut.";
+    private static final String DUPLICATED_TITLE = "Duplicated Key";
+    private static final String DUPLICATED_MSG = "This key is already associated with an action.\nPlease, change the key or delete the shortcut\ncontaining it before adding a new one.";
+    private static final int MAX_FOLDER_LENGHT = 42;
+    // </editor-fold>
+    
     private final PickConsumer<Shortcut> listener;
     private final DefaultComboBoxModel<String> model;
     
@@ -42,7 +50,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
         }
         
         initComponents();
-        txfFolder.setLenght(42);
+        txfFolder.setLenght(MAX_FOLDER_LENGHT);
         txfFolder.setDragEnabled(false);
         setLocationRelativeTo(parent);
     }
@@ -138,6 +146,11 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        if(txfKey.getText().isBlank()){
+            SwingUtils.showMessageDialog(this, EMPTY_MSG, EMPTY_TITLE, Level.WARNING, true);
+            return;
+        }
+        
         final StringBuilder sb = new StringBuilder().append(txfKey.getKey()).append(Shortcut.SEPARATOR);
         final String item = (String)cmbAction.getSelectedItem();
         sb.append(item);
@@ -145,15 +158,10 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
             sb.append(Shortcut.SEPARATOR).append(txfFolder.getText());
         }
         
-        if(!listener.accept(Shortcut.createShortcut(sb.toString()))){
-             SwingUtils.showMessageDialog(
-                     this, 
-                     "This key is already associated with an action.\nPlease, change the key or delete the shortcut\ncontaining it before adding a new one.", 
-                     "Duplicated Key", 
-                     Level.WARNING, 
-                     true);
-        }else{
+        if(listener.accept(Shortcut.createShortcut(sb.toString()))){
             dispose();
+        }else{
+            SwingUtils.showMessageDialog(this, DUPLICATED_MSG, DUPLICATED_TITLE, Level.WARNING, true);
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
@@ -163,11 +171,13 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
                 final File file = SwingUtils.selectFile(this, SwingUtils.DIRECTORIES_ONLY);
                 if(file != null){
                     txfFolder.setText(file);
+                    txfFolder.setToolTipText(file.getPath());
                 }else{
                     cmbAction.setSelectedIndex(0);
                 }
             }else{
                 txfFolder.setText("");
+                txfFolder.setToolTipText(null);
             }
        }
     }//GEN-LAST:event_cmbActionItemStateChanged

@@ -63,15 +63,12 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private static final String FOLDER_NAME_MSG = "Type the new folder name:";
     // </editor-fold>
 
-    private ImageFolder imageFolder;
-    private final History history;
     private final Settings settings;
+    private final History history;
+    private ImageFolder imageFolder;
     private int currentPos = -1;
     
     public ImageOrganizer() {
-        initComponents();
-        
-        // <editor-fold defaultstate="collapsed" desc=" LOAD "> 
         settings = new Settings();
         settings.addSettingsListener(this);
         history = new History();
@@ -80,74 +77,10 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
 	} catch (IOException ex) {
 	    showException(ex);
 	}        
-        // </editor-fold>
 
-        // <editor-fold defaultstate="collapsed" desc=" LISTENERS "> 
-        SwingUtils.addDroppable(pnlImage, file -> {
-            if(file.isDirectory()){
-                ImageOrganizer.this.loadFolder(file.getPath());
-                return true;
-            }
-            return false;
-        });
-        
-        pnlImage.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent evt) {
-                if(evt.getButton() == MouseEvent.BUTTON3){
-                    final File file = SwingUtils.selectFile(pnlSplit, SwingUtils.DIRECTORIES_ONLY);
-                    if(file != null) ImageOrganizer.this.loadFolder(file.getPath());
-                }
-            }
-        });
-        
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
-            if(imageFolder != null && isActive()){
-                final int code = evt.getKeyCode();
-                if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_PRESSED")){
-                    final Shortcut shortcut = settings.getShortcut(code);
-                    switch(shortcut.action){
-                        case NEXT:
-                            next();
-                            break;
-                        case PREVIOUS:
-                            previous();
-                            break;
-                        case DELETE:
-                            delete();
-                            break;
-                        case MOVE:
-                            move(shortcut.description);
-                            break;
-                    }
-                }
-            }
-            return false;
-        });
-        // </editor-fold>
-
-        // <editor-fold defaultstate="collapsed" desc=" SPLITPANE ">
-        final BasicSplitPaneDivider divider = ((BasicSplitPaneUI) pnlSplit.getUI()).getDivider();
-        divider.setEnabled(false); //disable dragging cursor
-        divider.removeMouseListener(divider.getMouseListeners()[0]);//disable dragging
-        final JButton btnUp = (JButton)divider.getComponent(0);
-        final JButton btnDown = (JButton)divider.getComponent(1);
-
-        addComponentListener(new ComponentAdapter() { //fix restore after minimized drag
-            @Override
-            public void componentResized(ComponentEvent evt) {
-                pnlSplit.setLastDividerLocation(pnlSplit.getHeight() - pnlTools.getHeight());
-            }
-        });
-        btnUp.setVisible(false);
-        final ActionListener listener = evt -> {
-            btnDown.setVisible(btnUp.isVisible());
-            btnUp.setVisible(!btnUp.isVisible());
-        };
-        btnUp.addActionListener(listener);
-        btnDown.addActionListener(listener);        
-        // </editor-fold>
-
+        initComponents();
+        initListeners();
+        initSplitPane();
     }
 
     @SuppressWarnings("unchecked")
@@ -218,15 +151,81 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private rubensandreoli.imageorganizer.gui.ToolsPanel pnlTools;
     // End of variables declaration//GEN-END:variables
  
+    private void initListeners(){
+        SwingUtils.addDroppable(pnlImage, file -> {
+            if(file.isDirectory()){
+                ImageOrganizer.this.loadFolder(file.getPath());
+                return true;
+            }
+            return false;
+        });
+        
+        pnlImage.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if(evt.getButton() == MouseEvent.BUTTON3){
+                    final File file = SwingUtils.selectFile(pnlSplit, SwingUtils.DIRECTORIES_ONLY);
+                    if(file != null) ImageOrganizer.this.loadFolder(file.getPath());
+                }
+            }
+        });
+        
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
+            if(imageFolder != null && isActive()){
+                final int code = evt.getKeyCode();
+                if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_RELEASED")){
+                    final Shortcut shortcut = settings.getShortcut(code);
+                    switch(shortcut.action){
+                        case NEXT:
+                            next();
+                            break;
+                        case PREVIOUS:
+                            previous();
+                            break;
+                        case DELETE:
+                            delete();
+                            break;
+                        case MOVE:
+                            move(shortcut.description);
+                            break;
+                    }
+                }
+            }
+            return false;
+        });
+    }
+    
+    private void initSplitPane(){
+        final BasicSplitPaneDivider divider = ((BasicSplitPaneUI) pnlSplit.getUI()).getDivider();
+        divider.setEnabled(false); //disable dragging cursor
+        divider.removeMouseListener(divider.getMouseListeners()[0]);//disable dragging
+        final JButton btnUp = (JButton)divider.getComponent(0);
+        final JButton btnDown = (JButton)divider.getComponent(1);
+
+        addComponentListener(new ComponentAdapter() { //fix restore after minimized drag
+            @Override
+            public void componentResized(ComponentEvent evt) {
+                pnlSplit.setLastDividerLocation(pnlSplit.getHeight() - pnlTools.getHeight());
+            }
+        });
+        btnUp.setVisible(false);
+        final ActionListener listener = evt -> {
+            btnDown.setVisible(btnUp.isVisible());
+            btnUp.setVisible(!btnUp.isVisible());
+        };
+        btnUp.addActionListener(listener);
+        btnDown.addActionListener(listener);      
+    }
+    
     private void showException(Exception ex){
         SwingUtils.showMessageDialog(this, ex, Level.WARNING, true);
     }
     
     private void loadFolder(String folderPath){
         if(imageFolder != null){
-            if(currentPos > 0){ //add to history if not at initial load
+            if(currentPos > 0){ //add to history if not at initial position
                 history.addEntry(imageFolder.getFolderPath(), currentPos);
-            }else if(history.contains(folderPath)){ //remove if contains and new load is 0
+            }else if(history.contains(folderPath)){ //remove if in history and new position is 0
                 history.removeEntry(folderPath);
             }
         }

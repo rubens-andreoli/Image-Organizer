@@ -17,13 +17,14 @@
 package rubensandreoli.imageorganizer.gui;
 
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import rubensandreoli.imageorganizer.gui.support.Shortcut;
 
 public class ShortcutPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
 
+    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
     private static final String MOVE_SEPARATOR = "->";
+    // </editor-fold>
     
     public ShortcutPanel() {
         initComponents();
@@ -31,37 +32,42 @@ public class ShortcutPanel extends javax.swing.JPanel {
 
     public ShortcutPanel(Shortcut shortcut, ActionListener listener){
         this();
+        
         final StringBuilder sb = new StringBuilder(shortcut.action.toString());
         if(shortcut.action == Shortcut.Action.MOVE){
             sb.append(MOVE_SEPARATOR).append(shortcut.description);
         }
+        
         txfAction.setText(sb.toString());
-        txfKey.setText(KeyEvent.getKeyText(shortcut.key));
+        txfKey.setText(shortcut.key);
         btnDelete.addActionListener(listener);
+        
+        txfAction.setCaretPosition(0);
+        txfKey.setCaretPosition(0);
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        txfKey = new javax.swing.JTextField();
         btnDelete = new javax.swing.JButton();
         txfAction = new javax.swing.JTextField();
-
-        txfKey.setEditable(false);
+        txfKey = new rubensandreoli.commons.swing.KeyField();
 
         btnDelete.setText("X");
         btnDelete.setMargin(new java.awt.Insets(2, 7, 2, 5));
 
         txfAction.setEditable(false);
 
+        txfKey.setEditable(false);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(txfAction, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(txfAction, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txfKey, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -73,9 +79,9 @@ public class ShortcutPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGap(0, 0, 0)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txfKey, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnDelete)
-                    .addComponent(txfAction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txfAction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txfKey, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(4, 4, 4))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -84,6 +90,6 @@ public class ShortcutPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDelete;
     private javax.swing.JTextField txfAction;
-    private javax.swing.JTextField txfKey;
+    private rubensandreoli.commons.swing.KeyField txfKey;
     // End of variables declaration//GEN-END:variables
 }

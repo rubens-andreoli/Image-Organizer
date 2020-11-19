@@ -72,6 +72,9 @@ public class ImagePanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // End of variables declaration//GEN-END:variables
+
     private void addListeners() {
        
         addMouseListener(new MouseAdapter(){
@@ -197,6 +200,5 @@ public class ImagePanel extends javax.swing.JPanel {
 	image = null;
 	repaint();
     }
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
+    
 }

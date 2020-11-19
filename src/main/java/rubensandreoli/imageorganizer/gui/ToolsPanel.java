@@ -34,8 +34,6 @@ import javax.swing.UIManager;
 public class ToolsPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
 
-    private ToolsListener listener;
-
     // <editor-fold defaultstate="collapsed" desc=" RENDERER "> 
     private class ListRenderer implements ListCellRenderer<String>{
 
@@ -62,6 +60,8 @@ public class ToolsPanel extends javax.swing.JPanel {
     }
     // </editor-fold>
     
+    private ToolsListener listener;
+    
     public ToolsPanel() {
         initComponents();
     }
@@ -76,7 +76,7 @@ public class ToolsPanel extends javax.swing.JPanel {
         txfNumImages = new javax.swing.JTextField();
         pnlTools = new javax.swing.JPanel();
         lblAbout = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        lblSettings = new javax.swing.JLabel();
         btnBack = new javax.swing.JButton();
         btnNext = new javax.swing.JButton();
         sclFoldersOut = new javax.swing.JScrollPane();
@@ -145,14 +145,12 @@ public class ToolsPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/settings.png"))); // NOI18N
-        jLabel1.setToolTipText("Settings");
-        jLabel1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        jLabel1.setMinimumSize(new java.awt.Dimension(16, 16));
-        jLabel1.setPreferredSize(new java.awt.Dimension(16, 16));
-        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+        lblSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/settings.png"))); // NOI18N
+        lblSettings.setToolTipText("Settings");
+        lblSettings.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        lblSettings.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel1MouseClicked(evt);
+                lblSettingsMouseClicked(evt);
             }
         });
 
@@ -241,7 +239,7 @@ public class ToolsPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlToolsLayout.createSequentialGroup()
                         .addGroup(pnlToolsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblSettings)
                             .addComponent(lblAbout))
                         .addGap(39, 39, 39)))
                 .addComponent(sclFoldersIn, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -259,7 +257,7 @@ public class ToolsPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBack)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblSettings)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lblAbout)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -349,16 +347,16 @@ public class ToolsPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_lstSubFoldersMouseClicked
 
     private void lstSubFoldersKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lstSubFoldersKeyReleased
-        listKey(evt, true);
+        listKeyReleased(evt, true);
     }//GEN-LAST:event_lstSubFoldersKeyReleased
 
     private void lstRootFoldersKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lstRootFoldersKeyReleased
-        listKey(evt, false);
+        listKeyReleased(evt, false);
     }//GEN-LAST:event_lstRootFoldersKeyReleased
 
-    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+    private void lblSettingsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSettingsMouseClicked
         if(listener != null) listener.settings();
-    }//GEN-LAST:event_jLabel1MouseClicked
+    }//GEN-LAST:event_lblSettingsMouseClicked
 
     private void lstSubFoldersFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_lstSubFoldersFocusLost
         deselectList(evt);
@@ -373,8 +371,8 @@ public class ToolsPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnNext;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lblAbout;
+    private javax.swing.JLabel lblSettings;
     private javax.swing.JList<String> lstRootFolders;
     private javax.swing.JList<String> lstSubFolders;
     private javax.swing.JPanel pnlLeft;
@@ -388,7 +386,7 @@ public class ToolsPanel extends javax.swing.JPanel {
     private javax.swing.JTextField txfNumImages;
     // End of variables declaration//GEN-END:variables
 
-    private void listKey(KeyEvent evt, boolean subfolder){
+    private void listKeyReleased(KeyEvent evt, boolean subfolder){
          if(listener == null) return;
          final JList<String> list = (JList<String>)evt.getSource();
          if(evt.getKeyCode() == KeyEvent.VK_ENTER && !list.isSelectionEmpty()){

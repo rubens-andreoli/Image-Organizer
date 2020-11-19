@@ -110,7 +110,7 @@
           <Font name="Tahoma" size="11" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="+"/>
-        <Property name="toolTipText" type="java.lang.String" value="adiciona um campo de reiceta"/>
+        <Property name="toolTipText" type="java.lang.String" value="Create new shortcut"/>
         <Property name="actionCommand" type="java.lang.String" value="plusIncome"/>
         <Property name="focusable" type="boolean" value="false"/>
       </Properties>

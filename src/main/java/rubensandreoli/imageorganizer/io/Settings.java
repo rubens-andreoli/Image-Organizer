@@ -47,65 +47,63 @@ public class Settings {
     private boolean debug;
     private boolean showHidden;
     private boolean showAlert;
-    private ShortcutMap shortcuts;
-    private Collection<SettingsListener> listeners;
+    private ShortcutMap shortcutMap;
+    private Collection<SettingsListener> listeners = new HashSet<>();
 
     public Settings() {
-        shortcuts = new ShortcutMap();
-        listeners = new HashSet<>();
-        
         debug = Configuration.values.get(KEY_DEBUG, DEFAULT_DEBUG);
         showHidden = Configuration.values.get(KEY_SHOW_HIDDEN, DEFAULT_SHOW_HIDDEN);
         showAlert = Configuration.values.get(KEY_SHOW_ALERT, DEFAULT_SHOW_ALERT);
-        shortcuts.put(Configuration.values.get(KEY_SHORTCUTS, DEFAULT_SHORTCUTS));
+        shortcutMap = new ShortcutMap();
+        shortcutMap.put(Configuration.values.get(KEY_SHORTCUTS, DEFAULT_SHORTCUTS));
     }
 
-    public Settings(boolean showHidden, boolean showAlert, ShortcutMap shortcuts) {
-        debug = true;
+    public Settings(boolean debug, boolean showHidden, boolean showAlert, ShortcutMap shortcuts) {
+        this.debug = debug;
         this.showHidden = showHidden;
         this.showAlert = showAlert;
-        this.shortcuts = shortcuts;
+        this.shortcutMap = shortcuts;
     }
 
     public boolean update(Settings newSettings){
-        return update(newSettings.isShowHidden(), newSettings.isShowAlert(), newSettings.getShortcutMap(false));
+        return update(newSettings.isShowHidden(), newSettings.isShowAlert(), newSettings.getShortcutMap());
     }
 
-    public boolean update(boolean showHidden, boolean showAlert, ShortcutMap shortcuts){
+    public boolean update(boolean showHidden, boolean showAlert, ShortcutMap shortcutMap){
         boolean changed = false;
         
         if(showHidden != this.showHidden){
             this.showHidden = showHidden;
             Configuration.values.put(KEY_SHOW_HIDDEN, String.valueOf(showHidden));
             changed = true;
-            fireSettingsChanged(KEY_SHOW_HIDDEN, showHidden);
+            fireSettingsChange(KEY_SHOW_HIDDEN, showHidden);
         }
         
         if(showAlert != this.showAlert){
             this.showAlert = showAlert;
             Configuration.values.put(KEY_SHOW_ALERT, String.valueOf(showAlert));
             changed = true;
-            fireSettingsChanged(KEY_SHOW_ALERT, showAlert);
+            fireSettingsChange(KEY_SHOW_ALERT, showAlert);
         }
-        
-        if(shortcuts != null && (this.shortcuts.size() != shortcuts.size() || !this.shortcuts.equals(shortcuts))){
-            this.shortcuts.clear();
-            this.shortcuts.putAll(shortcuts);
-            Configuration.values.put(KEY_SHORTCUTS, shortcuts.toString());
+
+        if(shortcutMap != null && (this.shortcutMap.size() != shortcutMap.size() || !this.shortcutMap.equals(shortcutMap))){
+            this.shortcutMap.clear();
+            this.shortcutMap.putAll(shortcutMap);
+            Configuration.values.put(KEY_SHORTCUTS, shortcutMap.toString());
             changed = true;
-            fireSettingsChanged(KEY_SHORTCUTS, this.shortcuts);
+            fireSettingsChange(KEY_SHORTCUTS, this.shortcutMap);
         }
         
         Configuration.values.save();
         return changed;
     }
     
-    public void fireSettingsChanged(String settingsKey, Object newValue){
+    public void fireSettingsChange(String settingsKey, Object newValue){
         listeners.forEach(l -> l.settingsChange(new SettingsChangeEvent(this, settingsKey, newValue)));
     }
     
     public boolean containsShortcut(int code) {
-         return shortcuts.containsKey(code);
+         return shortcutMap.containsKey(code);
     }
 
     // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 
@@ -123,19 +121,25 @@ public class Settings {
 
     
     public Shortcut getShortcut(int code) {
-         return shortcuts.get(code);
+         return shortcutMap.get(code);
     }
     
-    public ShortcutMap getShortcutMap(boolean copy) {
-        if(copy){
-            final ShortcutMap sm = new ShortcutMap();
-            sm.putAll(shortcuts);
-            return sm;
-        } else return shortcuts;
+    public ShortcutMap getShortcutMap() {
+        return shortcutMap;
+    }
+    
+    public Settings getCopy(){
+        final ShortcutMap sm = new ShortcutMap();
+        sm.putAll(shortcutMap);
+        return new Settings(debug, showHidden, showAlert, sm);
     }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
+    public void setDebug(boolean b) {
+        debug = b;
+    }
+
     public void setShowHidden(boolean b) {
         showHidden = b;
     }
@@ -145,15 +149,15 @@ public class Settings {
     }
         
     public void addShortcut(Shortcut shortcut){
-        shortcuts.put(shortcut.key, shortcut);
+        shortcutMap.put(shortcut.key, shortcut);
     }
     
     public void removeShortcut(Shortcut shortcut) {
-        shortcuts.remove(shortcut.key);
+        shortcutMap.remove(shortcut.key);
     }
     
     public void removeShortcut(String description){
-        final Iterator<Map.Entry<Integer, Shortcut>> i = shortcuts.entrySet().iterator();
+        final Iterator<Map.Entry<Integer, Shortcut>> i = shortcutMap.entrySet().iterator();
         boolean changed = false;
         while(i.hasNext()){
             final Map.Entry<Integer, Shortcut> entry = i.next();
@@ -164,8 +168,8 @@ public class Settings {
             }
         }
         if(changed){
-            Configuration.values.put(KEY_SHORTCUTS, shortcuts.toString());
-            fireSettingsChanged(KEY_SHORTCUTS, this.shortcuts);
+            Configuration.values.put(KEY_SHORTCUTS, shortcutMap.toString());
+            fireSettingsChange(KEY_SHORTCUTS, this.shortcutMap);
             Configuration.values.save();
         }
     }
@@ -178,5 +182,5 @@ public class Settings {
         return this.listeners.remove(listener);
     }
     // </editor-fold>
-
+    
 }

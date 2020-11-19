@@ -37,9 +37,11 @@ public class ToolsPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc=" RENDERER "> 
     private class ListRenderer implements ListCellRenderer<String>{
 
-        private final JLabel label = new JLabel();
+        private final JLabel label;
+        private final Color selectedColor = UIManager.getDefaults().getColor("List.selectionBackground");
         
         public ListRenderer() {
+            label = new JLabel();
             label.setBorder(BorderFactory.createDashedBorder(Color.BLACK));
             label.setOpaque(true);
         }
@@ -48,7 +50,7 @@ public class ToolsPanel extends javax.swing.JPanel {
         public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus) {
             label.setText(value);
             if(isSelected) {
-                label.setBackground(UIManager.getDefaults().getColor("List.selectionBackground"));
+                label.setBackground(selectedColor);
                 label.setForeground(Color.WHITE);
             }else {
                 label.setBackground(null);
@@ -102,7 +104,7 @@ public class ToolsPanel extends javax.swing.JPanel {
         txfNumImages.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         txfNumImages.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txfNumImages.setText("0");
-        txfNumImages.setToolTipText("Total number of images within the folder");
+        txfNumImages.setToolTipText("Number of images within the folder");
         txfNumImages.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         txfNumImages.setEnabled(false);
 
@@ -332,26 +334,25 @@ public class ToolsPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void txfImagePosKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txfImagePosKeyPressed
-        if(listener == null) return;
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if(listener != null && (evt.getKeyCode() == KeyEvent.VK_ENTER)){
             listener.load(txfImagePos.getInt());
         }
     }//GEN-LAST:event_txfImagePosKeyPressed
 
     private void lstRootFoldersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lstRootFoldersMouseClicked
-        listClicked(evt, false);
+        if(listener != null) listClicked(evt, false);
     }//GEN-LAST:event_lstRootFoldersMouseClicked
 
     private void lstSubFoldersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lstSubFoldersMouseClicked
-        listClicked(evt, true);
+        if(listener != null) listClicked(evt, true);
     }//GEN-LAST:event_lstSubFoldersMouseClicked
 
     private void lstSubFoldersKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lstSubFoldersKeyReleased
-        listKeyReleased(evt, true);
+        if(listener != null) listKeyReleased(evt, true);
     }//GEN-LAST:event_lstSubFoldersKeyReleased
 
     private void lstRootFoldersKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lstRootFoldersKeyReleased
-        listKeyReleased(evt, false);
+        if(listener != null) listKeyReleased(evt, false);
     }//GEN-LAST:event_lstRootFoldersKeyReleased
 
     private void lblSettingsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSettingsMouseClicked
@@ -387,7 +388,6 @@ public class ToolsPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     private void listKeyReleased(KeyEvent evt, boolean subfolder){
-         if(listener == null) return;
          final JList<String> list = (JList<String>)evt.getSource();
          if(evt.getKeyCode() == KeyEvent.VK_ENTER && !list.isSelectionEmpty()){
              listener.move(list.getSelectedValue(), subfolder);
@@ -395,7 +395,6 @@ public class ToolsPanel extends javax.swing.JPanel {
     }
     
     private void listClicked(MouseEvent evt, boolean subfolder){
-        if(listener == null) return;
         final JList<String> list = (JList<String>)evt.getSource();
 	if (evt.getButton() == 1 && evt.getClickCount() == 2 && !list.isSelectionEmpty()){
             listener.move(list.getSelectedValue(), subfolder);

@@ -16,9 +16,9 @@
  */
 package rubensandreoli.imageorganizer.io.support;
 
-import rubensandreoli.imageorganizer.io.support.SettingsChangeEvent;
+import java.util.EventListener;
 
 @FunctionalInterface
-public interface SettingsListener {
+public interface SettingsListener extends EventListener{
     void settingsChange(SettingsChangeEvent evt);
 }

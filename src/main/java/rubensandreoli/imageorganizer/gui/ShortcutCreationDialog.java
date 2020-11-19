@@ -33,7 +33,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
     private static final String EMPTY_MSG = "Please, type a key to create the shortcut.";
     private static final String DUPLICATED_TITLE = "Duplicated Key";
     private static final String DUPLICATED_MSG = "This key is already associated with an action.\nPlease, change the key or delete the shortcut\ncontaining it before adding a new one.";
-    private static final int MAX_FOLDER_LENGHT = 42;
+    private static final int MAX_FOLDER_LENGTH = 42;
     // </editor-fold>
     
     private final PickConsumer<Shortcut> listener;
@@ -50,7 +50,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
         }
         
         initComponents();
-        txfFolder.setLenght(MAX_FOLDER_LENGHT);
+        txfFolder.setLenght(MAX_FOLDER_LENGTH);
         txfFolder.setDragEnabled(false);
         setLocationRelativeTo(parent);
     }
@@ -151,17 +151,10 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
             return;
         }
         
-        final StringBuilder sb = new StringBuilder().append(txfKey.getKey()).append(Shortcut.SEPARATOR);
-        final String item = (String)cmbAction.getSelectedItem();
-        sb.append(item);
-        if(item.equals(Shortcut.Action.MOVE.name())){
-            sb.append(Shortcut.SEPARATOR).append(txfFolder.getText());
-        }
-        
-        if(listener.accept(Shortcut.createShortcut(sb.toString()))){
-            dispose();
-        }else{
+        if(!listener.accept(new Shortcut(txfKey.getKey(), Shortcut.Action.valueOf((String)cmbAction.getSelectedItem()), txfFolder.getText()))){
             SwingUtils.showMessageDialog(this, DUPLICATED_MSG, DUPLICATED_TITLE, Level.WARNING, true);
+        }else{
+            dispose();
         }
     }//GEN-LAST:event_btnAddActionPerformed
 

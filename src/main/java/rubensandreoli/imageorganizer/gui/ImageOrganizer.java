@@ -52,7 +52,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
     private static final String PROGRAM_NAME = "Image Organizer";
     private static final String PROGRAM_VERSION = "v1.0.0";
-    private static final String PROGRAM_YEAR = "2018";
+    private static final String PROGRAM_YEAR = "2020";
     private static final String PROGRAM_ICON = "images/icon.png";
     
     private static final String DELETE_ALERT_TITLE = "Delete Image";
@@ -109,6 +109,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         pnlSplit.setOneTouchExpandable(true);
 
         pnlImage.setBackground(new java.awt.Color(255, 255, 255));
+        pnlImage.setToolTipText("<html>Image preview<hr>  Double-Click: fit to panel<br> Right-Click: choose folder<br>  Drag-and-Drop: load folder</html>");
 
         javax.swing.GroupLayout pnlImageLayout = new javax.swing.GroupLayout(pnlImage);
         pnlImage.setLayout(pnlImageLayout);
@@ -118,7 +119,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         );
         pnlImageLayout.setVerticalGroup(
             pnlImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 326, Short.MAX_VALUE)
+            .addGap(0, 336, Short.MAX_VALUE)
         );
 
         pnlSplit.setLeftComponent(pnlImage);
@@ -132,7 +133,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pnlSplit)
+            .addComponent(pnlSplit, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
         );
 
         pack();
@@ -364,7 +365,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     
     @Override
     public void delete() {
-        if(settings.isShowAlert() && 
+        if(!settings.isShowAlert() || 
                 JOptionPane.showConfirmDialog(this, DELETE_ALERT_MSG, DELETE_ALERT_TITLE, JOptionPane.YES_NO_OPTION) == 
                 JOptionPane.YES_OPTION){
             try {

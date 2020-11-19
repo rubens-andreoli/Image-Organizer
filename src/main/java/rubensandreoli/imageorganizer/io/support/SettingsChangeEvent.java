@@ -21,21 +21,21 @@ import java.util.EventObject;
 public class SettingsChangeEvent extends EventObject{
     private static final long serialVersionUID = 1L;
 
-    private final String settingsKey;
+    private final String settingKey;
     private final Object newValue;
 
-    public SettingsChangeEvent(Object source, String settingsKey, Object newValue) {
+    public SettingsChangeEvent(Object source, String settingKey, Object newValue) {
         super(source);
-        this.settingsKey = settingsKey;
+        this.settingKey = settingKey;
         this.newValue = newValue;
     }
     
-    public boolean isSetting(String settingsKey){
-        return this.settingsKey.equals(settingsKey);
+    public boolean isSetting(String settingKey){
+        return this.settingKey.equals(settingKey);
     }
 
     public String getSettingsKey() {
-        return settingsKey;
+        return settingKey;
     }
 
     public Object getNewValue() {

@@ -16,7 +16,9 @@
  */
 package rubensandreoli.imageorganizer.gui.support;
 
-public interface ToolsListener {
+import java.util.EventListener;
+
+public interface ToolsListener extends EventListener{
     
     void load(int position);
     void next();

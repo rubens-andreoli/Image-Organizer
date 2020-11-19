@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 import javax.imageio.ImageIO;
-import rubensandreoli.commons.others.CachedFile;
 import rubensandreoli.commons.utils.FileUtils;
 
 /** References:
@@ -40,7 +39,7 @@ public class ImageFolder {
     private final Collection<String> rootFolders;
     private final Collection<String> subFolders;
     private final List<File> images;
-
+    
     public ImageFolder(String folderPath, boolean showHidden){
 	rootFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	subFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -82,7 +81,7 @@ public class ImageFolder {
 	    return false;
 	}
     }
-        
+    
     public BufferedImage loadImage(int imagePos) throws IOException{
 	try{
             final BufferedImage image = ImageIO.read(images.get(imagePos));
@@ -90,7 +89,7 @@ public class ImageFolder {
             return image;
         }catch(IOException ex){
             throw new IOException("Image could not be loaded!");
-        }
+            }
     }
     
     public void transferImageTo(int imagePos, String folderName, boolean subfolder) throws IOException{

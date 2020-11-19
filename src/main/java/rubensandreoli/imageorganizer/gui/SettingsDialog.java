@@ -45,10 +45,10 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         setIconImage(parent.getIconImage());
         
         curSettings = settings;
-        newSettings = new Settings(curSettings.isShowHidden(), curSettings.isShowAlert(), curSettings.getShortcutMap(true));
+        newSettings = settings.getCopy();
         chbHidden.setSelected(curSettings.isShowHidden());
         chbAlert.setSelected(curSettings.isShowAlert());
-        curSettings.getShortcutMap(false).values().forEach(s -> listShortcut(s));
+        curSettings.getShortcutMap().values().forEach(s -> addShortcut(s));
         
         Logger.log.setEnabled(settings.isDebug());
     }
@@ -80,7 +80,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
 
         btnAddShotcut.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         btnAddShotcut.setText("+");
-        btnAddShotcut.setToolTipText("adiciona um campo de reiceta");
+        btnAddShotcut.setToolTipText("Create new shortcut");
         btnAddShotcut.setActionCommand("plusIncome");
         btnAddShotcut.setFocusable(false);
         btnAddShotcut.addActionListener(new java.awt.event.ActionListener() {
@@ -200,14 +200,15 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
     private javax.swing.JScrollPane sclShortcuts;
     // End of variables declaration//GEN-END:variables
 
-    private void listShortcut(Shortcut shortcut){
-        pnlShortcuts.add(new ShortcutPanel(shortcut, e -> deleteShortcut(e, shortcut)));
+    private void addShortcut(Shortcut shortcut){
+        pnlShortcuts.add(new ShortcutPanel(shortcut, e -> removeShortcut(e, shortcut)));
         pnlShortcuts.validate();
     }
 
-    private void deleteShortcut(ActionEvent e, Shortcut shortcut) {
+    private void removeShortcut(ActionEvent e, Shortcut shortcut) {
         newSettings.removeShortcut(shortcut);
         pnlShortcuts.remove(((Component) e.getSource()).getParent());
+        pnlShortcuts.repaint(); //needed? intermitent failure without?
         pnlShortcuts.validate();
         sclShortcuts.getVerticalScrollBar().setValue(0);
     }
@@ -216,7 +217,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
     public boolean accept(Shortcut shortcut) {
         if(!newSettings.containsShortcut(shortcut.key)){
             newSettings.addShortcut(shortcut);
-            listShortcut(shortcut);
+            addShortcut(shortcut);
             sclShortcuts.validate();
             return true;
         }

@@ -26,7 +26,7 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
         
     public void put(String list){
         for (String token : list.split(SEPARATOR)){
-            put(Shortcut.createShortcut(token));
+            put(Shortcut.parseShortcut(token));
         }
     }
     
@@ -39,10 +39,7 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
         final StringBuilder sb = new StringBuilder();
         final Iterator<Shortcut> it = this.values().iterator();
         while(it.hasNext()){
-            final Shortcut s = it.next();
-            sb.append(s.key).append(Shortcut.SEPARATOR).append(s.action);
-            final String d = s.description;
-            if(d != null) sb.append(Shortcut.SEPARATOR).append(s.description);
+            sb.append(it.next());
             if(it.hasNext()) sb.append(SEPARATOR);
         }
         return sb.toString();

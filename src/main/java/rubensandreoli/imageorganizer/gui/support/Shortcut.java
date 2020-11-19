@@ -29,13 +29,22 @@ public class Shortcut {
     public final Action action;
     public final String description;
 
-    private Shortcut(int key, Action action, String description) {
+    public Shortcut(int key, Action action, String description) {
         this.key = key;
         this.action = action;
         this.description = description;
     }
+    
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(key).append(SEPARATOR).append(action);
+        final String d = description;
+        if(d != null) sb.append(SEPARATOR).append(description);
+        return sb.toString();
+    }
         
-    public static Shortcut createShortcut(String entry){
+    public static Shortcut parseShortcut(String entry){
         final String[] tokens = entry.split(SEPARATOR);
         try{
             final int k = Integer.valueOf(tokens[0].trim());
@@ -50,5 +59,5 @@ public class Shortcut {
             return null;
         }
     }
-  
+    
 }

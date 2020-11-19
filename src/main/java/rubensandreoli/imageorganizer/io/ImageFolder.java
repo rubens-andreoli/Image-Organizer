@@ -53,8 +53,7 @@ public class ImageFolder {
             if(f.isDirectory()) {
                 subFolders.add(f.getName());
             }else{
-                final CachedFile cf = new CachedFile(f);
-                if(FileUtils.IMAGES_EXT.contains(cf.getExtension())) images.add(cf);
+                if(FileUtils.hasImageExtension(f)) images.add(f);
             }
         });
         FileUtils.visitChildren(root, FileUtils.DIRECTORIES_ONLY, showHidden, f -> rootFolders.add(f.getName()));
@@ -85,7 +84,13 @@ public class ImageFolder {
     }
         
     public BufferedImage loadImage(int imagePos) throws IOException{
-	return ImageIO.read(images.get(imagePos));
+	try{
+            final BufferedImage image = ImageIO.read(images.get(imagePos));
+            if(image == null) throw new IOException();
+            return image;
+        }catch(IOException ex){
+            throw new IOException("Image could not be loaded!");
+        }
     }
     
     public void transferImageTo(int imagePos, String folderName, boolean subfolder) throws IOException{

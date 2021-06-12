@@ -22,7 +22,7 @@ import java.awt.event.ActionEvent;
 import rubensandreoli.commons.others.Logger;
 import rubensandreoli.commons.others.PickConsumer;
 import rubensandreoli.imageorganizer.io.Settings;
-import rubensandreoli.imageorganizer.gui.support.Shortcut;
+import rubensandreoli.imageorganizer.io.support.Shortcut;
 
 /** References:
  * https://stackoverflow.com/questions/291115/java-swing-using-jscrollpane-and-having-it-scroll-back-to-top

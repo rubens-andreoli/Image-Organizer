@@ -23,7 +23,7 @@ import javax.swing.DefaultComboBoxModel;
 import rubensandreoli.commons.others.Level;
 import rubensandreoli.commons.others.PickConsumer;
 import rubensandreoli.commons.utils.SwingUtils;
-import rubensandreoli.imageorganizer.gui.support.Shortcut;
+import rubensandreoli.imageorganizer.io.support.Shortcut;
 
 public class ShortcutCreationDialog extends javax.swing.JDialog {
     private static final long serialVersionUID = 1L;

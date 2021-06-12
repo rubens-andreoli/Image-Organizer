@@ -37,7 +37,7 @@ import rubensandreoli.commons.utils.SwingUtils;
 import rubensandreoli.imageorganizer.io.Settings;
 import rubensandreoli.imageorganizer.io.support.SettingsChangeEvent;
 import rubensandreoli.imageorganizer.io.support.SettingsListener;
-import rubensandreoli.imageorganizer.gui.support.Shortcut;
+import rubensandreoli.imageorganizer.io.support.Shortcut;
 import rubensandreoli.imageorganizer.io.History;
 import rubensandreoli.imageorganizer.io.ImageFolder;
 

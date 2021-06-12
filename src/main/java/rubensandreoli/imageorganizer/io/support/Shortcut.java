@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package rubensandreoli.imageorganizer.gui.support;
+package rubensandreoli.imageorganizer.io.support;
 
 import rubensandreoli.commons.others.Level;
 import rubensandreoli.commons.others.Logger;
@@ -40,7 +40,7 @@ public class Shortcut {
         final StringBuilder sb = new StringBuilder();
         sb.append(key).append(SEPARATOR).append(action);
         final String d = description;
-        if(d != null) sb.append(SEPARATOR).append(description);
+        if(d != null && !d.isBlank()) sb.append(SEPARATOR).append(description);
         return sb.toString();
     }
         

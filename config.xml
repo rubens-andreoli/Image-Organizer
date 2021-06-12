@@ -4,6 +4,6 @@
 <comment>CONFIGURATIONS</comment>
 <entry key="debug">true</entry>
 <entry key="delete_alert">true</entry>
-<entry key="shortcuts">80,MOVE,D:\;97,NEXT,;98,NEXT,;51,DELETE,;84,MOVE,D:\Downloads;68,MOVE,D:\;37,PREVIOUS;39,NEXT</entry>
+<entry key="shortcuts">80,MOVE,D:\;97,NEXT;98,NEXT;51,DELETE;84,MOVE,D:\Downloads;68,MOVE,D:\;37,PREVIOUS;39,NEXT;89,NEXT</entry>
 <entry key="hidden_folders">false</entry>
 </properties>

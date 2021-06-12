@@ -24,8 +24,8 @@ import java.util.Map;
 import rubensandreoli.commons.others.Configuration;
 import rubensandreoli.imageorganizer.io.support.SettingsChangeEvent;
 import rubensandreoli.imageorganizer.io.support.SettingsListener;
-import rubensandreoli.imageorganizer.gui.support.Shortcut;
-import rubensandreoli.imageorganizer.gui.support.ShortcutMap;
+import rubensandreoli.imageorganizer.io.support.Shortcut;
+import rubensandreoli.imageorganizer.io.support.ShortcutMap;
 
 public class Settings {
 

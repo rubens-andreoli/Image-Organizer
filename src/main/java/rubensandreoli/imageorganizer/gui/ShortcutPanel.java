@@ -17,7 +17,7 @@
 package rubensandreoli.imageorganizer.gui;
 
 import java.awt.event.ActionListener;
-import rubensandreoli.imageorganizer.gui.support.Shortcut;
+import rubensandreoli.imageorganizer.io.support.Shortcut;
 
 public class ShortcutPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;

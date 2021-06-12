@@ -175,7 +175,7 @@ public class ToolsPanel extends javax.swing.JPanel {
         sclFoldersOut.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         lstRootFolders.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        lstRootFolders.setToolTipText("<html>Folders in the same level<hr>\nDouble-Click: transfer image to folder<br>\nRight-Click: create new folder<br>\nMiddle-Click: go to folder</html>");
+        lstRootFolders.setToolTipText("<html>Folders in the same level<hr>\n<b>Double-Click</b>: transfer image to folder<br>\n<b>Right-Click</b>: create new folder<br>\n<b>Shift+Left-Click</b>: go to folder</html>");
         lstRootFolders.setCellRenderer(new ListRenderer());
         lstRootFolders.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -197,7 +197,7 @@ public class ToolsPanel extends javax.swing.JPanel {
         sclFoldersIn.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         lstSubFolders.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        lstSubFolders.setToolTipText("<html>Folders inside<hr>\nDouble-Click: transfer image to folder<br>\nRight-Click: create new folder<br>\nMiddle-Click: go to folder</html>");
+        lstSubFolders.setToolTipText("<html>Folders inside<hr>\n<b>Double-Click</b>: transfer image to folder<br>\n<b>Right-Click</b>: create new folder<br>\n<b>Shift+Left-Click</b>: go to folder</html>");
         lstSubFolders.setCellRenderer(new ListRenderer());
         lstSubFolders.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -403,7 +403,7 @@ public class ToolsPanel extends javax.swing.JPanel {
             listener.move(list.getSelectedValue(), subfolder);
 	} else if(evt.getButton() == 3){
             listener.createFolder(subfolder);
-        } else if(evt.getButton() == 2 && !list.isSelectionEmpty()){
+        } else if(evt.getButton() == 1 && evt.isShiftDown() && !list.isSelectionEmpty()){
             listener.loadFolder(list.getSelectedValue(), subfolder);
         }
     }

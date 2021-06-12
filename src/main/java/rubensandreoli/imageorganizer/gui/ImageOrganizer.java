@@ -44,6 +44,7 @@ import rubensandreoli.imageorganizer.io.ImageFolder;
 
 /** References:
  * http://www.java2s.com/Tutorial/Java/0240__Swing/SettingtheLocationofaToolTip.htm
+ * https://stackoverflow.com/questions/7065309/jsplitpane-set-resizable-false/54458846#54458846
  *
  * @author Rubens A. Andreoli Jr.
  */

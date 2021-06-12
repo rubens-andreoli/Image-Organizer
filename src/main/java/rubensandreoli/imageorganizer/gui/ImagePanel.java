@@ -16,8 +16,8 @@
  */
 package rubensandreoli.imageorganizer.gui;
 
-import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -34,7 +34,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 
 /** References:
- * https://stackoverflow.com/questions/7065309/jsplitpane-set-resizable-false/54458846#54458846
+ * https://stackoverflow.com/questions/7357969/how-to-use-java-code-to-open-windows-file-explorer-and-highlight-the-specified-f
  */
 public class ImagePanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
@@ -84,10 +84,15 @@ public class ImagePanel extends javax.swing.JPanel {
 	    @Override
 	    public void mousePressed(MouseEvent e) {
                 if(click == false && image != null && e.getButton() == 1){
-		    clickX = e.getX()-xOffset;
-		    clickY = e.getY()-yOffset;
-		    setCursor(MOVE_CURSOR);
-		    click = true;
+//		    if(e.isShiftDown()){
+//                        Desktop desktop = Desktop.getDesktop();
+//                        desktop.open(file);
+//                    }else{
+                        clickX = e.getX()-xOffset;
+                        clickY = e.getY()-yOffset;
+                        setCursor(MOVE_CURSOR);
+                        click = true;
+//                    }
 		}
 	    }
 

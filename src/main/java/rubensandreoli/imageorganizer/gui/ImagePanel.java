@@ -16,6 +16,7 @@
  */
 package rubensandreoli.imageorganizer.gui;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -42,12 +43,14 @@ public class ImagePanel extends javax.swing.JPanel {
     private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     private static final Cursor DEFAULT_CURSOR = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
     private static final Font SCALE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 18);
+    private static final Font INFO_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
     private static final float SCALE_RATE = 40; //higher = smaller increments
     // </editor-fold>
     
     private BufferedImage image;
+    private String[] info; //information about the image to be displayed
     private float clickX, clickY, xOffset, yOffset, scale;
-    private boolean click;
+    private boolean click, showInfo;
     
     public ImagePanel() {
         initComponents();
@@ -167,11 +170,19 @@ public class ImagePanel extends javax.swing.JPanel {
 	);
 	g2d.setFont(SCALE_FONT);
 	g2d.drawString(String.format("%.3fx", scale), getWidth()-75, getHeight());
+        if(showInfo && info != null){
+            g2d.setFont(INFO_FONT);
+            int fontHeight = g.getFontMetrics().getHeight()-4; //FIX: do only once
+            int y = getHeight()- info.length*fontHeight-1;
+            for (String line : info)
+                g2d.drawString(line, 5, y += fontHeight);
+        }
 	g2d.dispose();
     }
     
-    public void setImage(BufferedImage image) {
+    public void setImage(BufferedImage image, String...info) {
 	this.image = image;
+        this.info = info;
 	resize();
     }
     
@@ -198,7 +209,13 @@ public class ImagePanel extends javax.swing.JPanel {
     
     public void clear(){
 	image = null;
+        info = null;
 	repaint();
     }
-    
+
+    public void toggleShowInfo() {
+        this.showInfo = !this.showInfo;
+        if(image != null) repaint();
+    }
+ 
 }

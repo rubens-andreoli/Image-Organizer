@@ -24,6 +24,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JButton;
@@ -189,6 +190,9 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                         case REFRESH:
                             if(imageFolder != null) loadFolder(imageFolder.getFolderPath());
                             break;
+                        case INFO:
+                            pnlImage.toggleShowInfo();
+                            break;
                         case MOVE:
                             move(shortcut.description);
                             break;
@@ -277,16 +281,26 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             pnlImage.clear();
             pnlTools.setImagePosition(0);
             pnlTools.setImageName("");
+//            this.setTitle(PROGRAM_NAME);
 	}else{
+            String imagePath = imageFolder.getImagePath(currentPos);
 	    try {
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		pnlImage.setImage(imageFolder.loadImage(currentPos));
+		BufferedImage image = imageFolder.loadImage(currentPos);
+                pnlImage.setImage(
+                        image, 
+                        String.format("Name: %s", FileUtils.getFilename(imagePath)), //FIX: this should be done by the ImagePanel. Wrap image with info in map?
+                        String.format("Extension: %s", FileUtils.getExtension(imagePath)),
+                        String.format("Size: %dx%d", image.getHeight(), image.getWidth()),
+                        String.format("Position: %d of %d", currentPos+1, numImages)
+                );
 	    } catch (IOException ex) { //clear last image if fail to loadFolder
 		pnlImage.clear();
 		showException(ex);
 	    } finally { //fill info even if failed loading
-		pnlTools.setImageName(imageFolder.getImagePath(currentPos));
+		pnlTools.setImageName(imagePath);
 		pnlTools.setImagePosition(currentPos+1);
+//                this.setTitle(String.format("%s [%d:%d]", PROGRAM_NAME, currentPos+1, numImages));
 		history.addEntry(imageFolder.getFolderPath(), currentPos);
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	    }

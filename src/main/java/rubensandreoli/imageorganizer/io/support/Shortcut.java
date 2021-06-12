@@ -21,7 +21,7 @@ import rubensandreoli.commons.others.Logger;
 
 public class Shortcut {
     
-    public enum Action{NEXT, PREVIOUS, DELETE, MOVE, REFRESH}
+    public enum Action{NEXT, PREVIOUS, DELETE, MOVE, REFRESH, INFO}
     
     public static final String SEPARATOR = ","; //can't use ':' due to drive
 

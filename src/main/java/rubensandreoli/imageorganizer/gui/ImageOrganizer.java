@@ -186,6 +186,9 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                         case DELETE:
                             delete();
                             break;
+                        case REFRESH:
+                            if(imageFolder != null) loadFolder(imageFolder.getFolderPath());
+                            break;
                         case MOVE:
                             move(shortcut.description);
                             break;
@@ -221,7 +224,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private void showException(Exception ex){
         SwingUtils.showMessageDialog(this, ex, Level.WARNING, true);
     }
-    
+
     private void loadFolder(String folderPath){
         if(imageFolder != null){
             if(currentPos > 0){ //add to history if not at initial position

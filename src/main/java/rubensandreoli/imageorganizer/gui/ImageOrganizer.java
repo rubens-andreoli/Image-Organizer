@@ -173,7 +173,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         });
         
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
-            if(imageFolder != null && isActive()){
+            if(imageFolder != null && isActive() /*&& !pnlTools.isTyping()*/){
                 final int code = evt.getKeyCode();
                 if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_RELEASED")){
                     final Shortcut shortcut = settings.getShortcut(code);

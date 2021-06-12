@@ -23,6 +23,7 @@ import rubensandreoli.commons.others.Logger;
 import rubensandreoli.commons.others.PickConsumer;
 import rubensandreoli.imageorganizer.io.Settings;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
+import rubensandreoli.imageorganizer.io.support.ShortcutMap;
 
 /** References:
  * https://stackoverflow.com/questions/291115/java-swing-using-jscrollpane-and-having-it-scroll-back-to-top
@@ -33,8 +34,8 @@ import rubensandreoli.imageorganizer.io.support.Shortcut;
 public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<Shortcut> {
     private static final long serialVersionUID = 1L;
 
-    private final Settings curSettings;
-    private Settings newSettings;
+    private final Settings settings;
+    private ShortcutMap shortcuts;
     
     
     public SettingsDialog(Frame parent, Settings settings) {
@@ -44,11 +45,12 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         setLocationRelativeTo(parent);
         setIconImage(parent.getIconImage());
         
-        curSettings = settings;
-        newSettings = settings.getCopy();
-        chbHidden.setSelected(curSettings.isShowHidden());
-        chbAlert.setSelected(curSettings.isShowAlert());
-        curSettings.getShortcutMap().values().forEach(s -> addShortcut(s));
+        this.settings = settings;
+        chbHidden.setSelected(settings.isShowHidden());
+        chbAlert.setSelected(settings.isShowAlert());
+        
+        shortcuts = settings.getShortcutMap();
+        shortcuts.values().forEach(s -> addShortcut(s));
         
         Logger.log.setEnabled(settings.isDebug());
     }
@@ -90,19 +92,9 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
         });
 
         chbHidden.setText("Show hidden folders");
-        chbHidden.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chbHiddenActionPerformed(evt);
-            }
-        });
 
         chbAlert.setSelected(true);
         chbAlert.setText("Show warning when deleting");
-        chbAlert.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chbAlertActionPerformed(evt);
-            }
-        });
 
         btnSave.setText("OK");
         btnSave.addActionListener(new java.awt.event.ActionListener() {
@@ -177,17 +169,9 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
     }//GEN-LAST:event_btnAddShotcutActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-         curSettings.update(newSettings);
+         settings.update(chbHidden.isSelected(), chbAlert.isSelected(), shortcuts);
          dispose();
     }//GEN-LAST:event_btnSaveActionPerformed
-
-    private void chbHiddenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chbHiddenActionPerformed
-        newSettings.setShowHidden(chbHidden.isSelected());
-    }//GEN-LAST:event_chbHiddenActionPerformed
-
-    private void chbAlertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chbAlertActionPerformed
-        newSettings.setShowAlert(chbAlert.isSelected());
-    }//GEN-LAST:event_chbAlertActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddShotcut;
@@ -206,7 +190,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
     }
 
     private void removeShortcut(ActionEvent e, Shortcut shortcut) {
-        newSettings.removeShortcut(shortcut);
+        shortcuts.remove(shortcut);
         pnlShortcuts.remove(((Component) e.getSource()).getParent());
         pnlShortcuts.repaint(); //needed? intermitent failure without?
         pnlShortcuts.validate();
@@ -215,8 +199,8 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
 
     @Override
     public boolean accept(Shortcut shortcut) {
-        if(!newSettings.containsShortcut(shortcut.key)){
-            newSettings.addShortcut(shortcut);
+        if(!shortcuts.containsKey(shortcut.key)){
+            shortcuts.put(shortcut);
             addShortcut(shortcut);
             sclShortcuts.validate();
             return true;

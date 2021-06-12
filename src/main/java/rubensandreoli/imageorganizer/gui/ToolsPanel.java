@@ -389,8 +389,11 @@ public class ToolsPanel extends javax.swing.JPanel {
 
     private void listKeyReleased(KeyEvent evt, boolean subfolder){
          final JList<String> list = (JList<String>)evt.getSource();
-         if(evt.getKeyCode() == KeyEvent.VK_ENTER && !list.isSelectionEmpty()){
-             listener.move(list.getSelectedValue(), subfolder);
+         if(evt.getKeyCode() == KeyEvent.VK_ENTER){ //FIX: not working due to commons textfield
+//             btnNext.requestFocus();
+             if(!list.isSelectionEmpty()){
+                 listener.move(list.getSelectedValue(), subfolder);
+             }
          }
     }
     
@@ -416,6 +419,10 @@ public class ToolsPanel extends javax.swing.JPanel {
     private void deselectList(FocusEvent evt){
         ((JList)evt.getComponent()).clearSelection();
     }
+    
+//    public boolean isTyping(){
+//        return txfImagePos.isFocusOwner();
+//    }
   
     // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
     public void setListener(ToolsListener l){

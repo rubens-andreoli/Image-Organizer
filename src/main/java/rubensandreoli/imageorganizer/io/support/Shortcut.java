@@ -23,7 +23,7 @@ public class Shortcut {
     
     public enum Action{NEXT, PREVIOUS, DELETE, MOVE, REFRESH, INFO}
     
-    public static final String SEPARATOR = ","; //can't use ':' due to drive
+    public static final String SEPARATOR = ","; //can't use ':' due to drive path
 
     public final int key;
     public final Action action;

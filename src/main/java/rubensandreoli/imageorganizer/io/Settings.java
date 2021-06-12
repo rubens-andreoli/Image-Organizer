@@ -38,10 +38,7 @@ public class Settings {
     public static final boolean DEFAULT_DEBUG = true;
     public static final boolean DEFAULT_SHOW_HIDDEN = false;
     public static final boolean DEFAULT_SHOW_ALERT = true;
-    public static final String DEFAULT_SHORTCUTS = 
-            KeyEvent.VK_RIGHT+Shortcut.SEPARATOR+"NEXT"+ShortcutMap.SEPARATOR+
-            KeyEvent.VK_LEFT+Shortcut.SEPARATOR+"PREVIOUS"+ShortcutMap.SEPARATOR+
-            KeyEvent.VK_DELETE+Shortcut.SEPARATOR+"DELETE";
+    private static final String EMPTY_SHORTCUTS = ""; //see constructor
     // </editor-fold>
     
     private boolean debug;
@@ -55,7 +52,16 @@ public class Settings {
         showHidden = Configuration.values.get(KEY_SHOW_HIDDEN, DEFAULT_SHOW_HIDDEN);
         showAlert = Configuration.values.get(KEY_SHOW_ALERT, DEFAULT_SHOW_ALERT);
         shortcutMap = new ShortcutMap();
-        shortcutMap.put(Configuration.values.get(KEY_SHORTCUTS, DEFAULT_SHORTCUTS));
+        String shortcuts = Configuration.values.get(KEY_SHORTCUTS, EMPTY_SHORTCUTS);
+        if(!shortcuts.isBlank()){
+            shortcutMap.put(shortcuts);
+        }else{ //default shortcuts
+            shortcutMap.put(new Shortcut(KeyEvent.VK_LEFT, Shortcut.Action.PREVIOUS, null));
+            shortcutMap.put(new Shortcut(KeyEvent.VK_RIGHT, Shortcut.Action.NEXT, null));
+            shortcutMap.put(new Shortcut(KeyEvent.VK_DELETE, Shortcut.Action.DELETE, null));
+            shortcutMap.put(new Shortcut(KeyEvent.VK_F1, Shortcut.Action.INFO, null));
+            shortcutMap.put(new Shortcut(KeyEvent.VK_F5, Shortcut.Action.REFRESH, null));
+        }
     }
 
     public Settings(boolean debug, boolean showHidden, boolean showAlert, ShortcutMap shortcuts) {
@@ -63,10 +69,6 @@ public class Settings {
         this.showHidden = showHidden;
         this.showAlert = showAlert;
         this.shortcutMap = shortcuts;
-    }
-
-    public boolean update(Settings newSettings){
-        return update(newSettings.isShowHidden(), newSettings.isShowAlert(), newSettings.getShortcutMap());
     }
 
     public boolean update(boolean showHidden, boolean showAlert, ShortcutMap shortcutMap){
@@ -119,43 +121,16 @@ public class Settings {
         return showAlert;
     }
 
-    
     public Shortcut getShortcut(int code) {
          return shortcutMap.get(code);
     }
     
     public ShortcutMap getShortcutMap() {
-        return shortcutMap;
-    }
-    
-    public Settings getCopy(){
-        final ShortcutMap sm = new ShortcutMap();
-        sm.putAll(shortcutMap);
-        return new Settings(debug, showHidden, showAlert, sm);
+        return new ShortcutMap(shortcutMap);
     }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
-    public void setDebug(boolean b) {
-        debug = b;
-    }
-
-    public void setShowHidden(boolean b) {
-        showHidden = b;
-    }
-
-    public void setShowAlert(boolean b) {
-        showAlert = b;
-    }
-        
-    public void addShortcut(Shortcut shortcut){
-        shortcutMap.put(shortcut.key, shortcut);
-    }
-    
-    public void removeShortcut(Shortcut shortcut) {
-        shortcutMap.remove(shortcut.key);
-    }
-    
     public void removeShortcut(String description){
         final Iterator<Map.Entry<Integer, Shortcut>> i = shortcutMap.entrySet().iterator();
         boolean changed = false;

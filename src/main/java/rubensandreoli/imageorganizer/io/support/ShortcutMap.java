@@ -24,6 +24,12 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
 
     public static final String SEPARATOR = ";"; //can't use ':' due to drive, can't be same as Shortcut.SEPARATOR
         
+    public ShortcutMap(){}
+   
+    public ShortcutMap(ShortcutMap map){
+        this.putAll(map);
+    }
+   
     public void put(String list){
         for (String token : list.split(SEPARATOR)){
             put(Shortcut.parseShortcut(token));

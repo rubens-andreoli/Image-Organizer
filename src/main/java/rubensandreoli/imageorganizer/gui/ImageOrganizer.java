@@ -411,6 +411,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                 .addAtribution("Program icon", "Iconshock", "https://www.iconshock.com/")
                 .addAtribution("About icon", "Gregor Cresnar", "https://www.flaticon.com/authors/gregor-cresnar")
                 .addAtribution("Settings icons", "Vectors Market", "https://www.flaticon.com/authors/vectors-market")
+//                .addAtribution("Broken image icon", "Google", "https://www.flaticon.com/authors/google")
                 .setVisible(true);
     }
     

@@ -190,7 +190,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<
     }
 
     private void removeShortcut(ActionEvent e, Shortcut shortcut) {
-        shortcuts.remove(shortcut);
+        shortcuts.remove(shortcut.key);
         pnlShortcuts.remove(((Component) e.getSource()).getParent());
         pnlShortcuts.repaint(); //needed? intermitent failure without?
         pnlShortcuts.validate();

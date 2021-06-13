@@ -38,7 +38,7 @@ public class Settings {
     public static final boolean DEFAULT_DEBUG = true;
     public static final boolean DEFAULT_SHOW_HIDDEN = false;
     public static final boolean DEFAULT_SHOW_ALERT = true;
-    private static final String EMPTY_SHORTCUTS = ""; //see constructor
+    private static final String EMPTY_SHORTCUTS = ""; //used to call overloaded method in the constructor
     // </editor-fold>
     
     private boolean debug;
@@ -52,23 +52,14 @@ public class Settings {
         showHidden = Configuration.values.get(KEY_SHOW_HIDDEN, DEFAULT_SHOW_HIDDEN);
         showAlert = Configuration.values.get(KEY_SHOW_ALERT, DEFAULT_SHOW_ALERT);
         shortcutMap = new ShortcutMap();
-        String shortcuts = Configuration.values.get(KEY_SHORTCUTS, EMPTY_SHORTCUTS);
-        if(!shortcuts.isBlank()){
-            shortcutMap.put(shortcuts);
-        }else{ //default shortcuts
+        shortcutMap.put(Configuration.values.get(KEY_SHORTCUTS, EMPTY_SHORTCUTS));
+        if(shortcutMap.isEmpty()){ //failed loading, default shortcuts
             shortcutMap.put(new Shortcut(KeyEvent.VK_LEFT, Shortcut.Action.PREVIOUS, null));
             shortcutMap.put(new Shortcut(KeyEvent.VK_RIGHT, Shortcut.Action.NEXT, null));
             shortcutMap.put(new Shortcut(KeyEvent.VK_DELETE, Shortcut.Action.DELETE, null));
             shortcutMap.put(new Shortcut(KeyEvent.VK_F1, Shortcut.Action.INFO, null));
             shortcutMap.put(new Shortcut(KeyEvent.VK_F5, Shortcut.Action.REFRESH, null));
         }
-    }
-
-    public Settings(boolean debug, boolean showHidden, boolean showAlert, ShortcutMap shortcuts) {
-        this.debug = debug;
-        this.showHidden = showHidden;
-        this.showAlert = showAlert;
-        this.shortcutMap = shortcuts;
     }
 
     public boolean update(boolean showHidden, boolean showAlert, ShortcutMap shortcutMap){
@@ -144,7 +135,7 @@ public class Settings {
         }
         if(changed){
             Configuration.values.put(KEY_SHORTCUTS, shortcutMap.toString());
-            fireSettingsChange(KEY_SHORTCUTS, this.shortcutMap);
+            fireSettingsChange(KEY_SHORTCUTS, shortcutMap);
             Configuration.values.save();
         }
     }

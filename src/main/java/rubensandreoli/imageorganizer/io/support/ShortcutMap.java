@@ -31,12 +31,14 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
     }
    
     public void put(String list){
+        if(list == null) return;
         for (String token : list.split(SEPARATOR)){
-            put(Shortcut.parseShortcut(token));
+            put(Shortcut.parseShortcut(token));  //continue normally if failed parsing
         }
     }
     
     public void put(Shortcut shortcut){
+        if(shortcut == null) return;
         put(shortcut.key, shortcut);
     }
 

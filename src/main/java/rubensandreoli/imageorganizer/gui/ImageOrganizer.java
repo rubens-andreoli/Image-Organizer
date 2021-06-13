@@ -232,11 +232,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
 
     private void loadFolder(String folderPath){
         if(imageFolder != null){
-            if(currentPos > 0){ //add to history if not at initial position
-                history.addEntry(imageFolder.getFolderPath(), currentPos);
-            }else if(history.contains(folderPath)){ //remove if in history and new position is 0
-                history.removeEntry(folderPath);
-            }
+            history.addEntry(imageFolder.getFolderPath(), currentPos); //save position before changing folders
         }
 
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

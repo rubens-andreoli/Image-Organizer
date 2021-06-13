@@ -39,6 +39,9 @@ public class ShortcutPanel extends javax.swing.JPanel {
         }
         
         txfAction.setText(sb.toString());
+        if(txfAction.getPreferredSize().width > 140){ //design layout size
+            txfAction.setToolTipText(sb.toString());
+        }
         txfKey.setText(shortcut.key);
         btnDelete.addActionListener(listener);
         

@@ -40,12 +40,13 @@ public class History {
 
     public void load() throws IOException{
 	if(!file.exists() || file.isDirectory()){
-	    file.createNewFile();
+	    file.createNewFile(); //create new empty history file if not there
+            return;
 	}
 	try(BufferedReader br = new BufferedReader(new FileReader(FILENAME))){
 	    String line;
 	    while((line = br.readLine()) != null){
-	       String[] tokens = line.split(SEPARATOR);
+	       final String[] tokens = line.split(SEPARATOR);
 	       history.put(tokens[0], Integer.parseInt(tokens[1]));
 	    }
 	}
@@ -54,24 +55,18 @@ public class History {
     public void save() throws IOException{
 	try(BufferedWriter br = new BufferedWriter(new FileWriter(FILENAME))){
 	    for(Map.Entry<String, Integer> e : history.entrySet()){
-	       if(e.getValue() != 0) br.write(String.format("%s%s%d\n", e.getKey(), SEPARATOR, e.getValue()));
+               final StringBuilder sb = new StringBuilder(e.getKey()).append(SEPARATOR).append(e.getValue());
+	       br.write(sb.toString());
+               br.newLine();
 	    }
 	}
     }
     
     public void addEntry(String folder, int pos){
-	history.put(folder, pos);
+        if(pos > 0) history.put(folder, pos);
+        else history.remove(folder);
     }
 
-    public void removeEntry(String folderPath) {
-        history.remove(folderPath);
-    }
-    
-    public boolean contains(String folder){
-        Integer pos = history.get(folder);
-	return pos != null;
-    }
-    
     public int getPosition(String folder){
 	final Integer pos = history.get(folder);
 	return pos == null ? 0 : pos;

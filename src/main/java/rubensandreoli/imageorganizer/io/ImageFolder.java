@@ -16,15 +16,15 @@
  */
 package rubensandreoli.imageorganizer.io;
 
-import java.awt.image.BufferedImage;
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
-import javax.imageio.ImageIO;
 import rubensandreoli.commons.utils.FileUtils;
+import rubensandreoli.imageorganizer.io.support.Image;
 
 /** References:
  * https://www.journaldev.com/861/java-copy-file
@@ -82,14 +82,8 @@ public class ImageFolder {
 	}
     }
     
-    public BufferedImage loadImage(int imagePos) throws IOException{
-	try{
-            final BufferedImage image = ImageIO.read(images.get(imagePos));
-            if(image == null) throw new IOException();
-            return image;
-        }catch(IOException ex){
-            throw new IOException("Image could not be loaded!");
-            }
+    public Image loadImage(int imagePos) {
+	return new Image(images.get(imagePos), imagePos, images.size());
     }
     
     public void transferImageTo(int imagePos, String folderName, boolean subfolder) throws IOException{
@@ -106,8 +100,18 @@ public class ImageFolder {
     
     public void deleteImage(int imagePos) throws IOException{
 	final File image = images.get(imagePos);
-        if(FileUtils.deleteFile(image)) images.remove(imagePos);
-	else throw new IOException("Image \""+image.getPath()+"\" could not be deleted!");
+        boolean deleted = false;
+        if(Desktop.isDesktopSupported()){
+            Desktop d = Desktop.getDesktop();
+            try{
+                deleted = d.moveToTrash(image);
+                if(deleted) images.remove(imagePos);
+            }catch(Exception e){}
+        }
+        if(!deleted){
+            if(FileUtils.deleteFile(image)) images.remove(imagePos);
+            else throw new IOException("Image \""+image.getPath()+"\" could not be deleted!");
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 

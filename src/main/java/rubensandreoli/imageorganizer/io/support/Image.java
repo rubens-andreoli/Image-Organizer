@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Morus
+ * Copyright (C) 2021 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public class Image {
     
     public Image(File file, int pos, int total){
         try {
-            image = ImageIO.read(file);
+            image = ImageIO.read(file); //FIX: null if webp
             height = image.getHeight();
             width = image.getWidth();
         } catch (IOException ex) {}

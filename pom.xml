@@ -18,7 +18,7 @@
         <dependency>
             <groupId>rubens-andreoli</groupId>
             <artifactId>commons</artifactId>
-            <version>0.2.0a</version>
+            <version>0.3.0a</version>
         </dependency>
     </dependencies>
     

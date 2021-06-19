@@ -42,9 +42,12 @@ import rubensandreoli.imageorganizer.io.History;
 import rubensandreoli.imageorganizer.io.ImageFolder;
 import rubensandreoli.imageorganizer.io.support.Image;
 
-/** References:
- * http://www.java2s.com/Tutorial/Java/0240__Swing/SettingtheLocationofaToolTip.htm
- * https://stackoverflow.com/questions/7065309/jsplitpane-set-resizable-false/54458846#54458846
+/** 
+ * References:
+ * <br>
+ * http://www.java2s.com/Tutorial/Java/0240__Swing/SettingtheLocationofaToolTip.htm <br>
+ * https://stackoverflow.com/questions/7065309/jsplitpane-set-resizable-false/54458846#54458846 <br>
+ * https://docs.oracle.com/javase/tutorial/uiswing/misc/keybinding.html
  *
  * @author Rubens A. Andreoli Jr.
  */
@@ -155,7 +158,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     // End of variables declaration//GEN-END:variables
  
     private void initListeners(){
-        SwingUtils.addDroppable(pnlImage, file -> {
+        SwingUtils.setDropTarget(pnlImage, file -> {
             if(file.isDirectory()){
                 ImageOrganizer.this.loadFolder(file.getPath());
                 return true;
@@ -392,7 +395,8 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
   
     @Override
     public void about() {
-        new AboutDialog(this, PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_YEAR)
+        new AboutDialog(this, 
+                new AboutDialog.ProgramInfo(PROGRAM_NAME, null, PROGRAM_VERSION, PROGRAM_YEAR))
                 .addAtribution("Program icon", "Iconshock", "https://www.iconshock.com/")
                 .addAtribution("About icon", "Gregor Cresnar", "https://www.flaticon.com/authors/gregor-cresnar")
                 .addAtribution("Settings icons", "Vectors Market", "https://www.flaticon.com/authors/vectors-market")

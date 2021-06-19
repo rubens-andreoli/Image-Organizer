@@ -35,7 +35,10 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 /** References:
+ * <br>
  * https://stackoverflow.com/questions/7357969/how-to-use-java-code-to-open-windows-file-explorer-and-highlight-the-specified-f
+ *
+ * @author Rubens A. Andreoli Jr.
  */
 public class ImagePanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
@@ -95,7 +98,7 @@ public class ImagePanel extends javax.swing.JPanel {
 //		    if(e.isShiftDown() && !broken){
                         //TODO: open folder on explorer with file selected
 //                        Runtime.getRuntime().exec("explorer.exe /select," + info.getPath());
-                    }else{
+//                    }else{
                         clickX = e.getX()-xOffset;
                         clickY = e.getY()-yOffset;
                         setCursor(MOVE_CURSOR);

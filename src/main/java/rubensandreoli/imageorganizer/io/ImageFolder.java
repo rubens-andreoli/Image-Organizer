@@ -26,8 +26,11 @@ import java.util.TreeSet;
 import rubensandreoli.commons.utils.FileUtils;
 import rubensandreoli.imageorganizer.io.support.Image;
 
-/** References:
- * https://www.journaldev.com/861/java-copy-file
+/** 
+ * References:
+ * <br>
+ * https://www.journaldev.com/861/java-copy-file<br>
+ * https://stackoverflow.com/questions/222463/is-it-possible-with-java-to-delete-to-the-recycle-bin
  * 
  * @author Rubens A. Andreoli Jr.
  */

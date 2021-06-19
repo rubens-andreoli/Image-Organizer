@@ -26,12 +26,8 @@ public class ShortcutPanel extends javax.swing.JPanel {
     private static final String MOVE_SEPARATOR = "->";
     // </editor-fold>
     
-    public ShortcutPanel() {
-        initComponents();
-    }
-
     public ShortcutPanel(Shortcut shortcut, ActionListener listener){
-        this();
+        initComponents();
         
         final StringBuilder sb = new StringBuilder(shortcut.action.toString());
         if(shortcut.action == Shortcut.Action.MOVE){

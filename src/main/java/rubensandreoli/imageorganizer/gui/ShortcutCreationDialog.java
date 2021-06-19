@@ -21,7 +21,8 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import javax.swing.DefaultComboBoxModel;
 import rubensandreoli.commons.others.Level;
-import rubensandreoli.commons.others.PickConsumer;
+import rubensandreoli.commons.others.PickyConsumer;
+import rubensandreoli.commons.swing.PathField;
 import rubensandreoli.commons.utils.SwingUtils;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
 
@@ -33,13 +34,13 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
     private static final String EMPTY_MSG = "Please, type a key to create the shortcut.";
     private static final String DUPLICATED_TITLE = "Duplicated Key";
     private static final String DUPLICATED_MSG = "This key is already associated with an action.\nPlease, change the key or delete the shortcut\ncontaining it before adding a new one.";
-    private static final int MAX_FOLDER_LENGTH = 42;
+    private static final int MAX_FOLDER_LENGTH = 50;
     // </editor-fold>
     
-    private final PickConsumer<Shortcut> listener;
+    private final PickyConsumer<Shortcut> listener;
     private final DefaultComboBoxModel<String> model;
     
-    public ShortcutCreationDialog(Dialog parent, PickConsumer<Shortcut> listener) {
+    public ShortcutCreationDialog(Dialog parent, PickyConsumer<Shortcut> listener) {
         super(parent, true);
 
         this.listener = listener;
@@ -50,8 +51,11 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
         }
         
         initComponents();
+        
+        txfFolder.setMode(PathField.DIRECTORIES_ONLY);
         txfFolder.setLenght(MAX_FOLDER_LENGTH);
         txfFolder.setDragEnabled(false);
+        
         setLocationRelativeTo(parent);
     }
 
@@ -161,15 +165,16 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
     private void cmbActionItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbActionItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
             if(((String)evt.getItem()).equals(Shortcut.Action.MOVE.name())){
-                final File file = SwingUtils.selectFile(this, SwingUtils.DIRECTORIES_ONLY);
-                if(file != null){
-                    txfFolder.setText(file);
-                    txfFolder.setToolTipText(file.getPath());
+                if(txfFolder.select(this)){
+                    final String path = txfFolder.getText();
+                    if(path.length() > MAX_FOLDER_LENGTH){
+                        txfFolder.setToolTipText(path);
+                    }
                 }else{
                     cmbAction.setSelectedIndex(0);
                 }
             }else{
-                txfFolder.setText("");
+                txfFolder.clear();
                 txfFolder.setToolTipText(null);
             }
        }

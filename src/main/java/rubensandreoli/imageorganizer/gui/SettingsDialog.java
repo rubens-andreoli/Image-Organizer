@@ -20,18 +20,20 @@ import java.awt.Component;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import rubensandreoli.commons.others.Logger;
-import rubensandreoli.commons.others.PickConsumer;
+import rubensandreoli.commons.others.PickyConsumer;
 import rubensandreoli.imageorganizer.io.Settings;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
 import rubensandreoli.imageorganizer.io.support.ShortcutMap;
 
-/** References:
- * https://stackoverflow.com/questions/291115/java-swing-using-jscrollpane-and-having-it-scroll-back-to-top
+/** 
+ * References:
+ * <br>
+ * https://stackoverflow.com/questions/291115/java-swing-using-jscrollpane-and-having-it-scroll-back-to-top<br>
  * https://stackoverflow.com/questions/13510641/add-controls-vertically-instead-of-horizontally-using-flow-layout
  * 
  * @author Rubens A. Andreoli Jr.
  */
-public class SettingsDialog extends javax.swing.JDialog implements PickConsumer<Shortcut> {
+public class SettingsDialog extends javax.swing.JDialog implements PickyConsumer<Shortcut> {
     private static final long serialVersionUID = 1L;
 
     private final Settings settings;

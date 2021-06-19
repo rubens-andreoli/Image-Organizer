@@ -45,9 +45,8 @@ import rubensandreoli.imageorganizer.io.support.Image;
 /** 
  * References:
  * <br>
- * http://www.java2s.com/Tutorial/Java/0240__Swing/SettingtheLocationofaToolTip.htm <br>
- * https://stackoverflow.com/questions/7065309/jsplitpane-set-resizable-false/54458846#54458846 <br>
- * https://docs.oracle.com/javase/tutorial/uiswing/misc/keybinding.html
+ * http://www.java2s.com/Tutorial/Java/0240__Swing/SettingtheLocationofaToolTip.htm<br>
+ * https://stackoverflow.com/questions/7065309/jsplitpane-set-resizable-false/54458846#54458846<br>
  *
  * @author Rubens A. Andreoli Jr.
  */
@@ -108,13 +107,12 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             }
         });
 
-        pnlSplit.setDividerSize(10);
         pnlSplit.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         pnlSplit.setResizeWeight(1.0);
         pnlSplit.setOneTouchExpandable(true);
 
         pnlImage.setBackground(new java.awt.Color(255, 255, 255));
-        pnlImage.setToolTipText("<html>Image preview<hr>  Double-Click: fit to panel<br> Right-Click: choose folder<br>  Drag-and-Drop: load folder</html>");
+        pnlImage.setToolTipText("<html>Image preview<hr>  <b>Double-Click:</b> fit to panel<br> <b>Right-Click:</b> choose folder<br>  <b>Drag-and-Drop:</b> load folder</html>");
 
         javax.swing.GroupLayout pnlImageLayout = new javax.swing.GroupLayout(pnlImage);
         pnlImage.setLayout(pnlImageLayout);
@@ -177,28 +175,29 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         });
         
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
-            if(imageFolder != null && isActive() /*&& !pnlTools.isTyping()*/){
+            //without isActive() shortcut will work even from a dialog
+            if(imageFolder != null && isActive() && !pnlTools.isTyping()){ 
                 final int code = evt.getKeyCode();
                 if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_RELEASED")){
                     final Shortcut shortcut = settings.getShortcut(code);
                     switch(shortcut.action){
                         case NEXT:
-                            next();
+                            nextImage();
                             break;
                         case PREVIOUS:
-                            previous();
+                            previousImage();
                             break;
                         case DELETE:
-                            delete();
+                            deleteImage();
                             break;
                         case REFRESH:
-                            if(imageFolder != null) loadFolder(imageFolder.getFolderPath());
+                            loadFolder(imageFolder.getFolderPath());
                             break;
                         case INFO:
                             pnlImage.toggleShowInfo();
                             break;
                         case MOVE:
-                            move(shortcut.description);
+                            moveImage(shortcut.description);
                             break;
                     }
                 }
@@ -234,8 +233,8 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
 
     private void loadFolder(String folderPath){
-        if(imageFolder != null){
-            history.addEntry(imageFolder.getFolderPath(), currentPos); //save position before changing folders
+        if(imageFolder != null){ //save position before changing folders
+            history.addEntry(imageFolder.getFolderPath(), currentPos);
         }
 
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -244,7 +243,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         
         pnlTools.setFolderPath(folderPath);
         pnlTools.setImageTotal(imageFolder.getNumImages());
-        fillFolders();
+        fillRelatedFolders();
         
         currentPos = history.getPosition(folderPath);
         loadImage();
@@ -252,20 +251,20 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     
     
     @Override
-    public void loadFolder(String folderName, boolean subfolder) {
-        final String folder = imageFolder.buildFolderPath(folderName, subfolder);
-        if(!imageFolder.checkFolder(folder, subfolder)){ 
-            fillFolders(subfolder);
+    public void loadRelatedFolder(String folderName, boolean subfolder) {
+        final String folder = imageFolder.buildRelatedFolderPath(folderName, subfolder);
+        if(!imageFolder.checkRelatedFolder(folder, subfolder)){ //refresh if folder from list doesn't exist anymore
+            fillRelatedFolder(subfolder);
         }
         loadFolder(folder);
     }
     
-    private void fillFolders(){
+    private void fillRelatedFolders(){
         pnlTools.setRootFolders(imageFolder.getRootFolders());
         pnlTools.setSubFolders(imageFolder.getSubFolders());
     }
 
-    private void fillFolders(boolean subfolder){
+    private void fillRelatedFolder(boolean subfolder){
         if(subfolder){
             pnlTools.setSubFolders(imageFolder.getSubFolders());
         }else{
@@ -274,8 +273,6 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
 
     private void loadImage(){
-	if(imageFolder == null) return;
-        
         final int numImages = imageFolder.getNumImages();
         if(numImages == 0){ //no images or all images got deleted
             pnlImage.clear();
@@ -300,13 +297,13 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
 
     @Override
-    public void createFolder(boolean subfolder) {
-        if(imageFolder == null) return;
+    public void createRelatedFolder(boolean subfolder) {
+        if(imageFolder == null) return; //toolsPanel doesn't know if a folder is set
         final String folderName = JOptionPane.showInputDialog(this, FOLDER_NAME_MSG, FOLDER_NAME_TITLE, JOptionPane.PLAIN_MESSAGE);
         if(folderName != null && !folderName.isBlank()){
             try {
-                imageFolder.createFolder(folderName, subfolder);
-                fillFolders(subfolder);
+                imageFolder.createRelatedFolder(folderName, subfolder);
+                fillRelatedFolder(subfolder);
             } catch (IOException ex) {
                 showException(ex);
             }
@@ -314,22 +311,22 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
     
     @Override
-    public void next() {
+    public void nextImage() {
         if(currentPos >= imageFolder.getNumImages()-1) currentPos = 0;
 	else currentPos++;
 	loadImage();
     }
 
     @Override
-    public void previous() {
+    public void previousImage() {
         if(currentPos > 0) currentPos--;
 	else currentPos = imageFolder.getNumImages()-1;
 	loadImage();
     }
     
     @Override
-    public void load(int pos) {
-        if(imageFolder == null){ 
+    public void loadImage(int pos) {
+        if(imageFolder == null){ //toolsPanel doesn't know if a folder is set (pos=0)
             pnlTools.setImagePosition(0);
         }else{
            currentPos = Math.max(0, pos-1);
@@ -337,7 +334,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         }
     }
     
-    public void move(String folder){
+    public void moveImage(String folder){ //shortcuts move
         if(imageFolder.checkFolder(folder)){
             try {
                 imageFolder.transferImageTo(currentPos, folder);
@@ -352,8 +349,8 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
 
     @Override
-    public void move(String folderName, boolean subfolder) {
-        if(imageFolder.checkFolder(folderName, subfolder)){
+    public void moveImage(String folderName, boolean subfolder) { //toolsPanel move
+        if(imageFolder.checkRelatedFolder(folderName, subfolder)){
             try {
                 imageFolder.transferImageTo(currentPos, folderName, subfolder);
                 imageRemoved();
@@ -361,12 +358,12 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                 showException(ex);
             }
         }else{
-           fillFolders(subfolder);
+           fillRelatedFolder(subfolder);
         }
     }
     
     @Override
-    public void delete() {
+    public void deleteImage() {
         if(!settings.isShowAlert() || 
                 JOptionPane.showConfirmDialog(this, DELETE_ALERT_MSG, DELETE_ALERT_TITLE, JOptionPane.YES_NO_OPTION) == 
                 JOptionPane.YES_OPTION){

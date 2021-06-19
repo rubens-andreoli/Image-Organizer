@@ -61,7 +61,7 @@ public class ImageFolder {
         FileUtils.visitChildren(root, FileUtils.DIRECTORIES_ONLY, showHidden, f -> rootFolders.add(f.getName()));
     }
  
-    public void createFolder(String folderName, boolean subfolder) throws IOException{
+    public void createRelatedFolder(String folderName, boolean subfolder) throws IOException{
         final Collection<String> list = (subfolder? subFolders:rootFolders);
         final File newFolder = new File((subfolder? folder:root), folderName);
         
@@ -74,7 +74,7 @@ public class ImageFolder {
         return new File(folder).isDirectory();
     }
     
-    public boolean checkFolder(String folderName, boolean subfolder) {
+    public boolean checkRelatedFolder(String folderName, boolean subfolder) {
         final File newFolder = new File((subfolder? folder:root), folderName);
 	if(newFolder.isDirectory()){ 
 	    return true;
@@ -142,7 +142,7 @@ public class ImageFolder {
         return root.getPath();
     }
     
-    public String buildFolderPath(String folderName, boolean subfolder){
+    public String buildRelatedFolderPath(String folderName, boolean subfolder){
         return (new File((subfolder? folder:root), folderName)).getPath();
     }
     // </editor-fold>

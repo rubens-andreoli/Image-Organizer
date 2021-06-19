@@ -20,20 +20,37 @@ import rubensandreoli.imageorganizer.gui.support.ToolsListener;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 
+/**
+ * References:
+ * <br>
+ * https://docs.oracle.com/javase/tutorial/uiswing/misc/keybinding.html<br>
+ * https://stackoverflow.com/questions/36617194/hitting-space-key-in-jtextfield-triggers-key-binding-of-parent-window
+ * 
+ * @author Rubens A. Andreoli Jr
+ */
 public class ToolsPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
 
+    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
+    private static final String ACTION_LOAD = "LOAD";
+    private static final String ACTION_MOVE = "MOVE";
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" RENDERER "> 
     private class ListRenderer implements ListCellRenderer<String>{
 
@@ -63,9 +80,30 @@ public class ToolsPanel extends javax.swing.JPanel {
     // </editor-fold>
     
     private ToolsListener listener;
-    
-    public ToolsPanel() {
+
+    public ToolsPanel() { //kept empty for design tool
         initComponents();
+        
+        registerKeyAction(txfImagePos, ACTION_LOAD, KeyEvent.VK_ENTER, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final Integer pos = txfImagePos.getValue();
+                if(pos != null) listener.loadImage(pos);  //if not an empty field
+                btnNext.requestFocus();
+            }
+        });
+        registerKeyAction(lstRootFolders, ACTION_MOVE, KeyEvent.VK_ENTER, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                listTyped(lstRootFolders, false);
+            }
+        });
+        registerKeyAction(lstSubFolders, ACTION_MOVE, KeyEvent.VK_ENTER, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                listTyped(lstSubFolders, true);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -88,7 +126,7 @@ public class ToolsPanel extends javax.swing.JPanel {
         btnDelete = new javax.swing.JButton();
         pnlRight = new javax.swing.JPanel();
         txfImageName = new javax.swing.JTextField();
-        txfImagePos = new rubensandreoli.commons.swing.NumberField();
+        txfImagePos = new rubensandreoli.commons.swing.IntegerField();
 
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWeights = new double[] {0.5, 0.0, 0.5};
@@ -187,11 +225,6 @@ public class ToolsPanel extends javax.swing.JPanel {
                 lstRootFoldersMouseClicked(evt);
             }
         });
-        lstRootFolders.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                lstRootFoldersKeyReleased(evt);
-            }
-        });
         sclFoldersOut.setViewportView(lstRootFolders);
 
         sclFoldersIn.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -207,11 +240,6 @@ public class ToolsPanel extends javax.swing.JPanel {
         lstSubFolders.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lstSubFoldersMouseClicked(evt);
-            }
-        });
-        lstSubFolders.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                lstSubFoldersKeyReleased(evt);
             }
         });
         sclFoldersIn.setViewportView(lstSubFolders);
@@ -280,11 +308,6 @@ public class ToolsPanel extends javax.swing.JPanel {
 
         txfImagePos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txfImagePos.setToolTipText("Position of the image within the folder");
-        txfImagePos.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txfImagePosKeyPressed(evt);
-            }
-        });
 
         javax.swing.GroupLayout pnlRightLayout = new javax.swing.GroupLayout(pnlRight);
         pnlRight.setLayout(pnlRightLayout);
@@ -318,45 +341,31 @@ public class ToolsPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void lblAboutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAboutMouseClicked
-        if(listener != null) listener.about();
+        listener.about();
     }//GEN-LAST:event_lblAboutMouseClicked
 
     private void btnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextActionPerformed
-        if(listener != null) listener.next();
+        listener.nextImage();
     }//GEN-LAST:event_btnNextActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        if(listener != null) listener.previous();
+        listener.previousImage();
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        if(listener != null) listener.delete();
+        listener.deleteImage();
     }//GEN-LAST:event_btnDeleteActionPerformed
 
-    private void txfImagePosKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txfImagePosKeyPressed
-        if(listener != null && (evt.getKeyCode() == KeyEvent.VK_ENTER)){
-            listener.load(txfImagePos.getInt());
-        }
-    }//GEN-LAST:event_txfImagePosKeyPressed
-
     private void lstRootFoldersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lstRootFoldersMouseClicked
-        if(listener != null) listClicked(evt, false);
+        listClicked(evt, false);
     }//GEN-LAST:event_lstRootFoldersMouseClicked
 
     private void lstSubFoldersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lstSubFoldersMouseClicked
-        if(listener != null) listClicked(evt, true);
+        listClicked(evt, true);
     }//GEN-LAST:event_lstSubFoldersMouseClicked
 
-    private void lstSubFoldersKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lstSubFoldersKeyReleased
-        if(listener != null) listKeyReleased(evt, true);
-    }//GEN-LAST:event_lstSubFoldersKeyReleased
-
-    private void lstRootFoldersKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lstRootFoldersKeyReleased
-        if(listener != null) listKeyReleased(evt, false);
-    }//GEN-LAST:event_lstRootFoldersKeyReleased
-
     private void lblSettingsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSettingsMouseClicked
-        if(listener != null) listener.settings();
+        listener.settings();
     }//GEN-LAST:event_lblSettingsMouseClicked
 
     private void lstSubFoldersFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_lstSubFoldersFocusLost
@@ -366,7 +375,6 @@ public class ToolsPanel extends javax.swing.JPanel {
     private void lstRootFoldersFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_lstRootFoldersFocusLost
         deselectList(evt);
     }//GEN-LAST:event_lstRootFoldersFocusLost
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
@@ -383,28 +391,29 @@ public class ToolsPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane sclFoldersOut;
     private javax.swing.JTextField txfFolderPath;
     private javax.swing.JTextField txfImageName;
-    private rubensandreoli.commons.swing.NumberField txfImagePos;
+    private rubensandreoli.commons.swing.IntegerField txfImagePos;
     private javax.swing.JTextField txfNumImages;
     // End of variables declaration//GEN-END:variables
 
-    private void listKeyReleased(KeyEvent evt, boolean subfolder){
-         final JList<String> list = (JList<String>)evt.getSource();
-         if(evt.getKeyCode() == KeyEvent.VK_ENTER){ //FIX: not working due to commons textfield
-//             btnNext.requestFocus();
-             if(!list.isSelectionEmpty()){
-                 listener.move(list.getSelectedValue(), subfolder);
-             }
-         }
+    private void registerKeyAction(JComponent c, String name, int key, AbstractAction action){
+        c.getActionMap().put(name, action);
+        c.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(key, 0), name);
+    }
+    
+    private void listTyped(JList<String> list, boolean subfolder){
+        if(!list.isSelectionEmpty()){
+           listener.moveImage(list.getSelectedValue(), subfolder);
+        }
     }
     
     private void listClicked(MouseEvent evt, boolean subfolder){
         final JList<String> list = (JList<String>)evt.getSource();
 	if (evt.getButton() == 1 && evt.getClickCount() == 2 && !list.isSelectionEmpty()){
-            listener.move(list.getSelectedValue(), subfolder);
+            listener.moveImage(list.getSelectedValue(), subfolder);
 	} else if(evt.getButton() == 3){
-            listener.createFolder(subfolder);
+            listener.createRelatedFolder(subfolder);
         } else if(evt.getButton() == 1 && evt.isShiftDown() && !list.isSelectionEmpty()){
-            listener.loadFolder(list.getSelectedValue(), subfolder);
+            listener.loadRelatedFolder(list.getSelectedValue(), subfolder);
         }
     }
 
@@ -420,10 +429,10 @@ public class ToolsPanel extends javax.swing.JPanel {
         ((JList)evt.getComponent()).clearSelection();
     }
     
-//    public boolean isTyping(){
-//        return txfImagePos.isFocusOwner();
-//    }
-  
+    public boolean isTyping() {
+        return txfImagePos.isFocusOwner();
+    }
+
     // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
     public void setListener(ToolsListener l){
         listener = l;
@@ -443,11 +452,11 @@ public class ToolsPanel extends javax.swing.JPanel {
         
     public void setImageTotal(int amount){
         txfNumImages.setText(String.valueOf(amount));
-        txfImagePos.setMaxValue(amount);
+        txfImagePos.setInterval(0, amount);
     }
        
     public void setImagePosition(int pos){
-        txfImagePos.setInt(pos);
+        txfImagePos.setValue(pos);
     }
        
     public void setImageName(String name){

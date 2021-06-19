@@ -20,14 +20,14 @@ import java.util.EventListener;
 
 public interface ToolsListener extends EventListener{
     
-    void load(int position);
-    void next();
-    void previous();
-    void delete();
-    void move(String folderName, boolean subfolder);
+    void loadImage(int position);
+    void nextImage();
+    void previousImage();
+    void deleteImage();
+    void moveImage(String folderName, boolean subfolder);
     
-    void createFolder(boolean subfolder);
-    void loadFolder(String folderName, boolean subfolder);
+    void createRelatedFolder(boolean subfolder);
+    void loadRelatedFolder(String folderName, boolean subfolder);
     
     void about();
     void settings();

@@ -34,8 +34,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
     private static final String EMPTY_MSG = "Please, type a key to create the shortcut.";
     private static final String DUPLICATED_TITLE = "Duplicated Key";
     private static final String DUPLICATED_MSG = "This key is already associated with an action.\nPlease, change the key or delete the shortcut\ncontaining it before adding a new one.";
-    private static final String BLACKLISTED_KEYS_TOOLTIP = "<html><b>Blacklisted:</b> Enter, Control, Shift, Alt, Tab</html>";
-    private static final int[] BLACKLISTED_KEYS = new int[] {KeyEvent.VK_ENTER, KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, KeyEvent.VK_SHIFT, KeyEvent.VK_TAB};
+    private static final int[] BLACKLISTED_KEYS = new int[] {KeyEvent.VK_ENTER, KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, KeyEvent.VK_SHIFT, KeyEvent.VK_TAB, KeyEvent.VK_PLUS, KeyEvent.VK_MINUS};
     private static final int MAX_FOLDER_LENGTH = 50;
     // </editor-fold>
     
@@ -59,7 +58,7 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
         txfFolder.setDragEnabled(false);
         
         txfKey.addBlacklisted(BLACKLISTED_KEYS);
-        txfKey.setToolTipText(BLACKLISTED_KEYS_TOOLTIP);
+        txfKey.buildTooltipText(null);
         
         setLocationRelativeTo(parent);
     }

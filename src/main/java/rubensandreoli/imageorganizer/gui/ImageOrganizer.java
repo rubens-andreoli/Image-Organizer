@@ -40,7 +40,7 @@ import rubensandreoli.imageorganizer.io.support.SettingsListener;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
 import rubensandreoli.imageorganizer.io.History;
 import rubensandreoli.imageorganizer.io.ImageFolder;
-import rubensandreoli.imageorganizer.io.support.Image;
+import rubensandreoli.imageorganizer.io.ImageFile;
 
 /** 
  * References:
@@ -144,9 +144,8 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        try {
-	    history.save();
-	} catch (IOException ex) {}
+        history.save();
+        settings.save();
     }//GEN-LAST:event_formWindowClosing
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -197,7 +196,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                             pnlImage.toggleShowInfo();
                             break;
                         case MOVE:
-                            moveImage(shortcut.description);
+                            moveImage(shortcut.description); 
                             break;
                     }
                 }
@@ -280,8 +279,8 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             pnlTools.setImageName("");
 	}else{
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            final Image image = imageFolder.loadImage(currentPos);
-            pnlImage.setImage(image.getImage(), image.getInfo());
+            final ImageFile image = imageFolder.loadImage(currentPos);
+            pnlImage.setImage(image);
             pnlTools.setImageName(image.getPath());
             pnlTools.setImagePosition(currentPos+1); //0 indexed; for user readability
             history.addEntry(imageFolder.getFolderPath(), currentPos);
@@ -343,7 +342,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                 showException(ex);
             }
         }else{
-            settings.removeShortcut(folder);
+            settings.removeShortcuts(folder);
             SwingUtils.showMessageDialog(this, String.format(FOLDER_FAIL_MSG_MASK, folder), FOLDER_FAIL_TITLE, Level.INFO, true);
         }
     }

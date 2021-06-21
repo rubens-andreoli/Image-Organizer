@@ -2,7 +2,7 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 <entry key="debug">true</entry>
-<entry key="delete_alert">false</entry>
-<entry key="shortcuts">112,INFO;97,NEXT;49,NEXT;98,NEXT;116,REFRESH;37,PREVIOUS;39,NEXT;89,NEXT;127,DELETE</entry>
+<entry key="delete_alert">true</entry>
+<entry key="shortcuts">112,INFO;116,REFRESH;37,PREVIOUS;39,NEXT;127,DELETE</entry>
 <entry key="hidden_folders">false</entry>
 </properties>

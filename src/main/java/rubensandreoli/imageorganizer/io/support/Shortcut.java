@@ -16,9 +16,6 @@
  */
 package rubensandreoli.imageorganizer.io.support;
 
-import rubensandreoli.commons.others.Level;
-import rubensandreoli.commons.others.Logger;
-
 public class Shortcut {
     
     public enum Action{NEXT, PREVIOUS, DELETE, MOVE, REFRESH, INFO}
@@ -37,10 +34,9 @@ public class Shortcut {
     
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(key).append(SEPARATOR).append(action);
+        final StringBuilder sb = new StringBuilder(String.valueOf(key)).append(SEPARATOR).append(action);
         final String d = description;
-        if(d != null && !d.isBlank()) sb.append(SEPARATOR).append(description);
+        if(d != null && !d.isBlank()) sb.append(SEPARATOR).append(description); // null if not move action
         return sb.toString();
     }
         
@@ -52,10 +48,12 @@ public class Shortcut {
             String d = null;
             if(tokens.length == 3){
                 d = tokens[2].trim();
+            }else if(a == Action.MOVE){ //may happen if user edited the file
+                throw new NullPointerException("move action with no folder associated");
             }
             return new Shortcut(k, a, d);
-        }catch(Exception ex){
-            Logger.log.print(Level.CRITICAL, ex);
+        }catch(IllegalArgumentException|NullPointerException ex){
+            //TODO: log as warning if debug
             return null;
         }
     }

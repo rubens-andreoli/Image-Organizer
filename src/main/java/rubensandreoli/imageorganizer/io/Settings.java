@@ -44,21 +44,21 @@ public class Settings {
     private boolean debug;
     private boolean showHidden;
     private boolean showAlert;
-    private ShortcutMap shortcutMap;
-    private Collection<SettingsListener> listeners = new HashSet<>();
+    private final ShortcutMap shortcutMap= new ShortcutMap();
+    private final Collection<SettingsListener> listeners = new HashSet<>();
 
     public Settings() {
         debug = Configuration.values.get(KEY_DEBUG, DEFAULT_DEBUG);
         showHidden = Configuration.values.get(KEY_SHOW_HIDDEN, DEFAULT_SHOW_HIDDEN);
         showAlert = Configuration.values.get(KEY_SHOW_ALERT, DEFAULT_SHOW_ALERT);
-        shortcutMap = new ShortcutMap();
         shortcutMap.put(Configuration.values.get(KEY_SHORTCUTS, EMPTY_SHORTCUTS));
-        if(shortcutMap.isEmpty()){ //failed loading, default shortcuts
+        if(shortcutMap.isEmpty()){ //failed loading or empty, default shortcuts
             shortcutMap.put(new Shortcut(KeyEvent.VK_LEFT, Shortcut.Action.PREVIOUS, null));
             shortcutMap.put(new Shortcut(KeyEvent.VK_RIGHT, Shortcut.Action.NEXT, null));
             shortcutMap.put(new Shortcut(KeyEvent.VK_DELETE, Shortcut.Action.DELETE, null));
             shortcutMap.put(new Shortcut(KeyEvent.VK_F1, Shortcut.Action.INFO, null));
             shortcutMap.put(new Shortcut(KeyEvent.VK_F5, Shortcut.Action.REFRESH, null));
+            Configuration.values.put(KEY_SHORTCUTS, shortcutMap.toString());
         }
     }
 
@@ -87,7 +87,7 @@ public class Settings {
             fireSettingsChange(KEY_SHORTCUTS, this.shortcutMap);
         }
         
-        Configuration.values.save();
+        save(); //library already checks if changed or not
         return changed;
     }
     
@@ -97,6 +97,10 @@ public class Settings {
     
     public boolean containsShortcut(int code) {
          return shortcutMap.containsKey(code);
+    }
+    
+    public boolean save() {
+        return Configuration.values.save();
     }
 
     // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 
@@ -122,13 +126,13 @@ public class Settings {
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
-    public void removeShortcut(String description){
+    public void removeShortcuts(String description){ //removes all shortcuts with same destination
         final Iterator<Map.Entry<Integer, Shortcut>> i = shortcutMap.entrySet().iterator();
         boolean changed = false;
         while(i.hasNext()){
             final Map.Entry<Integer, Shortcut> entry = i.next();
             final String desc = entry.getValue().description;
-            if(desc != null && desc.toLowerCase().contains(description.toLowerCase())){
+            if(desc != null && desc.toLowerCase().equals(description.toLowerCase())){
                 i.remove();
                 changed = true;
             }

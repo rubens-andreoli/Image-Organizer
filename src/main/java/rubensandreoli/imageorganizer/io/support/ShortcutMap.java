@@ -19,6 +19,13 @@ package rubensandreoli.imageorganizer.io.support;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ * References:
+ * <br>
+ * https://stackoverflow.com/questions/668952/the-simplest-way-to-comma-delimit-a-list
+ * 
+ * @author Rubens A. Andreoli Jr
+ */
 public class ShortcutMap extends HashMap<Integer, Shortcut>{
     private static final long serialVersionUID = 1L;
 
@@ -31,24 +38,25 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
     }
    
     public void put(String list){
-        if(list == null) return;
         for (String token : list.split(SEPARATOR)){
-            put(Shortcut.parseShortcut(token));  //continue normally if failed parsing
+            final Shortcut s = Shortcut.parseShortcut(token);
+            if(s != null) put(s);  //continue normally if failed parsing one
         }
     }
     
     public void put(Shortcut shortcut){
-        if(shortcut == null) return;
         put(shortcut.key, shortcut);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
         final Iterator<Shortcut> it = this.values().iterator();
-        while(it.hasNext()){
-            sb.append(it.next());
-            if(it.hasNext()) sb.append(SEPARATOR);
+        final StringBuilder sb;
+        if (it.hasNext()) {
+            sb = new StringBuilder(it.next().toString());
+            while(it.hasNext()) sb.append(SEPARATOR).append(it.next());
+        }else{
+            sb = new StringBuilder();
         }
         return sb.toString();
     }

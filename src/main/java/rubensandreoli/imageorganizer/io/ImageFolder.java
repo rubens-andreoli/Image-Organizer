@@ -20,11 +20,11 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 import rubensandreoli.commons.utils.FileUtils;
-import rubensandreoli.imageorganizer.io.support.Image;
 
 /** 
  * References:
@@ -34,8 +34,8 @@ import rubensandreoli.imageorganizer.io.support.Image;
  * 
  * @author Rubens A. Andreoli Jr.
  */
-public class ImageFolder {
-	   
+public class ImageFolder { //TODO: review, use commons when possible
+    
     private final File folder;
     private final File root;
     
@@ -55,7 +55,7 @@ public class ImageFolder {
             if(f.isDirectory()) {
                 subFolders.add(f.getName());
             }else{
-                if(FileUtils.hasImageExtension(f)) images.add(f);
+                if(ImageFile.isImage(f)) images.add(f);
             }
         });
         FileUtils.visitChildren(root, FileUtils.DIRECTORIES_ONLY, showHidden, f -> rootFolders.add(f.getName()));
@@ -85,8 +85,8 @@ public class ImageFolder {
 	}
     }
     
-    public Image loadImage(int imagePos) {
-	return new Image(images.get(imagePos), imagePos, images.size());
+    public ImageFile loadImage(int imagePos) {
+	return ImageFile.build(images.get(imagePos), imagePos, images.size());
     }
     
     public void transferImageTo(int imagePos, String folderName, boolean subfolder) throws IOException{
@@ -100,6 +100,19 @@ public class ImageFolder {
             throw new IOException("Image could not be moved to destination!\n"+folder);
         }
     }
+    
+//    public void removeImage(int imagePos){
+//        final File image = images.get(imagePos);
+//        boolean deleted = false;
+//        if(Desktop.isDesktopSupported()){
+//            Desktop d = Desktop.getDesktop();
+//            try{
+//                deleted = d.moveToTrash(image);
+//                if(deleted) images.remove(imagePos);
+//            }catch(Exception e){}
+//        }
+//        
+//    }
     
     public void deleteImage(int imagePos) throws IOException{
 	final File image = images.get(imagePos);
@@ -126,10 +139,6 @@ public class ImageFolder {
         return subFolders;
     }
     
-    public String getImagePath(int imagePos){
-        return images.get(imagePos).getPath();
-    }
-    
     public int getNumImages(){
         return images.size();
     }
@@ -137,11 +146,7 @@ public class ImageFolder {
     public String getFolderPath() {
         return folder.getPath();
     }
-    
-    public String getRootPath(){
-        return root.getPath();
-    }
-    
+
     public String buildRelatedFolderPath(String folderName, boolean subfolder){
         return (new File((subfolder? folder:root), folderName)).getPath();
     }

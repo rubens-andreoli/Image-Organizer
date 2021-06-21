@@ -27,20 +27,17 @@ import java.util.Map;
 
 public class History {
     
+    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS ">
     private static final String FILENAME = "history.log";
     private static final String SEPARATOR = ";";
+    // </editor-fold>
     
-    private final File file;
-    private final Map<String, Integer> history;
-    
-    public History(){
-	file = new File(FILENAME);
-	history = new HashMap<>();
-    }
+    private final File file = new File(FILENAME);
+    private final Map<String, Integer> history = new HashMap<>();
 
     public void load() throws IOException{
 	if(!file.exists() || file.isDirectory()){
-	    file.createNewFile(); //create new empty history file if not there
+	    file.createNewFile(); //preemptive warning, failure here means it won't be able to save
             return;
 	}
 	try(BufferedReader br = new BufferedReader(new FileReader(FILENAME))){
@@ -52,14 +49,17 @@ public class History {
 	}
     }
     
-    public void save() throws IOException{
+    public boolean save(){
 	try(BufferedWriter br = new BufferedWriter(new FileWriter(FILENAME))){
 	    for(Map.Entry<String, Integer> e : history.entrySet()){
                final StringBuilder sb = new StringBuilder(e.getKey()).append(SEPARATOR).append(e.getValue());
 	       br.write(sb.toString());
                br.newLine();
 	    }
-	}
+            return true;
+	}catch(IOException ex){ //if can't save, probably can't log
+            return false;
+        }
     }
     
     public void addEntry(String folder, int pos){

@@ -20,6 +20,7 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.RenderingHints;
@@ -31,11 +32,14 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
+import rubensandreoli.commons.utils.FileUtils;
+import rubensandreoli.imageorganizer.io.ImageFile;
 
 /** References:
  * <br>
- * https://stackoverflow.com/questions/7357969/how-to-use-java-code-to-open-windows-file-explorer-and-highlight-the-specified-f
+ * https://stackoverflow.com/questions/7357969/how-to-use-java-code-to-open-windows-file-explorer-and-highlight-the-specified-f<br>
+ * https://stackoverflow.com/questions/46353663/java-gif-resizing<br>
+ * https://stackoverflow.com/questions/20924230/java-draw-a-gif
  *
  * @author Rubens A. Andreoli Jr.
  */
@@ -43,26 +47,26 @@ public class ImagePanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
     
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
-    private static final String BROKEN_IMAGE = "/images/broken_image.png";
     private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     private static final Cursor DEFAULT_CURSOR = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
     private static final Font SCALE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 18);
     private static final Font INFO_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
     private static final float SCALE_RATE = 40; //higher = smaller increments
+    private static final BufferedImage BROKEN_IMAGE = FileUtils.loadImage("/images/broken_image.png");
+    private static final String BROKEN_MSG = "ERRORx";
     private static final int INFO_X = 5;
     private static final int SCALE_X_RECOIL = 75;
-    private static final String BROKEN_MSG = "ERRORx";
     private static final int INFO_LINE_SPACING = 4; //higher = lines are closer
     private static final int TEXT_BOTTOM_PADDING = 1;
     // </editor-fold>
     
-    private BufferedImage image;
-    private String[] info;
+    private ImageFile image;
     private float clickX, clickY, xOffset, yOffset, scale;
-    private boolean click, showInfo, broken;
+    private boolean click, showInfo;
     private int fontHeight;
     
     public ImagePanel() {
+        super(true); //double buffering
         initComponents();
         addListeners();
     }
@@ -71,18 +75,7 @@ public class ImagePanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setToolTipText("<html>Image preview<hr>  Double-Click: fit to panel<br> Right-Click: choose folder<br>  Drag-and-Drop: folder</html>");
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setToolTipText("<html>\nImage preview<hr>  \n<bDouble-Click:</b> fit to panel<br> \n<b>Shift+Left-Click:</b> locate on disk<br>\n<b>Right-Click:</b> choose folder<br>  \n<b>Drag-and-Drop:</b> open folder\n</html>");
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -94,15 +87,14 @@ public class ImagePanel extends javax.swing.JPanel {
 	    @Override
 	    public void mousePressed(MouseEvent e) {
                 if(click == false && image != null && e.getButton() == 1){
-//		    if(e.isShiftDown() && !broken){
-                        //TODO: open folder on explorer with file selected
-//                        Runtime.getRuntime().exec("explorer.exe /select," + info.getPath());
-//                    }else{
+		    if(e.isShiftDown()){
+                        image.locateOnDisk();
+                    }else{
                         clickX = e.getX()-xOffset;
                         clickY = e.getY()-yOffset;
                         setCursor(MOVE_CURSOR);
                         click = true;
-//                    }
+                    }
 		}
 	    }
 
@@ -116,7 +108,7 @@ public class ImagePanel extends javax.swing.JPanel {
             @Override
 	    public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    resize();
+                    fit();
                 }
             }
 	});
@@ -135,7 +127,7 @@ public class ImagePanel extends javax.swing.JPanel {
 	addComponentListener(new ComponentAdapter() {
 	    @Override
             public void componentResized(java.awt.event.ComponentEvent evt) {
-                resize();
+                fit();
             }
         });
 	
@@ -172,75 +164,65 @@ public class ImagePanel extends javax.swing.JPanel {
     protected void paintComponent(Graphics g) {
 	super.paintComponent(g);
 	if(image == null) return;
-        
+
 	Graphics2D g2d = (Graphics2D) g;
 	// g2d.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
 	g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 	g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g2d.setFont(SCALE_FONT);
-        if(!broken){
-            g2d.drawImage(image, 
-                    (int) xOffset, 
+        String scaleMsg;
+        if(image.isFailed()){
+            g2d.drawImage(BROKEN_IMAGE,
+                    getWidth()/2 - BROKEN_IMAGE.getWidth()/2, 
+                    getHeight()/2 - BROKEN_IMAGE.getHeight()/2,
+                    BROKEN_IMAGE.getWidth(),
+                    BROKEN_IMAGE.getHeight(),
+                    null
+            );
+            scaleMsg = BROKEN_MSG;
+        }else{
+            g2d.drawImage(image.getImage(),
+                    (int) xOffset,
                     (int) yOffset,
                     (int) (image.getWidth()*scale),
                     (int) (image.getHeight()*scale),
-                    null
+                    this
             );
-            g2d.drawString(String.format("%.3fx", scale), getWidth()-SCALE_X_RECOIL, getHeight() - TEXT_BOTTOM_PADDING);
-        }else{
-            g2d.drawImage(image, 
-                    getWidth()/2 - image.getWidth()/2, 
-                    getHeight()/2 - image.getHeight()/2,
-                    image.getWidth(),
-                    image.getHeight(),
-                    null
-            );
-            g2d.drawString(BROKEN_MSG, getWidth()-SCALE_X_RECOIL, getHeight() - TEXT_BOTTOM_PADDING);
+            scaleMsg = String.format("%.3fx", scale);
         }
-        if(showInfo && info != null){
+        
+        g2d.setFont(SCALE_FONT);
+        g2d.drawString(scaleMsg, getWidth()-SCALE_X_RECOIL, getHeight() - TEXT_BOTTOM_PADDING);
+        
+        if(showInfo){
             g2d.setFont(INFO_FONT);
             if(fontHeight == 0) fontHeight = g.getFontMetrics().getHeight() - INFO_LINE_SPACING;
-            int infoY = getHeight()- info.length*fontHeight - TEXT_BOTTOM_PADDING;
-            for (String line : info)
-                g2d.drawString(line, INFO_X, infoY += fontHeight);
+            int infoY = getHeight()- ImageFile.INFO_SIZE*fontHeight - TEXT_BOTTOM_PADDING;
+            for (int i = 0; i < ImageFile.INFO_SIZE; i++) {
+                g2d.drawString(image.getInfo(i), INFO_X, infoY += fontHeight);  
+            }
         }
-	g2d.dispose();
+        
+        g2d.dispose();
     }
     
-    public void setImage(BufferedImage image, String...info) {
-        this.info = info;
+    
+    public void setImage(ImageFile image) {
         if(image != null){
             this.image = image;
-            broken = false;
-            resize();
+            fit();
         }else{
-            broken = true;
-            try {
-                this.image = ImageIO.read(getClass().getResource(BROKEN_IMAGE));
-                repaint();
-            } catch (Exception ex) {
-                clear();
-            }
+            clear();
         }
     }
 
-    private void resize(){
-	if(image == null) return;
+    private void fit(){
+	if(image == null) return; //null if double click or resize when empty
 	if(getHeight() < getWidth()){ //scale or reduce to fit
 	    scale = getHeight()/(float)image.getHeight();
 	}else{
 	    scale = getWidth()/(float)image.getWidth();
 	}
-//	if(image.getHeight() > getHeight() || image.getWidth() > getWidth()){ //reduce to fit
-//	    if(getHeight() < getWidth()){
-//		scale = getHeight()/(float)image.getHeight();
-//	    }else{
-//		scale = getWidth()/(float)image.getWidth();
-//	    }
-//	}else{
-//	    scale = 1;
-//	}
 	xOffset = (getWidth()/2)-((image.getWidth()/2)*scale);
 	yOffset = (getHeight()/2)-((image.getHeight()/2)*scale);
 	repaint();
@@ -248,13 +230,12 @@ public class ImagePanel extends javax.swing.JPanel {
     
     public void clear(){
 	image = null;
-        info = null;
 	repaint();
     }
 
     public void toggleShowInfo() {
         this.showInfo = !this.showInfo;
-        if(image != null) repaint();
+        repaint();
     }
 
 }

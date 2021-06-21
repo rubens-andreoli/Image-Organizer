@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
-  <Properties>
-    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Image preview&lt;hr&gt;  &#xa;&lt;bDouble-Click:&lt;/b&gt; fit to panel&lt;br&gt; &#xa;&lt;b&gt;Shift+Left-Click:&lt;/b&gt; locate on disk&lt;br&gt;&#xa;&lt;b&gt;Right-Click:&lt;/b&gt; choose folder&lt;br&gt;  &#xa;&lt;b&gt;Drag-and-Drop:&lt;/b&gt; open folder&#xa;&lt;/html&gt;"/>
-  </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>

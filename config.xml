@@ -3,6 +3,6 @@
 <properties>
 <entry key="debug">true</entry>
 <entry key="delete_alert">true</entry>
-<entry key="shortcuts">112,INFO;116,REFRESH;37,PREVIOUS;39,NEXT;127,DELETE</entry>
+<entry key="shortcuts">112,INFO;116,REFRESH;37,PREVIOUS;39,NEXT;127,DELETE;16777415,NEXT</entry>
 <entry key="hidden_folders">false</entry>
 </properties>

@@ -39,7 +39,8 @@ import rubensandreoli.imageorganizer.io.ImageFile;
  * <br>
  * https://stackoverflow.com/questions/7357969/how-to-use-java-code-to-open-windows-file-explorer-and-highlight-the-specified-f<br>
  * https://stackoverflow.com/questions/46353663/java-gif-resizing<br>
- * https://stackoverflow.com/questions/20924230/java-draw-a-gif
+ * https://stackoverflow.com/questions/20924230/java-draw-a-gif<br>
+ * https://coderanch.com/t/559292/java/image-frames-animated-gif-files
  *
  * @author Rubens A. Andreoli Jr.
  */
@@ -74,8 +75,6 @@ public class ImagePanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
-        setToolTipText("<html>\nImage preview<hr>  \n<bDouble-Click:</b> fit to panel<br> \n<b>Shift+Left-Click:</b> locate on disk<br>\n<b>Right-Click:</b> choose folder<br>  \n<b>Drag-and-Drop:</b> open folder\n</html>");
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

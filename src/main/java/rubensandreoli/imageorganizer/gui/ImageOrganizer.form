@@ -62,7 +62,7 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Image preview&lt;hr&gt;  &lt;b&gt;Double-Click:&lt;/b&gt; fit to panel&lt;br&gt; &lt;b&gt;Right-Click:&lt;/b&gt; choose folder&lt;br&gt;  &lt;b&gt;Drag-and-Drop:&lt;/b&gt; load folder&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Image preview&lt;hr&gt;  &#xa;&lt;b&gt;Double-Click:&lt;/b&gt; fit to panel&lt;br&gt; &#xa;&lt;b&gt;Shift+Left-Click:&lt;/b&gt; locate on disk&lt;br&gt;&#xa;&lt;b&gt;Right-Click:&lt;/b&gt; choose folder&lt;br&gt;  &#xa;&lt;b&gt;Drag-and-Drop:&lt;/b&gt; load folder&#xa;&lt;/html&gt;"/>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">

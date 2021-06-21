@@ -112,7 +112,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         pnlSplit.setOneTouchExpandable(true);
 
         pnlImage.setBackground(new java.awt.Color(255, 255, 255));
-        pnlImage.setToolTipText("<html>Image preview<hr>  <b>Double-Click:</b> fit to panel<br> <b>Right-Click:</b> choose folder<br>  <b>Drag-and-Drop:</b> load folder</html>");
+        pnlImage.setToolTipText("<html>\nImage preview<hr>  \n<b>Double-Click:</b> fit to panel<br> \n<b>Shift+Left-Click:</b> locate on disk<br>\n<b>Right-Click:</b> choose folder<br>  \n<b>Drag-and-Drop:</b> load folder\n</html>");
 
         javax.swing.GroupLayout pnlImageLayout = new javax.swing.GroupLayout(pnlImage);
         pnlImage.setLayout(pnlImageLayout);
@@ -176,7 +176,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
             //without isActive() shortcut will work even from a dialog
             if(imageFolder != null && isActive() && !pnlTools.isTyping()){ 
-                final int code = evt.getKeyCode();
+                final int code = evt.getExtendedKeyCode();
                 if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_RELEASED")){
                     final Shortcut shortcut = settings.getShortcut(code);
                     switch(shortcut.action){

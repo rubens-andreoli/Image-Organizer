@@ -21,9 +21,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -32,7 +31,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import javax.swing.AbstractAction;
 import rubensandreoli.commons.utils.FileUtils;
+import rubensandreoli.commons.utils.SwingUtils;
 import rubensandreoli.imageorganizer.io.ImageFile;
 
 /** References:
@@ -141,20 +142,22 @@ public class ImagePanel extends javax.swing.JPanel {
 	    }
 	});
         
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+        SwingUtils.registerKeyAction(this, "ZOOM_IN", KeyEvent.VK_ADD, new AbstractAction() {
             @Override
-            public boolean dispatchKeyEvent(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ADD){
-                    scale += 1f/SCALE_RATE;
+            public void actionPerformed(ActionEvent e) {
+                scale += 1f/SCALE_RATE;
+                repaint();
+            }
+        });
+        
+        SwingUtils.registerKeyAction(this, "ZOOM_OUT", KeyEvent.VK_SUBTRACT, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final float inc = 1f/SCALE_RATE;
+                if(scale-inc > 0){
+                    scale -= inc;
                     repaint();
-                }else if(e.getKeyCode() == KeyEvent.VK_SUBTRACT){
-                    final float inc = 1f/SCALE_RATE;
-                    if(scale-inc > 0){
-                        scale -= inc;
-                        repaint();
-                    }
                 }
-                return false; //true to handle only here.
             }
         });
     }

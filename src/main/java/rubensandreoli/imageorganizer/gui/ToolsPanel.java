@@ -28,12 +28,11 @@ import java.util.Collection;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
+import rubensandreoli.commons.utils.SwingUtils;
 
 /**
  * References:
@@ -46,11 +45,6 @@ import javax.swing.UIManager;
 public class ToolsPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
 
-    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
-    private static final String ACTION_LOAD = "LOAD";
-    private static final String ACTION_MOVE = "MOVE";
-    // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc=" RENDERER "> 
     private class ListRenderer implements ListCellRenderer<String>{
 
@@ -84,7 +78,7 @@ public class ToolsPanel extends javax.swing.JPanel {
     public ToolsPanel() { //kept empty for design tool
         initComponents();
         
-        registerKeyAction(txfImagePos, ACTION_LOAD, KeyEvent.VK_ENTER, new AbstractAction() {
+        SwingUtils.registerKeyAction(txfImagePos, "LOAD", KeyEvent.VK_ENTER, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final Integer pos = txfImagePos.getValue();
@@ -92,13 +86,13 @@ public class ToolsPanel extends javax.swing.JPanel {
                 btnNext.requestFocus();
             }
         });
-        registerKeyAction(lstRootFolders, ACTION_MOVE, KeyEvent.VK_ENTER, new AbstractAction() {
+        SwingUtils.registerKeyAction(lstRootFolders, "MOVE_ROOT", KeyEvent.VK_ENTER, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 listTyped(lstRootFolders, false);
             }
         });
-        registerKeyAction(lstSubFolders, ACTION_MOVE, KeyEvent.VK_ENTER, new AbstractAction() {
+        SwingUtils.registerKeyAction(lstSubFolders, "MOVE_SUB", KeyEvent.VK_ENTER, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 listTyped(lstSubFolders, true);
@@ -394,11 +388,6 @@ public class ToolsPanel extends javax.swing.JPanel {
     private rubensandreoli.commons.swing.IntegerField txfImagePos;
     private javax.swing.JTextField txfNumImages;
     // End of variables declaration//GEN-END:variables
-
-    private void registerKeyAction(JComponent c, String name, int key, AbstractAction action){
-        c.getActionMap().put(name, action);
-        c.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(key, 0), name);
-    }
     
     private void listTyped(JList<String> list, boolean subfolder){
         if(!list.isSelectionEmpty()){

@@ -35,7 +35,7 @@ public class Settings {
     public static final String KEY_SHOW_ALERT = "delete_alert";
     public static final String KEY_SHORTCUTS = "shortcuts";
     
-    public static final boolean DEFAULT_DEBUG = true;
+    public static final boolean DEFAULT_DEBUG = false;
     public static final boolean DEFAULT_SHOW_HIDDEN = false;
     public static final boolean DEFAULT_SHOW_ALERT = true;
     private static final String EMPTY_SHORTCUTS = ""; //used to call overloaded method in the constructor

@@ -16,6 +16,9 @@
  */
 package rubensandreoli.imageorganizer.io.support;
 
+import rubensandreoli.commons.others.Level;
+import rubensandreoli.commons.others.Logger;
+
 public class Shortcut {
     
     public enum Action{NEXT, PREVIOUS, DELETE, MOVE, REFRESH, INFO}
@@ -53,7 +56,7 @@ public class Shortcut {
             }
             return new Shortcut(k, a, d);
         }catch(IllegalArgumentException|NullPointerException ex){
-            //TODO: log as warning if debug
+            Logger.log.print(Level.WARNING, ex);
             return null;
         }
     }

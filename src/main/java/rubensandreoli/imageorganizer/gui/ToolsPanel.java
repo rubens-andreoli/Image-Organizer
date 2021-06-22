@@ -418,9 +418,11 @@ public class ToolsPanel extends javax.swing.JPanel {
         ((JList)evt.getComponent()).clearSelection();
     }
     
+    // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 
     public boolean isTyping() {
         return txfImagePos.isFocusOwner();
     }
+    // </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
     public void setListener(ToolsListener l){

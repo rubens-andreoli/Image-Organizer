@@ -18,6 +18,8 @@ package rubensandreoli.imageorganizer;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import rubensandreoli.commons.others.Level;
+import rubensandreoli.commons.others.Logger;
 import rubensandreoli.imageorganizer.gui.ImageOrganizer;
 
 public class Launcher {
@@ -37,8 +39,11 @@ public class Launcher {
         //</editor-fold>
          
         JFrame view = new ImageOrganizer();
-        
-        SwingUtilities.invokeLater(() -> view.setVisible(true));
+        try{
+            SwingUtilities.invokeLater(() -> view.setVisible(true));
+        }catch(Exception ex){
+            Logger.log.print(Level.SEVERE, "unexpected failure",ex);
+        }
      }
     
 }

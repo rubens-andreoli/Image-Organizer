@@ -24,6 +24,7 @@ public class ShortcutPanel extends javax.swing.JPanel {
 
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
     private static final String MOVE_SEPARATOR = "->";
+    private static final int ACTION_FIELD_WIDTH = 140; //design layout size
     // </editor-fold>
     
     public ShortcutPanel(Shortcut shortcut, ActionListener listener){
@@ -35,7 +36,7 @@ public class ShortcutPanel extends javax.swing.JPanel {
         }
         
         txfAction.setText(sb.toString());
-        if(txfAction.getPreferredSize().width > 140){ //design layout size
+        if(txfAction.getPreferredSize().width > ACTION_FIELD_WIDTH){
             txfAction.setToolTipText(sb.toString());
         }
         txfKey.setText(shortcut.key);

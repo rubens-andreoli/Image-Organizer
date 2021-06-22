@@ -20,7 +20,6 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
@@ -34,7 +33,7 @@ import rubensandreoli.commons.utils.FileUtils;
  * 
  * @author Rubens A. Andreoli Jr.
  */
-public class ImageFolder { //TODO: review, use commons when possible
+public class ImageFolder {
     
     private final File folder;
     private final File root;
@@ -70,10 +69,6 @@ public class ImageFolder { //TODO: review, use commons when possible
         else throw new IOException("Folder \""+newFolder.getPath()+"\" could not be created!");
     }
     
-    public boolean checkFolder(String folder) {
-        return new File(folder).isDirectory();
-    }
-    
     public boolean checkRelatedFolder(String folderName, boolean subfolder) {
         final File newFolder = new File((subfolder? folder:root), folderName);
 	if(newFolder.isDirectory()){ 
@@ -90,7 +85,7 @@ public class ImageFolder { //TODO: review, use commons when possible
     }
     
     public void transferImageTo(int imagePos, String folderName, boolean subfolder) throws IOException{
-        transferImageTo(imagePos, new File((subfolder? folder:root), folderName).getPath());
+        transferImageTo(imagePos, buildRelatedFolderPath(folderName, subfolder));
     }
 
     public void transferImageTo(int imagePos, String folder) throws IOException{
@@ -100,8 +95,12 @@ public class ImageFolder { //TODO: review, use commons when possible
             throw new IOException("Image could not be moved to destination!\n"+folder);
         }
     }
+
+    public String buildRelatedFolderPath(String folderName, boolean subfolder){
+        return new File((subfolder? folder:root), folderName).getPath();
+    }
     
-//    public void removeImage(int imagePos){
+//    public void removeImage(int imagePos){ //TODO: implement this, give user warning
 //        final File image = images.get(imagePos);
 //        boolean deleted = false;
 //        if(Desktop.isDesktopSupported()){
@@ -146,10 +145,10 @@ public class ImageFolder { //TODO: review, use commons when possible
     public String getFolderPath() {
         return folder.getPath();
     }
-
-    public String buildRelatedFolderPath(String folderName, boolean subfolder){
-        return (new File((subfolder? folder:root), folderName)).getPath();
-    }
     // </editor-fold>
+         
+    public static boolean checkFolder(String folder) {
+        return new File(folder).isDirectory();
+    }
     
 }

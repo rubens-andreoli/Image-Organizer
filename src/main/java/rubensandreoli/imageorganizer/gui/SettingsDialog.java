@@ -37,9 +37,8 @@ public class SettingsDialog extends javax.swing.JDialog implements PickyConsumer
     private static final long serialVersionUID = 1L;
 
     private final Settings settings;
-    private ShortcutMap shortcuts;
-    
-    
+    private final ShortcutMap shortcuts;
+     
     public SettingsDialog(Frame parent, Settings settings) {
         super(parent, true);
         initComponents();
@@ -51,7 +50,7 @@ public class SettingsDialog extends javax.swing.JDialog implements PickyConsumer
         chbHidden.setSelected(settings.isShowHidden());
         chbAlert.setSelected(settings.isShowAlert());
         
-        shortcuts = settings.getShortcutMap();
+        shortcuts = settings.getShortcutMap(); //copy
         shortcuts.values().forEach(s -> addShortcut(s));
         
         Logger.log.setEnabled(settings.isDebug());

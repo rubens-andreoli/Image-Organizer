@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import rubensandreoli.commons.others.Level;
+import rubensandreoli.commons.others.Logger;
 import rubensandreoli.commons.swing.AboutDialog;
 import rubensandreoli.commons.utils.FileUtils;
 import rubensandreoli.commons.utils.SwingUtils;
@@ -72,13 +73,16 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private ImageFolder imageFolder;
     private int currentPos = -1;
     
+    @SuppressWarnings("LeakingThisInConstructor")
     public ImageOrganizer() {
         settings = new Settings();
         settings.addSettingsListener(this);
+        Logger.log.setEnabled(settings.isDebug());
         history = new History();
 	try {
 	    history.load();
 	} catch (IOException ex) {
+            //TODO: better warning
 	    showException(ex);
 	}        
 
@@ -205,7 +209,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         });
     }
     
-    private void initSplitPane(){
+    private void initSplitPane(){ //FIX: failing sometimes
         final BasicSplitPaneDivider divider = ((BasicSplitPaneUI) pnlSplit.getUI()).getDivider();
         divider.setEnabled(false); //disable dragging cursor
         divider.removeMouseListener(divider.getMouseListeners()[0]);//disable dragging
@@ -240,11 +244,13 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         imageFolder = new ImageFolder(folderPath, settings.isShowHidden());
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         
+        final int numImages = imageFolder.getNumImages();
         pnlTools.setFolderPath(folderPath);
-        pnlTools.setImageTotal(imageFolder.getNumImages());
+        pnlTools.setImageTotal(numImages);
         fillRelatedFolders();
         
-        currentPos = history.getPosition(folderPath);
+        final int historyPos = history.getPosition(folderPath);
+        currentPos = historyPos >= numImages? 0:historyPos; //old history with more files than actual folder
         loadImage();
     }
     
@@ -334,7 +340,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
     
     public void moveImage(String folder){ //shortcuts move
-        if(imageFolder.checkFolder(folder)){
+        if(ImageFolder.checkFolder(folder)){
             try {
                 imageFolder.transferImageTo(currentPos, folder);
                 imageRemoved();

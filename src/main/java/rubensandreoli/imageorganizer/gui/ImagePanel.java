@@ -81,8 +81,7 @@ public class ImagePanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 
-    private void addListeners() {
-       
+    private void addListeners() { 
         addMouseListener(new MouseAdapter(){
 	    @Override
 	    public void mousePressed(MouseEvent e) {
@@ -168,7 +167,7 @@ public class ImagePanel extends javax.swing.JPanel {
 	if(image == null) return;
 
 	Graphics2D g2d = (Graphics2D) g;
-	// g2d.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+//	 g2d.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY); //can't see much difference
 	g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 	g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 

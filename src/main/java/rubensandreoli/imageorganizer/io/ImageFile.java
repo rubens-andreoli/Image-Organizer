@@ -17,12 +17,15 @@
 package rubensandreoli.imageorganizer.io;
 
 import java.awt.Image;
+import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import rubensandreoli.commons.others.Level;
+import rubensandreoli.commons.others.Logger;
 import rubensandreoli.commons.utils.FileUtils;
 
 /**
@@ -49,7 +52,7 @@ public class ImageFile {
 	IMAGES_EXT.add(".bmp");
 	IMAGES_EXT.add(".png");
         IMAGES_EXT.add(".gif");
-        IMAGES_EXT.add(".webp");
+//        IMAGES_EXT.add(".webp");
     } 
     // </editor-fold>
     
@@ -88,7 +91,7 @@ public class ImageFile {
         if(exception == null){
            return true;
         }else{
-            //TODO: log as error if debug
+            Logger.log.print(Level.ERROR, exception);
             return false;
         }
 
@@ -106,7 +109,7 @@ public class ImageFile {
     }
     
     private void setPosition(int pos, int total){
-        info[POSITION_INDEX] = "Position: " + pos + " of " + total;
+        info[POSITION_INDEX] = "Position: " + ++pos + " of " + total;
     }
     
     private void setFailed(){
@@ -147,16 +150,16 @@ public class ImageFile {
         if(FileUtils.getExtension(file.getPath()).endsWith(".gif")){
             try{
                 ImageIcon iImage = new ImageIcon(file.getPath());
-                if(iImage != null){ //ImageIcon can return from constructor if failed
+                if(iImage.getImageLoadStatus() == MediaTracker.COMPLETE){ //ImageIcon can return from constructor if failed
                     image.setImage(iImage.getImage());
                     image.setDimensions(iImage.getIconWidth(), iImage.getIconHeight());
-                }else{ //if failed to load
+                }else{
                     image.setFailed();
-                    //TODO: log as warning if debug
+                    Logger.log.print(Level.WARNING, new IOException("failed loading gif"));
                 }
             }catch (SecurityException ex) {//if can't access
                 image.setFailed();
-                //TODO: log as warning if debug
+                Logger.log.print(Level.WARNING, ex);
             }
         }else{
             try {
@@ -164,13 +167,13 @@ public class ImageFile {
                 if(bImage != null){
                     image.setImage(bImage);
                     image.setDimensions(bImage.getWidth(), bImage.getHeight());
-                }else{ //if no support
+                }else{
                     image.setFailed();
-                    //TODO: log as warning if debug
+                    Logger.log.print(Level.WARNING, new IOException("unsupported image codification"));
                 }
-            } catch (IOException ex) {//corrupt
+            } catch (IOException ex) { //can't read or failure reading
                 image.setFailed();
-                //TODO: log as warning if debug
+                Logger.log.print(Level.WARNING, ex);
             }
         }
         return image;

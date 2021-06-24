@@ -19,7 +19,6 @@ package rubensandreoli.imageorganizer.gui;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import rubensandreoli.commons.others.Logger;
 import rubensandreoli.commons.others.PickyConsumer;
 import rubensandreoli.imageorganizer.io.Settings;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
@@ -50,10 +49,8 @@ public class SettingsDialog extends javax.swing.JDialog implements PickyConsumer
         chbHidden.setSelected(settings.isShowHidden());
         chbAlert.setSelected(settings.isShowAlert());
         
-        shortcuts = settings.getShortcutMap(); //copy
+        shortcuts = settings.copyShortcutMap(); //copy
         shortcuts.values().forEach(s -> addShortcut(s));
-        
-        Logger.log.setEnabled(settings.isDebug());
     }
 
     @SuppressWarnings("unchecked")

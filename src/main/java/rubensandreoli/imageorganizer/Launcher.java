@@ -41,7 +41,7 @@ public class Launcher {
         JFrame view = new ImageOrganizer();
         try{
             SwingUtilities.invokeLater(() -> view.setVisible(true));
-        }catch(Exception ex){
+        }catch(RuntimeException ex){
             Logger.log.print(Level.SEVERE, "unexpected failure",ex);
         }
      }

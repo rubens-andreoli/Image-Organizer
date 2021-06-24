@@ -30,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
+import rubensandreoli.commons.exceptions.UnsupportedException;
 import rubensandreoli.commons.others.Level;
 import rubensandreoli.commons.others.Logger;
 import rubensandreoli.commons.swing.AboutDialog;
@@ -43,7 +44,7 @@ import rubensandreoli.imageorganizer.io.History;
 import rubensandreoli.imageorganizer.io.ImageFolder;
 import rubensandreoli.imageorganizer.io.ImageFile;
 
-/** 
+/**
  * References:
  * <br>
  * http://www.java2s.com/Tutorial/Java/0240__Swing/SettingtheLocationofaToolTip.htm<br>
@@ -54,38 +55,50 @@ import rubensandreoli.imageorganizer.io.ImageFile;
 public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener, SettingsListener{
     private static final long serialVersionUID = 1L;
 
-    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
+    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS ">
     private static final String PROGRAM_NAME = "Image Organizer";
     private static final String PROGRAM_VERSION = "v1.0.0";
     private static final String PROGRAM_YEAR = "2020";
     private static final String PROGRAM_ICON = "images/icon.png";
-    
+
     private static final String DELETE_ALERT_TITLE = "Delete Image";
-    private static final String DELETE_ALERT_MSG = "Do you like to permanently delete this image?";
+    private static final String DELETE_ALERT_MSG = "Are you sure that you want to permanently delete the "
+            + "current image?";
+    private static final String REMOVE_ALERT_TITLE = "Delete Image";
+    private static final String REMOVE_ALERT_MSG = "Are you sure that you want to delete the current image?";
     private static final String FOLDER_FAIL_TITLE = "Shortcut Failed";
-    private static final String FOLDER_FAIL_MSG_MASK = "Folder \"%s\" couldn't be found, all associated shortcuts were removed!";
+    private static final String FOLDER_FAIL_MSG_MASK = "Folder \"%s\" couldn't be found, all associated shortcuts "
+            + "were removed!";
     private static final String FOLDER_NAME_TITLE = "Folder Creation";
     private static final String FOLDER_NAME_MSG = "Type the new folder name:";
+    private static final String UNSUPPORTED_TITLE = "Unsupported Operation";
+    private static final String UNSUPPORTED_MSG = "<html>Currently, we do not support \"delete to trash\" "
+            + "operations in your system.<br>If you wish to proceed, the current image, "
+            + "as well as any other deleted<br>image during this session, will be <b>permanently deleted</b>.</html>";
     // </editor-fold>
 
     private final Settings settings;
     private final History history;
     private ImageFolder imageFolder;
     private int currentPos = -1;
-    
+    private boolean deleteAgreed;
+
     @SuppressWarnings("LeakingThisInConstructor")
     public ImageOrganizer() {
+        //LOAD SETTINGS:
         settings = new Settings();
-        settings.addSettingsListener(this);
-        Logger.log.setEnabled(settings.isDebug());
+        settings.setListener(this);
+        Logger.log.setVerbose(settings.isDebug());
+        
+        //LOAD HISTORY:
         history = new History();
 	try {
 	    history.load();
 	} catch (IOException ex) {
             //TODO: better warning
 	    showException(ex);
-	}        
-
+	}
+        
         initComponents();
         initListeners();
         initSplitPane();
@@ -157,7 +170,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private javax.swing.JSplitPane pnlSplit;
     private rubensandreoli.imageorganizer.gui.ToolsPanel pnlTools;
     // End of variables declaration//GEN-END:variables
- 
+
     private void initListeners(){
         SwingUtils.setDropTarget(pnlImage, file -> {
             if(file.isDirectory()){
@@ -166,7 +179,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             }
             return false;
         });
-        
+
         pnlImage.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent evt) {
@@ -176,10 +189,10 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                 }
             }
         });
-        
+
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
             //without isActive() shortcut will work even from a dialog
-            if(imageFolder != null && isActive() && !pnlTools.isTyping()){ 
+            if(imageFolder != null && isActive() && !pnlTools.isTyping()){
                 final int code = evt.getExtendedKeyCode();
                 if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_RELEASED")){
                     final Shortcut shortcut = settings.getShortcut(code);
@@ -200,7 +213,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                             pnlImage.toggleShowInfo();
                             break;
                         case MOVE:
-                            moveImage(shortcut.description); 
+                            moveImage(shortcut.description);
                             break;
                     }
                 }
@@ -208,7 +221,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             return false;
         });
     }
-    
+
     private void initSplitPane(){ //FIX: failing sometimes
         final BasicSplitPaneDivider divider = ((BasicSplitPaneUI) pnlSplit.getUI()).getDivider();
         divider.setEnabled(false); //disable dragging cursor
@@ -224,13 +237,13 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         });
         btnUp.setVisible(false);
         final ActionListener listener = evt -> {
-            btnDown.setVisible(btnUp.isVisible());
+            btnDown.setVisible(!btnDown.isVisible());
             btnUp.setVisible(!btnUp.isVisible());
         };
         btnUp.addActionListener(listener);
-        btnDown.addActionListener(listener);      
+        btnDown.addActionListener(listener);
     }
-    
+
     private void showException(Exception ex){
         SwingUtils.showMessageDialog(this, ex, Level.WARNING, true);
     }
@@ -243,18 +256,18 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         imageFolder = new ImageFolder(folderPath, settings.isShowHidden());
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        
+
         final int numImages = imageFolder.getNumImages();
         pnlTools.setFolderPath(folderPath);
         pnlTools.setImageTotal(numImages);
         fillRelatedFolders();
-        
+
         final int historyPos = history.getPosition(folderPath);
         currentPos = historyPos >= numImages? 0:historyPos; //old history with more files than actual folder
         loadImage();
     }
-    
-    
+
+
     @Override
     public void loadRelatedFolder(String folderName, boolean subfolder) {
         final String folder = imageFolder.buildRelatedFolderPath(folderName, subfolder);
@@ -263,7 +276,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         }
         loadFolder(folder);
     }
-    
+
     private void fillRelatedFolders(){
         pnlTools.setRootFolders(imageFolder.getRootFolders());
         pnlTools.setSubFolders(imageFolder.getSubFolders());
@@ -292,7 +305,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             history.addEntry(imageFolder.getFolderPath(), currentPos);
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-    
+
         pnlTools.setButtonsEnabled(false);
         if(numImages > 1){
             pnlTools.setButtonsEnabled(true);
@@ -312,9 +325,9 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             } catch (IOException ex) {
                 showException(ex);
             }
-        } 
+        }
     }
-    
+
     @Override
     public void nextImage() {
         if(currentPos >= imageFolder.getNumImages()-1) currentPos = 0;
@@ -328,7 +341,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
 	else currentPos = imageFolder.getNumImages()-1;
 	loadImage();
     }
-    
+
     @Override
     public void loadImage(int pos) {
         if(imageFolder == null){ //toolsPanel doesn't know if a folder is set (pos=0)
@@ -338,7 +351,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
            loadImage();
         }
     }
-    
+
     public void moveImage(String folder){ //shortcuts move
         if(ImageFolder.checkFolder(folder)){
             try {
@@ -367,37 +380,56 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         }
     }
     
-    @Override
-    public void deleteImage() {
-        if(!settings.isShowAlert() || 
-                JOptionPane.showConfirmDialog(this, DELETE_ALERT_MSG, DELETE_ALERT_TITLE, JOptionPane.YES_NO_OPTION) == 
-                JOptionPane.YES_OPTION){
-            try {
-                imageFolder.deleteImage(currentPos);
-                imageRemoved();
-            } catch (IOException ex) {
-                showException(ex);
-            }
+    private void delete(){
+        try {
+            imageFolder.deleteImage(currentPos);
+            imageRemoved();
+        } catch (IOException ex) {
+            showException(ex);
         }
     }
     
+    @Override
+    public void deleteImage() {
+        if(deleteAgreed){ //not a good solution but seems to be working
+            if(!settings.isShowAlert() || JOptionPane.showConfirmDialog(this, DELETE_ALERT_MSG, DELETE_ALERT_TITLE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+                delete();
+            }
+        }else{
+            if(!settings.isShowAlert() || JOptionPane.showConfirmDialog(this, REMOVE_ALERT_MSG, REMOVE_ALERT_TITLE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+                try {
+                    imageFolder.removeImage(currentPos);
+                    imageRemoved();
+                } catch (UnsupportedException exU) {
+                    Logger.log.print(Level.WARNING, exU);
+                    if(JOptionPane.showConfirmDialog(this, UNSUPPORTED_MSG, UNSUPPORTED_TITLE, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION){
+                        deleteAgreed = true;
+                        delete();                    
+                    }
+                } catch (IOException ex) {
+                    showException(ex);
+                }
+            }
+        }
+    }
+
     private void imageRemoved(){
         final int size = imageFolder.getNumImages();
     	pnlTools.setImageTotal(size);
         if(currentPos >= size){
             currentPos = 0;
         }
-        loadImage();    
+        loadImage();
     }
-    
+
     @Override
     public void settings() {
         new SettingsDialog(this, settings).setVisible(true);
     }
-  
+
     @Override
     public void about() {
-        new AboutDialog(this, 
+        new AboutDialog(this,
                 new AboutDialog.ProgramInfo(PROGRAM_NAME, null, PROGRAM_VERSION, PROGRAM_YEAR))
                 .addAtribution("Program icon", "Iconshock", "https://www.iconshock.com/")
                 .addAtribution("About icon", "Gregor Cresnar", "https://www.flaticon.com/authors/gregor-cresnar")
@@ -405,7 +437,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                 .addAtribution("Broken image icon", "Google", "https://www.flaticon.com/authors/google")
                 .setVisible(true);
     }
-    
+
     @Override
     public void settingsChange(SettingsChangeEvent evt) {
         if(imageFolder != null && evt.isSetting(Settings.KEY_SHOW_HIDDEN)){

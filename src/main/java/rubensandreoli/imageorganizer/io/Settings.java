@@ -17,8 +17,6 @@
 package rubensandreoli.imageorganizer.io;
 
 import java.awt.event.KeyEvent;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import rubensandreoli.commons.others.Configuration;
@@ -45,7 +43,7 @@ public class Settings {
     private boolean showHidden;
     private boolean showAlert;
     private final ShortcutMap shortcutMap= new ShortcutMap();
-    private final Collection<SettingsListener> listeners = new HashSet<>();
+    private SettingsListener listener;
 
     public Settings() {
         debug = Configuration.values.get(KEY_DEBUG, DEFAULT_DEBUG);
@@ -92,7 +90,7 @@ public class Settings {
     }
     
     public void fireSettingsChange(String settingsKey, Object newValue){
-        listeners.forEach(l -> l.settingsChange(new SettingsChangeEvent(this, settingsKey, newValue)));
+        if(listener != null) listener.settingsChange(new SettingsChangeEvent(this, settingsKey, newValue));
     }
     
     public boolean containsShortcut(int code) {
@@ -120,7 +118,7 @@ public class Settings {
          return shortcutMap.get(code);
     }
     
-    public ShortcutMap getShortcutMap() {
+    public ShortcutMap copyShortcutMap() {
         return new ShortcutMap(shortcutMap);
     }
     // </editor-fold>
@@ -144,12 +142,8 @@ public class Settings {
         }
     }
     
-    public boolean addSettingsListener(SettingsListener listener){
-        return this.listeners.add(listener);
-    }
-    
-    public boolean removeSettingsListener(SettingsListener listener){
-        return this.listeners.remove(listener);
+    public void setListener(SettingsListener listener){
+        this.listener = listener;
     }
     // </editor-fold>
     

@@ -16,6 +16,7 @@
  */
 package rubensandreoli.imageorganizer.io;
 
+import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
@@ -72,29 +73,30 @@ public class ImageFile {
         info[SIZE_INDEX] = "Size: " + FileUtils.getFormattedFileSize(file);
     }
     
-    public boolean locateOnDisk(){
-        final String os = System.getProperty("os.name").toLowerCase();
-        final Runtime runtime = Runtime.getRuntime();
-        IOException exception = null;
+    public void locateOnDisk(){
+        try{
+            Desktop.getDesktop().browseFileDirectory(new File(path));
+        }catch(Exception exD){
+            Logger.log.print(Level.INFO, "failed to use desktop browse file method", exD);
+            final String os = System.getProperty("os.name").toLowerCase();
+            final Runtime runtime = Runtime.getRuntime();
+            IOException exception = null;
 
-        if(os.contains("win")){
-            try { runtime.exec("explorer.exe /select," + path);
-            } catch (IOException ex) {exception = ex;}
-        }else if(os.contains("mac")){
-            try { runtime.exec("open -R "+path); //not tested
-            } catch (IOException ex) {exception = ex;}
-        }else if(os.contains("nix") || os.contains("nux")){
-            try { runtime.exec("nautilus --select " + path); //not tested
-            } catch (IOException ex) {exception = ex;}
+            if(os.contains("win")){
+                try { runtime.exec("explorer.exe /select," + path);
+                } catch (IOException ex) {exception = ex;}
+            }else if(os.contains("mac")){
+                try { runtime.exec("open -R "+path); //not tested
+                } catch (IOException ex) {exception = ex;}
+            }else if(os.contains("nix") || os.contains("nux")){
+                try { runtime.exec("nautilus --select " + path); //not tested
+                } catch (IOException ex) {exception = ex;}
+            }
+
+            if(exception != null){
+               Logger.log.print(Level.ERROR, exception);
+            }
         }
-
-        if(exception == null){
-           return true;
-        }else{
-            Logger.log.print(Level.ERROR, exception);
-            return false;
-        }
-
     }
 
     // <editor-fold defaultstate="collapsed" desc=" SETTERS ">

@@ -16,13 +16,13 @@
  */
 package rubensandreoli.imageorganizer.io;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
+import rubensandreoli.commons.exceptions.UnsupportedException;
 import rubensandreoli.commons.utils.FileUtils;
 
 /** 
@@ -100,33 +100,16 @@ public class ImageFolder {
         return new File((subfolder? folder:root), folderName).getPath();
     }
     
-//    public void removeImage(int imagePos){ //TODO: implement this, give user warning
-//        final File image = images.get(imagePos);
-//        boolean deleted = false;
-//        if(Desktop.isDesktopSupported()){
-//            Desktop d = Desktop.getDesktop();
-//            try{
-//                deleted = d.moveToTrash(image);
-//                if(deleted) images.remove(imagePos);
-//            }catch(Exception e){}
-//        }
-//        
-//    }
+    public void removeImage(int imagePos) throws UnsupportedException, IOException {
+        final File image = images.get(imagePos);
+        if(FileUtils.removeFile(image)) images.remove(imagePos);
+        else throw new IOException("Image \""+image.getPath()+"\" could not be deleted!\nIt may be in use by another program or it no longer exists.");
+    }
     
-    public void deleteImage(int imagePos) throws IOException{
+    public void deleteImage(int imagePos) throws IOException {
 	final File image = images.get(imagePos);
-        boolean deleted = false;
-        if(Desktop.isDesktopSupported()){
-            Desktop d = Desktop.getDesktop();
-            try{
-                deleted = d.moveToTrash(image);
-                if(deleted) images.remove(imagePos);
-            }catch(Exception e){}
-        }
-        if(!deleted){
-            if(FileUtils.deleteFile(image)) images.remove(imagePos);
-            else throw new IOException("Image \""+image.getPath()+"\" could not be deleted!");
-        }
+        if(FileUtils.deleteFile(image)) images.remove(imagePos);
+        else throw new IOException("Image \""+image.getPath()+"\" could not be deleted!\nIt may be in use by another program or it no longer exists.");
     }
 
     // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 

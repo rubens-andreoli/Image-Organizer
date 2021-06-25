@@ -151,10 +151,11 @@ public class ImageFile {
         image.setPosition(pos, total);
         if(FileUtils.getExtension(file.getPath()).endsWith(".gif")){
             try{
-                ImageIcon iImage = new ImageIcon(file.getPath());
-                if(iImage.getImageLoadStatus() == MediaTracker.COMPLETE){ //ImageIcon can return from constructor if failed
-                    image.setImage(iImage.getImage());
-                    image.setDimensions(iImage.getIconWidth(), iImage.getIconHeight());
+                final ImageIcon iconImage = new ImageIcon(file.getPath());
+                final Image i = iconImage.getImage();
+                if(i != null){
+                    image.setImage(i);
+                    image.setDimensions(iconImage.getIconWidth(), iconImage.getIconHeight());
                 }else{
                     image.setFailed();
                     Logger.log.print(Level.WARNING, new IOException("failed loading gif"));

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
+import javax.imageio.IIOException;
 import rubensandreoli.commons.exceptions.UnsupportedException;
 import rubensandreoli.commons.utils.FileUtils;
 
@@ -89,7 +90,10 @@ public class ImageFolder {
     }
 
     public void transferImageTo(int imagePos, String folder) throws IOException{
-        if(FileUtils.moveFileTo(images.get(imagePos), folder)){
+        final File file = images.get(imagePos);
+        if(file.getParent().equals(folder))
+            throw new IOException("Move destination is the same as the origin!");
+        if(FileUtils.moveFileTo(file, folder)){
             images.remove(imagePos);
         }else{
             throw new IOException("Image could not be moved to destination!\n"+folder);

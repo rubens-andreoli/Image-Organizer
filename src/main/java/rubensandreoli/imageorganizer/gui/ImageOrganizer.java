@@ -18,16 +18,21 @@ package rubensandreoli.imageorganizer.gui;
 
 import rubensandreoli.imageorganizer.gui.support.ToolsListener;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import rubensandreoli.commons.exceptions.UnsupportedException;
@@ -49,6 +54,9 @@ import rubensandreoli.imageorganizer.io.ImageFile;
  * <br>
  * http://www.java2s.com/Tutorial/Java/0240__Swing/SettingtheLocationofaToolTip.htm<br>
  * https://stackoverflow.com/questions/7065309/jsplitpane-set-resizable-false/54458846#54458846<br>
+ * https://stackoverflow.com/questions/14426472/detecting-when-jsplitpane-divider-is-being-dragged-not-component-being-resized<br>
+ * https://stackoverflow.com/questions/8090506/let-swing-jsplitpane-support-one-touch-resize-but-not-drag<br>
+ * https://stackoverflow.com/questions/42203189/mouse-cursor-wont-change-when-rolling-over-objects
  *
  * @author Rubens A. Andreoli Jr.
  */
@@ -221,27 +229,33 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             return false;
         });
     }
-
-    private void initSplitPane(){ //FIX: failing sometimes
+    
+    private void initSplitPane(){
+        //enable=false & onetouch=true: disables cursor changes of subcomponents, improper solution
         final BasicSplitPaneDivider divider = ((BasicSplitPaneUI) pnlSplit.getUI()).getDivider();
-        divider.setEnabled(false); //disable dragging cursor
-        divider.removeMouseListener(divider.getMouseListeners()[0]);//disable dragging
+        divider.setEnabled(false); //disables dragging cursor only
+        divider.removeMouseListener(divider.getMouseListeners()[0]);//disables dragging, not working
+        pnlSplit.removeMouseListener(pnlSplit.getMouseListeners()[0]); //possible solution
+        
         final JButton btnUp = (JButton)divider.getComponent(0);
         final JButton btnDown = (JButton)divider.getComponent(1);
 
-        addComponentListener(new ComponentAdapter() { //fix restore after minimized drag
+        addComponentListener(new ComponentAdapter() { //to fix restore after the frame is resized while minimized 
             @Override
             public void componentResized(ComponentEvent evt) {
                 pnlSplit.setLastDividerLocation(pnlSplit.getHeight() - pnlTools.getHeight());
             }
         });
         btnUp.setVisible(false);
-        final ActionListener listener = evt -> {
-            btnDown.setVisible(!btnDown.isVisible());
-            btnUp.setVisible(!btnUp.isVisible());
-        };
-        btnUp.addActionListener(listener);
-        btnDown.addActionListener(listener);
+        //button listeners sometimes are not called because expand/minimize behaviour is triggered not by the buttons
+        //not sure if after changing the disable drag solution it's still the case, but this approach seems fine
+        pnlTools.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                btnDown.setVisible(pnlTools.getHeight() != 0);
+                btnUp.setVisible(pnlTools.getHeight() == 0);
+            } 
+        });
     }
 
     private void showException(Exception ex){

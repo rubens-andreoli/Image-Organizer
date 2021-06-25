@@ -33,7 +33,7 @@ import rubensandreoli.imageorganizer.io.support.ShortcutMap;
  * @author Rubens A. Andreoli Jr.
  */
 public class SettingsDialog extends javax.swing.JDialog implements PickyConsumer<Shortcut> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private final Settings settings;
     private final ShortcutMap shortcuts;

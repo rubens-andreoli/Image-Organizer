@@ -45,7 +45,7 @@ import rubensandreoli.imageorganizer.io.ImageFile;
  * @author Rubens A. Andreoli Jr.
  */
 public class ImagePanel extends javax.swing.JPanel {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
     private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);

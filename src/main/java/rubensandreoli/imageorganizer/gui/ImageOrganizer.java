@@ -18,21 +18,15 @@ package rubensandreoli.imageorganizer.gui;
 
 import rubensandreoli.imageorganizer.gui.support.ToolsListener;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import rubensandreoli.commons.exceptions.UnsupportedException;
@@ -65,8 +59,8 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
 
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS ">
     private static final String PROGRAM_NAME = "Image Organizer";
-    private static final String PROGRAM_VERSION = "v1.0.0";
-    private static final String PROGRAM_YEAR = "2020";
+    private static final String PROGRAM_VERSION = "v1.1.0";
+    private static final String PROGRAM_YEAR = "2021";
     private static final String PROGRAM_ICON = "images/icon.png";
 
     private static final String DELETE_ALERT_TITLE = "Delete Image";

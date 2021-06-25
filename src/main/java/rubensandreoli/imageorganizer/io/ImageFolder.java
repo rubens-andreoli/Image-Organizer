@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
-import javax.imageio.IIOException;
 import rubensandreoli.commons.exceptions.UnsupportedException;
 import rubensandreoli.commons.utils.FileUtils;
 

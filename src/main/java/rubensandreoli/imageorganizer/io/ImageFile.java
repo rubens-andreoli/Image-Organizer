@@ -18,7 +18,6 @@ package rubensandreoli.imageorganizer.io;
 
 import java.awt.Desktop;
 import java.awt.Image;
-import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

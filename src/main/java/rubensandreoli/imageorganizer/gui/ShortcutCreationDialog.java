@@ -27,7 +27,7 @@ import rubensandreoli.commons.utils.SwingUtils;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
 
 public class ShortcutCreationDialog extends javax.swing.JDialog {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
     private static final String EMPTY_TITLE = "Empty Key";

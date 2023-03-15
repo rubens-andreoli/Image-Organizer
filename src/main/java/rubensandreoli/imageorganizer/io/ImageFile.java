@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,17 +16,16 @@
  */
 package rubensandreoli.imageorganizer.io;
 
+import rubensandreoli.imageorganizer.io.support.Level;
 import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import rubensandreoli.commons.others.Level;
-import rubensandreoli.commons.others.Logger;
-import rubensandreoli.commons.utils.FileUtils;
 
 /**
  * References:
@@ -38,13 +37,14 @@ import rubensandreoli.commons.utils.FileUtils;
  */
 public class ImageFile {
 
-    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS ">
     private static final int NAME_INDEX = 0;
     private static final int EXTENSION_INDEX = 1;
     private static final int DIMENSIONS_INDEX = 2;
     private static final int SIZE_INDEX = 3;
     private static final int POSITION_INDEX = 4;
     public static final int INFO_SIZE = 5;
+    private static final String FILENAME_INVALID_CHARS_REGEX = "[\\/\\\\:\\*?\\\"<\\>|]";
+    private static final String EXTENSION_REGEX = "^.[a-z]{3,}$";
     public static final HashSet<String> IMAGES_EXT = new HashSet<>();
     static {
 	IMAGES_EXT.add(".jpg");
@@ -54,7 +54,6 @@ public class ImageFile {
         IMAGES_EXT.add(".gif");
 //        IMAGES_EXT.add(".webp");
     } 
-    // </editor-fold>
     
     private Image image;
 
@@ -67,9 +66,67 @@ public class ImageFile {
     private ImageFile(File file){
         path = file.getPath();
         info = new String[INFO_SIZE];
-        info[NAME_INDEX] = "Name: " + FileUtils.getFilename(path);
-        info[EXTENSION_INDEX] = "Extension: " + FileUtils.getExtension(path); 
-        info[SIZE_INDEX] = "Size: " + FileUtils.getFormattedFileSize(file);
+        info[NAME_INDEX] = "Name: " + getFilename(path);
+        info[EXTENSION_INDEX] = "Extension: " + getExtension(path); 
+        info[SIZE_INDEX] = "Size: " + getFormattedFileSize(file);
+    }
+
+    private static String getFilename(String pathname){
+        return getFilename(pathname, true);
+    }
+
+    private static String getFilename(String pathname, boolean normalize){
+        String name = getName(pathname);
+        final int extIndex = name.lastIndexOf(".");
+        if(extIndex != -1) name = name.substring(0, extIndex);
+        if(normalize) name = name.replaceAll(FILENAME_INVALID_CHARS_REGEX, "");
+        return name;
+    }
+    
+    private static String getName(String pathname){
+        return new File(pathname).getName();
+    }
+    
+    private static String getExtension(String pathname, String defaultValue){
+        final String name = getName(pathname);
+        String ext = defaultValue;
+        final int extIndex = name.lastIndexOf(".");
+        if(extIndex != -1){
+            String tmpExt = name.substring(extIndex);
+            boolean empty = false;
+            while(!tmpExt.matches(EXTENSION_REGEX)){
+                if(tmpExt.isEmpty()){
+                    empty = true;
+                    break;
+                }
+                tmpExt = tmpExt.substring(0, tmpExt.length()-1);
+            }
+            if(!empty) ext = tmpExt;
+        }
+        return ext;
+    }
+    
+    private static String getExtension(String pathname){
+        return getExtension(pathname, "");
+    }
+    
+    private static long getFileSize(File file){
+        try{
+            return file.length();
+        }catch(SecurityException ex){
+            return 0L;
+        }
+    }
+    
+    private static String getFormattedFileSize(File file){
+        return formatFilesize(getFileSize(file));
+    }
+    
+    private static String formatFilesize(long size) {
+        if(size <= 0) return "0";
+        final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" }; //TODO: remove from here
+        int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
     
     public void locateOnDisk(){
@@ -77,8 +134,8 @@ public class ImageFile {
             Desktop.getDesktop().browseFileDirectory(new File(path));
         }catch(Exception exD){
             Logger.log.print(Level.INFO, "failed to use desktop browse file method", exD);
-            final String os = System.getProperty("os.name").toLowerCase();
-            final Runtime runtime = Runtime.getRuntime();
+            String os = System.getProperty("os.name").toLowerCase();
+            Runtime runtime = Runtime.getRuntime();
             IOException exception = null;
 
             if(os.contains("win")){
@@ -148,7 +205,7 @@ public class ImageFile {
     public static ImageFile build(File file, int pos, int total){
         final ImageFile image = new ImageFile(file);
         image.setPosition(pos, total);
-        if(FileUtils.getExtension(file.getPath()).endsWith(".gif")){
+        if(getExtension(file.getPath()).endsWith(".gif")){
             try{
                 final ImageIcon iconImage = new ImageIcon(file.getPath());
                 final Image i = iconImage.getImage();
@@ -182,7 +239,7 @@ public class ImageFile {
     }
     
     public static boolean isImage(File file){
-        return IMAGES_EXT.contains(FileUtils.getExtension(file.getPath()));
+        return IMAGES_EXT.contains(getExtension(file.getPath())); //TODO: add support for upper case extension.
     }
     
 }

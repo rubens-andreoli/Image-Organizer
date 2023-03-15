@@ -55,7 +55,7 @@
         <Property name="editable" type="boolean" value="false"/>
       </Properties>
     </Component>
-    <Component class="rubensandreoli.commons.swing.KeyField" name="txfKey">
+    <Component class="rubensandreoli.imageorganizer.gui.support.KeyField" name="txfKey">
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
       </Properties>

@@ -32,7 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
-import rubensandreoli.commons.utils.SwingUtils;
+import rubensandreoli.imageorganizer.gui.support.SwingUtils;
 
 /**
  * References:
@@ -120,7 +120,7 @@ public class ToolsPanel extends javax.swing.JPanel {
         btnDelete = new javax.swing.JButton();
         pnlRight = new javax.swing.JPanel();
         txfImageName = new javax.swing.JTextField();
-        txfImagePos = new rubensandreoli.commons.swing.IntegerField();
+        txfImagePos = new rubensandreoli.imageorganizer.gui.support.IntegerField();
 
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWeights = new double[] {0.5, 0.0, 0.5};
@@ -385,7 +385,7 @@ public class ToolsPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane sclFoldersOut;
     private javax.swing.JTextField txfFolderPath;
     private javax.swing.JTextField txfImageName;
-    private rubensandreoli.commons.swing.IntegerField txfImagePos;
+    private rubensandreoli.imageorganizer.gui.support.IntegerField txfImagePos;
     private javax.swing.JTextField txfNumImages;
     // End of variables declaration//GEN-END:variables
     

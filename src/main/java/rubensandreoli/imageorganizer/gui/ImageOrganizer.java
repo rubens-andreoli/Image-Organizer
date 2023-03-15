@@ -29,12 +29,10 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
-import rubensandreoli.commons.exceptions.UnsupportedException;
-import rubensandreoli.commons.others.Level;
-import rubensandreoli.commons.others.Logger;
-import rubensandreoli.commons.swing.AboutDialog;
-import rubensandreoli.commons.utils.FileUtils;
-import rubensandreoli.commons.utils.SwingUtils;
+import rubensandreoli.imageorganizer.gui.support.IconLoader;
+import rubensandreoli.imageorganizer.io.support.Level;
+import rubensandreoli.imageorganizer.io.Logger;
+import rubensandreoli.imageorganizer.gui.support.SwingUtils;
 import rubensandreoli.imageorganizer.io.Settings;
 import rubensandreoli.imageorganizer.io.support.SettingsChangeEvent;
 import rubensandreoli.imageorganizer.io.support.SettingsListener;
@@ -61,7 +59,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private static final String PROGRAM_NAME = "Image Organizer";
     private static final String PROGRAM_VERSION = "v1.1.0";
     private static final String PROGRAM_YEAR = "2021";
-    private static final String PROGRAM_ICON = "images/icon.png";
+    private static final String PROGRAM_ICON = "icon.png";
 
     private static final String DELETE_ALERT_TITLE = "Delete Image";
     private static final String DELETE_ALERT_MSG = "Are you sure that you want to permanently delete the "
@@ -117,7 +115,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(PROGRAM_NAME);
-        setIconImage(FileUtils.loadIcon(PROGRAM_ICON).getImage());
+        setIconImage(IconLoader.getIcon(PROGRAM_ICON).getImage());
         setLocation(new java.awt.Point(0, 0));
         setMinimumSize(new java.awt.Dimension(695, 300));
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -408,7 +406,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
                 try {
                     imageFolder.removeImage(currentPos);
                     imageRemoved();
-                } catch (UnsupportedException exU) {
+                } catch (UnsupportedOperationException exU) {
                     Logger.log.print(Level.WARNING, exU);
                     if(JOptionPane.showConfirmDialog(this, UNSUPPORTED_MSG, UNSUPPORTED_TITLE, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION){
                         deleteAgreed = true;
@@ -447,7 +445,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
 
     @Override
-    public void settingsChange(SettingsChangeEvent evt) {
+    public void settingsChanged(SettingsChangeEvent evt) {
         if(imageFolder != null && evt.isSetting(Settings.KEY_SHOW_HIDDEN)){
             loadFolder(imageFolder.getFolderPath());
         }

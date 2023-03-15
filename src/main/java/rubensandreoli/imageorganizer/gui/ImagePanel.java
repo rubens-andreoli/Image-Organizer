@@ -30,9 +30,10 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
-import rubensandreoli.commons.utils.FileUtils;
-import rubensandreoli.commons.utils.SwingUtils;
+import rubensandreoli.imageorganizer.gui.support.SwingUtils;
 import rubensandreoli.imageorganizer.io.ImageFile;
 
 /** References:
@@ -53,7 +54,14 @@ public class ImagePanel extends javax.swing.JPanel {
     private static final Font SCALE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 18);
     private static final Font INFO_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
     private static final float SCALE_RATE = 40; //higher = smaller increments
-    private static final BufferedImage BROKEN_IMAGE = FileUtils.loadImage("/images/broken_image.png");
+    private static final BufferedImage BROKEN_IMAGE = loadImage("/images/broken_image.png");
+    public static BufferedImage loadImage(String url){
+        try {
+            return ImageIO.read(ImagePanel.class.getResource(url));
+        } catch (IOException ex) {
+            return null;
+        }
+    }
     private static final String BROKEN_MSG = "ERRORx";
     private static final int INFO_X = 5;
     private static final int SCALE_X_RECOIL = 75;

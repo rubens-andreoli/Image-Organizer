@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +27,8 @@ import java.util.Map;
 
 public class History {
     
-    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS ">
     private static final String FILENAME = "history.log";
     private static final String SEPARATOR = ";";
-    // </editor-fold>
     
     private final File file = new File(FILENAME);
     private final Map<String, Integer> history = new HashMap<>();
@@ -38,12 +36,11 @@ public class History {
     public void load() throws IOException{
 	if(!file.exists() || file.isDirectory()){
 	    file.createNewFile(); //preemptive warning, failure here means it won't be able to save
-            return;
 	}
 	try(BufferedReader br = new BufferedReader(new FileReader(FILENAME))){
 	    String line;
 	    while((line = br.readLine()) != null){
-	       final String[] tokens = line.split(SEPARATOR);
+	       String[] tokens = line.split(SEPARATOR);
 	       history.put(tokens[0], Integer.parseInt(tokens[1]));
 	    }
 	}
@@ -52,8 +49,7 @@ public class History {
     public boolean save(){
 	try(BufferedWriter br = new BufferedWriter(new FileWriter(FILENAME))){
 	    for(Map.Entry<String, Integer> e : history.entrySet()){
-               final StringBuilder sb = new StringBuilder(e.getKey()).append(SEPARATOR).append(e.getValue());
-	       br.write(sb.toString());
+	       br.write(e.getKey()+SEPARATOR+e.getValue());
                br.newLine();
 	    }
             return true;
@@ -68,7 +64,7 @@ public class History {
     }
 
     public int getPosition(String folder){
-	final Integer pos = history.get(folder);
+	Integer pos = history.get(folder);
 	return pos == null ? 0 : pos;
     }
     

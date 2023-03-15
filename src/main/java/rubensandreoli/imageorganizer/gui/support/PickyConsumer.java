@@ -14,11 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package rubensandreoli.imageorganizer.io.support;
+package rubensandreoli.imageorganizer.gui.support;
 
-import java.util.EventListener;
-
+/**
+ * This class was created to improve code readability, as it works the same way as a {@code Predicate}.
+ * 
+ * @see java.util.function.Predicate
+ * @param <T> the type of the input to the predicate
+ * @author Rubens A. Andreoli Jr.
+ */
 @FunctionalInterface
-public interface SettingsListener extends EventListener{
-    void settingsChanged(SettingsChangeEvent evt);
+public interface PickyConsumer<T> {
+    boolean accept(T t);
 }

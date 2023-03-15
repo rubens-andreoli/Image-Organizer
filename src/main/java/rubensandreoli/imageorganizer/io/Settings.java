@@ -19,7 +19,6 @@ package rubensandreoli.imageorganizer.io;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
 import java.util.Map;
-import rubensandreoli.commons.others.Configuration;
 import rubensandreoli.imageorganizer.io.support.SettingsChangeEvent;
 import rubensandreoli.imageorganizer.io.support.SettingsListener;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
@@ -90,7 +89,7 @@ public class Settings {
     }
     
     public void fireSettingsChange(String settingsKey, Object newValue){
-        if(listener != null) listener.settingsChange(new SettingsChangeEvent(this, settingsKey, newValue));
+        if(listener != null) listener.settingsChanged(new SettingsChangeEvent(this, settingsKey, newValue));
     }
     
     public boolean containsShortcut(int code) {

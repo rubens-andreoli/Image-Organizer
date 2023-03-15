@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Rubens A. Andreoli Jr.
+ * Copyright (C) 2022 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package rubensandreoli.imageorganizer.io.support;
+package rubensandreoli.imageorganizer.gui.support;
 
-import java.util.EventListener;
+import javax.swing.ImageIcon;
 
-@FunctionalInterface
-public interface SettingsListener extends EventListener{
-    void settingsChanged(SettingsChangeEvent evt);
+public class IconLoader {
+
+    public static ImageIcon getIcon(String url) {
+        try {
+            return new ImageIcon(IconLoader.class.getClassLoader().getResource("images/" + url));
+        } catch (NullPointerException ex) {
+            return new ImageIcon();
+        }
+    }
+
 }

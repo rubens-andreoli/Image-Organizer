@@ -51,7 +51,7 @@ public class ShortcutPanel extends javax.swing.JPanel {
 
         btnDelete = new javax.swing.JButton();
         txfAction = new javax.swing.JTextField();
-        txfKey = new rubensandreoli.commons.swing.KeyField();
+        txfKey = new rubensandreoli.imageorganizer.gui.support.KeyField();
 
         btnDelete.setText("X");
         btnDelete.setMargin(new java.awt.Insets(2, 7, 2, 5));
@@ -89,6 +89,6 @@ public class ShortcutPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDelete;
     private javax.swing.JTextField txfAction;
-    private rubensandreoli.commons.swing.KeyField txfKey;
+    private rubensandreoli.imageorganizer.gui.support.KeyField txfKey;
     // End of variables declaration//GEN-END:variables
 }

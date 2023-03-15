@@ -16,10 +16,10 @@
  */
 package rubensandreoli.imageorganizer;
 
+import rubensandreoli.imageorganizer.io.support.Level;
+import rubensandreoli.imageorganizer.io.Logger;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import rubensandreoli.commons.others.Level;
-import rubensandreoli.commons.others.Logger;
 import rubensandreoli.imageorganizer.gui.ImageOrganizer;
 
 public class Launcher {

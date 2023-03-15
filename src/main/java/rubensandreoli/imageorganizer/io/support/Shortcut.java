@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,7 @@
  */
 package rubensandreoli.imageorganizer.io.support;
 
-import rubensandreoli.commons.others.Level;
-import rubensandreoli.commons.others.Logger;
+import rubensandreoli.imageorganizer.io.Logger;
 
 public class Shortcut {
     
@@ -37,17 +36,16 @@ public class Shortcut {
     
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(String.valueOf(key)).append(SEPARATOR).append(action);
-        final String d = description;
-        if(d != null && !d.isBlank()) sb.append(SEPARATOR).append(description); // null if not move action
+        StringBuilder sb = new StringBuilder(String.valueOf(key)).append(SEPARATOR).append(action);
+        if(description != null && !description.isBlank()) sb.append(SEPARATOR).append(description); // null if not move action
         return sb.toString();
     }
         
     public static Shortcut parseShortcut(String entry){
-        final String[] tokens = entry.split(SEPARATOR);
+        String[] tokens = entry.split(SEPARATOR);
         try{
-            final int k = Integer.valueOf(tokens[0].trim());
-            final Action a = Action.valueOf(tokens[1].trim().toUpperCase());
+            int k = Integer.parseInt(tokens[0].trim());
+            Action a = Action.valueOf(tokens[1].trim().toUpperCase());
             String d = null;
             if(tokens.length == 3){
                 d = tokens[2].trim();
@@ -55,7 +53,7 @@ public class Shortcut {
                 throw new NullPointerException("move action with no folder associated");
             }
             return new Shortcut(k, a, d);
-        }catch(IllegalArgumentException|NullPointerException ex){
+        }catch(IllegalArgumentException| NullPointerException ex){
             Logger.log.print(Level.WARNING, ex);
             return null;
         }

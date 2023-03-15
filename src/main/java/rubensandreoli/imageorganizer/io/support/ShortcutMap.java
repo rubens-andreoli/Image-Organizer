@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
    
     public void put(String list){
         for (String token : list.split(SEPARATOR)){
-            final Shortcut s = Shortcut.parseShortcut(token);
+            Shortcut s = Shortcut.parseShortcut(token);
             if(s != null) put(s);  //continue normally if failed parsing one
         }
     }
@@ -50,8 +50,8 @@ public class ShortcutMap extends HashMap<Integer, Shortcut>{
 
     @Override
     public String toString() {
-        final Iterator<Shortcut> it = this.values().iterator();
-        final StringBuilder sb;
+        Iterator<Shortcut> it = this.values().iterator();
+        StringBuilder sb;
         if (it.hasNext()) {
             sb = new StringBuilder(it.next().toString());
             while(it.hasNext()) sb.append(SEPARATOR).append(it.next());

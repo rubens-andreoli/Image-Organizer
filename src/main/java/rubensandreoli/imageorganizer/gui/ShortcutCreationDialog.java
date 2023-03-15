@@ -20,10 +20,10 @@ import java.awt.Dialog;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.DefaultComboBoxModel;
-import rubensandreoli.commons.others.Level;
-import rubensandreoli.commons.others.PickyConsumer;
-import rubensandreoli.commons.swing.PathField;
-import rubensandreoli.commons.utils.SwingUtils;
+import rubensandreoli.imageorganizer.io.support.Level;
+import rubensandreoli.imageorganizer.gui.support.PathField;
+import rubensandreoli.imageorganizer.gui.support.PickyConsumer;
+import rubensandreoli.imageorganizer.gui.support.SwingUtils;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
 
 public class ShortcutCreationDialog extends javax.swing.JDialog {
@@ -72,8 +72,8 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
         lblKey = new javax.swing.JLabel();
         btnAdd = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
-        txfKey = new rubensandreoli.commons.swing.KeyField();
-        txfFolder = new rubensandreoli.commons.swing.PathField();
+        txfKey = new rubensandreoli.imageorganizer.gui.support.KeyField();
+        txfFolder = new rubensandreoli.imageorganizer.gui.support.PathField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Create shortcut:");
@@ -190,8 +190,8 @@ public class ShortcutCreationDialog extends javax.swing.JDialog {
     private javax.swing.JComboBox<String> cmbAction;
     private javax.swing.JLabel lblAction;
     private javax.swing.JLabel lblKey;
-    private rubensandreoli.commons.swing.PathField txfFolder;
-    private rubensandreoli.commons.swing.KeyField txfKey;
+    private rubensandreoli.imageorganizer.gui.support.PathField txfFolder;
+    private rubensandreoli.imageorganizer.gui.support.KeyField txfKey;
     // End of variables declaration//GEN-END:variables
  
 }

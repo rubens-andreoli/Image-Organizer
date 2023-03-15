@@ -19,7 +19,7 @@ package rubensandreoli.imageorganizer.gui;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import rubensandreoli.commons.others.PickyConsumer;
+import rubensandreoli.imageorganizer.gui.support.PickyConsumer;
 import rubensandreoli.imageorganizer.io.Settings;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
 import rubensandreoli.imageorganizer.io.support.ShortcutMap;

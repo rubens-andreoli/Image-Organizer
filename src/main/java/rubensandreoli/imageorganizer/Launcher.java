@@ -16,11 +16,8 @@
  */
 package rubensandreoli.imageorganizer;
 
-import rubensandreoli.imageorganizer.io.support.Level;
-import rubensandreoli.imageorganizer.io.Logger;
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import rubensandreoli.imageorganizer.gui.ImageOrganizer;
+import rubensandreoli.imageorganizer.gui.MainFrame;
 
 public class Launcher {
     
@@ -38,12 +35,16 @@ public class Launcher {
 	} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {}
         //</editor-fold>
          
-        JFrame view = new ImageOrganizer();
-        try{
-            SwingUtilities.invokeLater(() -> view.setVisible(true));
-        }catch(RuntimeException ex){
-            Logger.log.print(Level.SEVERE, "unexpected failure",ex);
-        }
+        Thread.UncaughtExceptionHandler exHandler = (t, ex) -> {
+            ex.printStackTrace(); //TODO: log instead.
+            System.exit(1);
+        };
+        Thread.setDefaultUncaughtExceptionHandler(exHandler);
+        
+        SwingUtilities.invokeLater(() -> {
+            Thread.currentThread().setUncaughtExceptionHandler(exHandler);
+            new MainFrame().setVisible(true);
+        });
      }
     
 }

@@ -33,13 +33,13 @@ import rubensandreoli.imageorganizer.gui.support.IconLoader;
 import rubensandreoli.imageorganizer.io.support.Level;
 import rubensandreoli.imageorganizer.io.Logger;
 import rubensandreoli.imageorganizer.gui.support.SwingUtils;
+import rubensandreoli.imageorganizer.io.ImageFolder;
+import rubensandreoli.imageorganizer.io.ImageFile;
 import rubensandreoli.imageorganizer.io.Settings;
 import rubensandreoli.imageorganizer.io.support.SettingsChangeEvent;
 import rubensandreoli.imageorganizer.io.support.SettingsListener;
 import rubensandreoli.imageorganizer.io.support.Shortcut;
 import rubensandreoli.imageorganizer.io.History;
-import rubensandreoli.imageorganizer.io.ImageFolder;
-import rubensandreoli.imageorganizer.io.ImageFile;
 
 /**
  * References:
@@ -52,7 +52,7 @@ import rubensandreoli.imageorganizer.io.ImageFile;
  *
  * @author Rubens A. Andreoli Jr.
  */
-public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener, SettingsListener{
+public class MainFrame extends javax.swing.JFrame implements ToolsListener, SettingsListener{
     private static final long serialVersionUID = 1L;
 
     // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS ">
@@ -84,7 +84,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     private boolean deleteAgreed;
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public ImageOrganizer() {
+    public MainFrame() {
         //LOAD SETTINGS:
         settings = new Settings();
         settings.setListener(this);
@@ -172,26 +172,26 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     // End of variables declaration//GEN-END:variables
 
     private void initListeners(){
-        SwingUtils.setDropTarget(pnlImage, file -> {
+        SwingUtils.setDropTarget(pnlImage, file -> { //loads folder.
             if(file.isDirectory()){
-                ImageOrganizer.this.loadFolder(file.getPath());
+                MainFrame.this.loadFolder(file.getPath());
                 return true;
             }
             return false;
         });
 
-        pnlImage.addMouseListener(new MouseAdapter() {
+        pnlImage.addMouseListener(new MouseAdapter() { //loads folder.
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if(evt.getButton() == MouseEvent.BUTTON3){
                     final File file = SwingUtils.selectFile(pnlSplit, SwingUtils.DIRECTORIES_ONLY);
-                    if(file != null) ImageOrganizer.this.loadFolder(file.getPath());
+                    if(file != null) MainFrame.this.loadFolder(file.getPath());
                 }
             }
         });
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
-            //without isActive() shortcut will work even from a dialog
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> { //reacts to shortcuts.
+            //without isActive() shortcut will work even from a dialog.
             if(imageFolder != null && isActive() && !pnlTools.isTyping()){
                 final int code = evt.getExtendedKeyCode();
                 if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_RELEASED")){
@@ -260,7 +260,8 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         }
 
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        imageFolder = new ImageFolder(folderPath, settings.isShowHidden());
+        imageFolder = new ImageFolder(folderPath);
+        imageFolder.load(settings.isShowHidden());
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
         final int numImages = imageFolder.getNumImages();
@@ -284,7 +285,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
 
     private void fillRelatedFolders(){
-        pnlTools.setRootFolders(imageFolder.getRootFolders());
+        pnlTools.setRootFolders(imageFolder.getParentFolders());
         pnlTools.setSubFolders(imageFolder.getSubFolders());
     }
 
@@ -292,7 +293,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
         if(subfolder){
             pnlTools.setSubFolders(imageFolder.getSubFolders());
         }else{
-            pnlTools.setRootFolders(imageFolder.getRootFolders());
+            pnlTools.setRootFolders(imageFolder.getParentFolders());
         }
     }
 
@@ -304,7 +305,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
             pnlTools.setImageName("");
 	}else{
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            final ImageFile image = imageFolder.loadImage(currentPos);
+            final ImageFile image = imageFolder.getImage(currentPos);
             pnlImage.setImage(image);
             pnlTools.setImageName(image.getPath());
             pnlTools.setImagePosition(currentPos+1); //0 indexed; for user readability
@@ -359,6 +360,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     }
 
     public void moveImage(String folder){ //shortcuts move
+        if(imageFolder.isEmpty()) return;
         if(ImageFolder.checkFolder(folder)){
             try {
                 imageFolder.transferImageTo(currentPos, folder);
@@ -374,6 +376,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
 
     @Override
     public void moveImage(String folderName, boolean subfolder) { //toolsPanel move
+        if(imageFolder.isEmpty()) return;
         if(imageFolder.checkRelatedFolder(folderName, subfolder)){
             try {
                 imageFolder.transferImageTo(currentPos, folderName, subfolder);
@@ -397,6 +400,7 @@ public class ImageOrganizer extends javax.swing.JFrame implements ToolsListener,
     
     @Override
     public void deleteImage() {
+        if(imageFolder.isEmpty()) return;
         if(deleteAgreed){ //not a good solution but seems to be working
             if(!settings.isShowAlert() || JOptionPane.showConfirmDialog(this, DELETE_ALERT_MSG, DELETE_ALERT_TITLE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
                 delete();

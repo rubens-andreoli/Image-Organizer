@@ -16,285 +16,162 @@
  */
 package rubensandreoli.imageorganizer.io;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
-import java.util.function.Consumer;
+import rubensandreoli.imageorganizer.io.support.FileUtils;
+import static rubensandreoli.imageorganizer.io.support.FileUtils.DIRECTORIES_ONLY;
+import static rubensandreoli.imageorganizer.io.support.FileUtils.FILES_AND_DIRECTORIES;
 
-/** 
- * References:
- * <br>
- * https://www.journaldev.com/861/java-copy-file<br>
- * https://stackoverflow.com/questions/222463/is-it-possible-with-java-to-delete-to-the-recycle-bin
- * 
- * @author Rubens A. Andreoli Jr.
- */
 public class ImageFolder {
     
-    private static final int FILES_ONLY = 0;
-    private static final int DIRECTORIES_ONLY = 1;
-    private static final int FILES_AND_DIRECTORIES = 2;
-    private static final int FILEPATH_MAX_LENGTH = 255;
-    private static final String FILENAME_INVALID_CHARS_REGEX = "[\\/\\\\:\\*?\\\"<\\>|]";
-    private static final String EXTENSION_INVALID_CHARS_REGEX = "[^a-z-A-Z\\.]";
-    private static final String EXTENSION_REGEX = "^.[a-z]{3,}$";
-    private static final String FOLDER_INVALID_CHARS_REGEX = "[*?\"<>|]";
+    //<editor-fold defaultstate="collapsed" desc="CACHE">
+    private static class Cache extends LinkedHashMap<File, ImageFile> {
+
+        private final int size;
+        
+        public Cache(int size){
+            super(4, 0.75f, true);
+            this.size = size;
+        }
+        
+        @Override
+        public boolean removeEldestEntry(Map.Entry eldest) { //invoked by put and putAll after insert.
+             return size() > size;
+        }		  
+    }
+    //</editor-fold>
     
     private final File folder;
-    private final File root;
+    private final File parent;
     
-    private final Collection<String> rootFolders;
+    private final Collection<String> parentFolders;
     private final Collection<String> subFolders;
     private final List<File> images;
     
-    public ImageFolder(String folderPath, boolean showHidden){
-	rootFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    private final Cache cachedImages = new Cache(5);
+    
+    public ImageFolder(File folder){
+        parentFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	subFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	images = new LinkedList<>();
 	
-	folder = new File(folderPath);
-	root = folder.getParentFile();
-	
-        listChildren(folder, FILES_AND_DIRECTORIES, showHidden, f -> {
+        this.folder = folder;
+        parent = folder.getParentFile();
+    }
+    
+    public ImageFolder(String folder){
+	this(new File(folder));
+    }
+    
+    public void load(boolean hidden){
+        FileUtils.visitFolderFiles(folder, FILES_AND_DIRECTORIES, hidden, f -> {
             if(f.isDirectory()) {
                 subFolders.add(f.getName());
             }else{
-                if(ImageFile.isImage(f)) images.add(f);
+                if(FileUtils.isImage(f)) images.add(f);
             }
         });
-        listChildren(root, DIRECTORIES_ONLY, showHidden, f -> rootFolders.add(f.getName()));
+        FileUtils.visitFolderFiles(parent, DIRECTORIES_ONLY, hidden, f -> parentFolders.add(f.getName()));
     }
- 
-    private static void listChildren(File root, int mode, boolean showHidden, Consumer<File> consumer){
-        if(!root.isDirectory()) return;
-        File[] listOfFiles = root.listFiles();
-        switch(mode){
-            case FILES_ONLY:
-                for (File file : listOfFiles) {
-                    if (file.isFile() && (showHidden || !file.isHidden())) {
-                        consumer.accept(file);
-                    }
-                }
-                break;
-            case DIRECTORIES_ONLY:
-                for (File file : listOfFiles) {
-                    if (file.isDirectory() && (showHidden || !file.isHidden())) {
-                        consumer.accept(file);
-                    }
-                }
-                break;
-            case FILES_AND_DIRECTORIES:
-                for (File file : listOfFiles) {
-                    if (showHidden || !file.isHidden()) {
-                        consumer.accept(file);
-                    }
-                }
-                break;
-        }
-    }
- 
+    
+    //<editor-fold defaultstate="collapsed" desc="FOLDER MANIPULATION">
     public void createRelatedFolder(String folderName, boolean subfolder) throws IOException{
-        Collection<String> list = (subfolder? subFolders:rootFolders);
-        File newFolder = new File((subfolder? folder:root), folderName);
+        File newFolder = buildRelatedFolder(folderName, subfolder);
+        if(checkRelatedFolder(newFolder.getPath(), subfolder)) throw new IOException("Folder \""+newFolder.getPath()+"\" already exists!");
         
-        if(list.contains(folderName)) throw new IOException("Folder \""+newFolder.getPath()+"\" already exists!");
-        if(createFolder(newFolder))  list.add(folderName);
+        if(FileUtils.createFolder(newFolder))  (subfolder? subFolders:parentFolders).add(newFolder.getName());
         else throw new IOException("Folder \""+newFolder.getPath()+"\" could not be created!");
     }
     
-    private static boolean createFolder(File root){
-        boolean created = false;
-        if(!root.isDirectory()){
-            try{
-                created = root.mkdirs();
-            }catch(SecurityException ex){}
-        }
-        return created;
+    private File buildRelatedFolder(String folderName, boolean subfolder){
+        return new File((subfolder? folder:parent), folderName);
     }
     
+    public String buildRelatedFolderPath(String folderName, boolean subfolder){
+        return buildRelatedFolder(folderName, subfolder).getPath();
+    }
+    
+    public static boolean checkFolder(String folder) {
+        return new File(folder).isDirectory();
+    }
+        
     public boolean checkRelatedFolder(String folderName, boolean subfolder) {
-        File newFolder = new File((subfolder? folder:root), folderName);
-	if(newFolder.isDirectory()){ 
+        File folder = buildRelatedFolder(folderName, subfolder);
+        if(folder.isDirectory()){ 
 	    return true;
 	}else{
 	    if(subfolder) subFolders.remove(folderName);
-	    else rootFolders.remove(folderName);
+	    else parentFolders.remove(folderName);
 	    return false;
 	}
     }
+    //</editor-fold>
     
-    public ImageFile loadImage(int imagePos) {
-	return ImageFile.build(images.get(imagePos), imagePos, images.size());
-    }
-    
+    //<editor-fold defaultstate="collapsed" desc="IMAGE MANIPULATION">
     public void transferImageTo(int imagePos, String folderName, boolean subfolder) throws IOException{
         transferImageTo(imagePos, buildRelatedFolderPath(folderName, subfolder));
     }
 
     public void transferImageTo(int imagePos, String folder) throws IOException{
-        File file = images.get(imagePos);
-        if(file.getParent().equals(folder))
-            throw new IOException("Move destination is the same as the origin!");
-        if(moveFileTo(file, folder)){
+        if(this.folder.getPath().equals(folder)) throw new IOException("Move destination is the same as the origin!");
+        if(FileUtils.moveFileTo(images.get(imagePos), folder)){
             images.remove(imagePos);
         }else{
             throw new IOException("Image could not be moved to destination!\n"+folder);
         }
     }
     
-    private static boolean moveFileTo(File file, String folder){
-        boolean moved = false;
-        File tempDest = new File(folder, file.getName());
-        try{
-            moved = file.renameTo(tempDest);
-            if(!moved){ //costly method only if failed above
-                tempDest = createValidFile(folder, file.getPath());
-                moved = file.renameTo(tempDest);
-            }
-        }catch(Exception ex){}
-        
-        return moved;
-    }
-    
-    private static File createValidFile(String folder, String file){
-        return createValidFile(folder, getFilename(file), getExtension(file));
-    }
-    
-    private static File createValidFile(String folder, String filename, String extension){
-        folder = folder.replaceAll(FOLDER_INVALID_CHARS_REGEX, "");
-        return createValidFile(new File(folder), filename, extension);
-    }
-    
-    private static String getFilename(String pathname){
-        return getFilename(pathname, true);
-    }
-
-    private static String getFilename(String pathname, boolean normalize){
-        String name = getName(pathname);
-        final int extIndex = name.lastIndexOf(".");
-        if(extIndex != -1) name = name.substring(0, extIndex);
-        if(normalize) name = name.replaceAll(FILENAME_INVALID_CHARS_REGEX, "");
-        return name;
-    }
-    
-    private static String getName(String pathname){
-        return new File(pathname).getName();
-    }
-    
-    private static String getExtension(String pathname, String defaultValue){
-        final String name = getName(pathname);
-        String ext = defaultValue;
-        final int extIndex = name.lastIndexOf(".");
-        if(extIndex != -1){
-            String tmpExt = name.substring(extIndex);
-            boolean empty = false;
-            while(!tmpExt.matches(EXTENSION_REGEX)){
-                if(tmpExt.isEmpty()){
-                    empty = true;
-                    break;
-                }
-                tmpExt = tmpExt.substring(0, tmpExt.length()-1);
-            }
-            if(!empty) ext = tmpExt;
-        }
-        return ext;
-    }
-    
-    private static String getExtension(String pathname){
-        return getExtension(pathname, "");
-    }
-    
-    private static File createValidFile(File folder, String filename, String extension){
-        //FIX INVALID CHARACTERS
-        filename = filename.replaceAll(FILENAME_INVALID_CHARS_REGEX, "");
-        extension = extension.replaceAll(EXTENSION_INVALID_CHARS_REGEX, "");
-        File file = new File(folder, new StringBuilder(filename).append(extension).toString());
-
-        //FIX FILEPATH LENGTH
-        if(file.getAbsolutePath().length() > FILEPATH_MAX_LENGTH){
-            int toRemove = file.getAbsolutePath().length() - FILEPATH_MAX_LENGTH;
-            if(filename.length() > toRemove){
-                filename = filename.substring(0, filename.length()-toRemove);
-                file = new File(folder.getPath(), new StringBuilder(filename).append(extension).toString());
-            }else{
-                return null;
-            }
-        }
-
-        //FIX DUPLICATED NAME
-        for(int n=1; file.exists(); n++){
-            file = new File(folder.getPath(), new StringBuilder(filename)
-                            .append(" (").append(String.valueOf(n)).append(")")
-                            .append(extension).toString());
-        }
-        return file;
-    }
-
-    public String buildRelatedFolderPath(String folderName, boolean subfolder){
-        return new File((subfolder? folder:root), folderName).getPath();
-    }
-    
     public void removeImage(int imagePos) throws UnsupportedOperationException, IOException {
         File image = images.get(imagePos);
-        if(removeFile(image)) images.remove(imagePos);
+        if(FileUtils.removeFile(image)) images.remove(imagePos);
         else throw new IOException("Image \""+image.getPath()+"\" could not be deleted!\nIt may be in use by another program or it no longer exists.");
-    }
-    
-    private static boolean removeFile(File file) throws UnsupportedOperationException {
-        if(Desktop.isDesktopSupported()){
-            final Desktop d = Desktop.getDesktop();
-            if(d.isSupported(Desktop.Action.MOVE_TO_TRASH)){
-                try{
-                    return d.moveToTrash(file);
-                }catch(IllegalArgumentException|SecurityException ex){ //file not found or no access
-                    return false;
-                }
-            }else{
-                throw new UnsupportedOperationException("move to trash action not supported");
-            }
-        }else{
-            throw new UnsupportedOperationException("current platform doesn't support desktop class");
-        }
     }
     
     public void deleteImage(int imagePos) throws IOException {
 	File image = images.get(imagePos);
-        if(deleteFile(image)) images.remove(imagePos);
+        if(FileUtils.deleteFile(image)) images.remove(imagePos);
         else throw new IOException("Image \""+image.getPath()+"\" could not be deleted!\nIt may be in use by another program or it no longer exists.");
     }
+    //</editor-fold>
     
-    private static boolean deleteFile(File file){
-        boolean removed = false;
-        try{
-            removed = file.delete();
-        }catch(SecurityException ex){}
-        return removed;
-    }
-
-    // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 
-    public Collection<String> getRootFolders() {
-        return rootFolders;
+    // <editor-fold defaultstate="collapsed" desc="GETTERS"> 
+    public Collection<String> getParentFolders() {
+        return parentFolders;
     }
     
     public Collection<String> getSubFolders() {
         return subFolders;
     }
     
+    public ImageFile getImage(int pos){
+        File image = images.get(pos);
+        if(cachedImages.containsKey(image)){
+            System.out.println("image recovered from cache"); //TODO: remove.
+            return cachedImages.get(image);
+        }else{
+            System.out.println("loaded new image"); //TODO: remove.
+            ImageFile cImage = ImageFile.load(images.get(pos), pos, images.size());
+            cachedImages.put(image, cImage);
+            return cImage;
+        }
+    }
+    
     public int getNumImages(){
         return images.size();
+    }
+    
+    public boolean isEmpty(){
+        return images.isEmpty();
     }
     
     public String getFolderPath() {
         return folder.getPath();
     }
     // </editor-fold>
-         
-    public static boolean checkFolder(String folder) {
-        return new File(folder).isDirectory();
-    }
-    
 }

@@ -97,7 +97,7 @@ public class FileUtils {
     public static File moveFileTo(File file, String folder){
         File tempDest = new File(folder, file.getName());
         
-        //FIX FILEPATH LENGTH
+        //FILEPATH LENGTH
         int tempLength = tempDest.getPath().length();
         if(tempLength > FILEPATH_MAX_LENGTH){
             String t[] = FileUtils.splitFilename(file);
@@ -111,7 +111,7 @@ public class FileUtils {
             }
         }
         
-        //FIX DUPLICATED NAME
+        //DUPLICATED NAME
         for(int n=1; tempDest.exists(); n++){
             String t[] = FileUtils.splitFilename(file);
             tempDest = new File(folder, (t[0]+" ("+n+")"+t[1]));

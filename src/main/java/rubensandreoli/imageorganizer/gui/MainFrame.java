@@ -244,7 +244,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
         final JButton btnUp = (JButton)divider.getComponent(0);
         final JButton btnDown = (JButton)divider.getComponent(1);
 
-        addComponentListener(new ComponentAdapter() { //to fix restore after the frame is resized while minimized 
+        addComponentListener(new ComponentAdapter() { //fixes restore after the frame is resized while minimized 
             @Override
             public void componentResized(ComponentEvent evt) {
                 pnlSplit.setLastDividerLocation(pnlSplit.getHeight() - pnlTools.getHeight());

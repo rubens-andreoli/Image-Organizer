@@ -25,10 +25,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import rubensandreoli.imageorganizer.io.support.FileUtils;
 import static rubensandreoli.imageorganizer.io.support.FileUtils.DIRECTORIES_ONLY;
 import static rubensandreoli.imageorganizer.io.support.FileUtils.FILES_AND_DIRECTORIES;
 
+/**
+ * References:
+ * <br>
+ * https://stackoverflow.com/questions/1099300/whats-the-difference-between-getpath-getabsolutepath-and-getcanonicalpath
+ * 
+ * @author Rubens A. Andreoli Jr.
+ */
 public class ImageFolder {
     
     private static final int IMAGE_CACHE_SIZE = 5;
@@ -114,7 +123,12 @@ public class ImageFolder {
                 if(FileUtils.isImage(f)) images.add(f);
             }
         });
-        FileUtils.visitFolderFiles(parent, DIRECTORIES_ONLY, hidden, f -> parentFolders.add(f.getName()));
+        if(parent != null){
+            parentFolders.add(".");
+            FileUtils.visitFolderFiles(parent, DIRECTORIES_ONLY, hidden, f -> {
+                if(!f.equals(folder)) parentFolders.add(f.getName());
+            });
+        }
     }
     
     //<editor-fold defaultstate="collapsed" desc="FOLDER MANIPULATION">
@@ -131,7 +145,12 @@ public class ImageFolder {
     }
     
     public String buildRelatedFolderPath(String folderName, boolean subfolder){
-        return buildRelatedFolder(folderName, subfolder).getPath();
+        //TODO: alternative: ends with '.' remove last two.
+        try {
+            return buildRelatedFolder(folderName, subfolder).getCanonicalPath();
+        } catch (IOException ex) {
+            return buildRelatedFolder(folderName, subfolder).getPath();
+        }
     }
     
     public static boolean checkFolder(String folder) {

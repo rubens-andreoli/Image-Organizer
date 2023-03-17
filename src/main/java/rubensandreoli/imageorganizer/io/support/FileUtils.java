@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.function.Consumer;
 import rubensandreoli.imageorganizer.io.Logger;
+import rubensandreoli.imageorganizer.io.Logger.Level;
 
 public class FileUtils {
     

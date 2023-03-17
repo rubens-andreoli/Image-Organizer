@@ -17,7 +17,6 @@
 package rubensandreoli.imageorganizer.gui.support;
 
 import rubensandreoli.imageorganizer.io.Logger;
-import rubensandreoli.imageorganizer.io.support.Level;
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -33,6 +32,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import rubensandreoli.imageorganizer.io.Logger.Level;
 
 /**
  * References:

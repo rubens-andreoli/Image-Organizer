@@ -16,7 +16,6 @@
  */
 package rubensandreoli.imageorganizer.io;
 
-import rubensandreoli.imageorganizer.io.support.Level;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -31,6 +30,10 @@ import java.time.LocalDateTime;
  */
 public class Logger {
 
+    public static enum Level {
+        DEBUG, INFO, WARNING, ERROR, CRITICAL, SEVERE
+    }
+    
     public static final String FILENAME = "crash.log";
     private static final String SEPARATOR = "-------------//----------------";
     private static final String LOG_MASK = "[%s]\r\ndate: %s\r\ncomment: %s\r\nmessage: %s\r\nstack trace: %s\r\n"+SEPARATOR+"\r\n";

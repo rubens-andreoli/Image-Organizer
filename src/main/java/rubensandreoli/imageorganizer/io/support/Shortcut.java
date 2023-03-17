@@ -17,6 +17,7 @@
 package rubensandreoli.imageorganizer.io.support;
 
 import rubensandreoli.imageorganizer.io.Logger;
+import rubensandreoli.imageorganizer.io.Logger.Level;
 
 public class Shortcut {
     

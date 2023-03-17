@@ -20,7 +20,7 @@ import java.awt.Dialog;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.DefaultComboBoxModel;
-import rubensandreoli.imageorganizer.io.support.Level;
+import rubensandreoli.imageorganizer.io.Logger.Level;
 import rubensandreoli.imageorganizer.gui.support.PathField;
 import rubensandreoli.imageorganizer.gui.support.PickyConsumer;
 import rubensandreoli.imageorganizer.gui.support.SwingUtils;

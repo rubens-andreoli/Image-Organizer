@@ -30,8 +30,10 @@ import static rubensandreoli.imageorganizer.io.support.FileUtils.FILES_AND_DIREC
 
 public class ImageFolder {
     
+    private static final int IMAGE_CACHE_SIZE = 5;
+    
     //<editor-fold defaultstate="collapsed" desc="CACHE">
-    private static class Cache extends LinkedHashMap<File, ImageFile> {
+    private static class Cache<K, V> extends LinkedHashMap<K, V> {
 
         private final int size;
         
@@ -54,7 +56,7 @@ public class ImageFolder {
     private final Collection<String> subFolders;
     private final List<File> images;
     
-    private final Cache cachedImages = new Cache(5);
+    private final Cache<File, ImageFile> cachedImages = new Cache<>(IMAGE_CACHE_SIZE);
     
     public ImageFolder(File folder){
         parentFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);

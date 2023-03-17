@@ -1,25 +1,21 @@
 /*
- * Copyright (C) 2020 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package rubensandreoli.imageorganizer.io;
 
-import rubensandreoli.imageorganizer.io.support.CastException;
-import rubensandreoli.imageorganizer.io.support.Level;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -27,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import rubensandreoli.imageorganizer.io.Logger.Level;
 
 /**
  * Used to register configuration key-value pairs into a {@code xml} file. <br>
@@ -118,21 +115,22 @@ public class Configuration {
     
     public Boolean get(String key, boolean defaultValue) {
         final String v = get(key, String.valueOf(defaultValue));
-        try{
-            return parseBoolean(v);
-        }catch(CastException ex){
+        Boolean b = parseBoolean(v);
+        if(b == null){
             return defaultValue;
+        }else{
+            return b;
         }
     }
     
-    private static boolean parseBoolean(String s) throws CastException {
+    private static Boolean parseBoolean(String s) {
         switch(s.toLowerCase()){
             case "true":
                 return true;
             case "false":
                 return false;
             default:
-                throw new CastException();
+                return null;
         }
     }
     

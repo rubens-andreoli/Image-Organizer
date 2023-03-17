@@ -185,7 +185,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if(evt.getButton() == MouseEvent.BUTTON3){
-                    final File file = SwingUtils.selectFile(pnlSplit, SwingUtils.DIRECTORIES_ONLY);
+                    File file = SwingUtils.selectFile((imageFolder == null ? null:imageFolder.getFolder()), pnlSplit, SwingUtils.DIRECTORIES_ONLY);
                     if(file != null) MainFrame.this.loadFolder(file.getPath());
                 }
             }
@@ -208,7 +208,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
                             deleteImage();
                             break;
                         case REFRESH:
-                            loadFolder(imageFolder.getFolderPath());
+                            loadFolder(imageFolder.getPath());
                             break;
                         case INFO:
                             pnlImage.toggleShowInfo();
@@ -268,7 +268,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
 
     private void loadFolder(String folderPath){
         if(imageFolder != null){ //save position before changing folders
-            history.addEntry(imageFolder.getFolderPath(), currentPos);
+            history.addEntry(imageFolder.getPath(), currentPos);
         }
 
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -321,7 +321,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
             pnlImage.setImage(image);
             pnlTools.setImageName(image.getPath());
             pnlTools.setImagePosition(currentPos+1); //0 indexed; for user readability
-            history.addEntry(imageFolder.getFolderPath(), currentPos);
+            history.addEntry(imageFolder.getPath(), currentPos);
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
@@ -463,7 +463,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
     @Override
     public void settingsChanged(SettingsChangeEvent evt) {
         if(imageFolder != null && evt.isSetting(Settings.KEY_SHOW_HIDDEN)){
-            loadFolder(imageFolder.getFolderPath());
+            loadFolder(imageFolder.getPath());
         }
     }
 

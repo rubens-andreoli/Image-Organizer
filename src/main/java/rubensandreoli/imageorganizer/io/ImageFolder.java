@@ -88,10 +88,12 @@ public class ImageFolder {
     private final Collection<String> subFolders;
     private final List<File> images;
     
-    private final MapCache<File, ImageFile> imagesCache = new MapCache<>(IMAGE_CACHE_SIZE);
-    private final StackCache<MoveAction> movesCache = new StackCache<>(MOVE_CACHE_SIZE);
+    private final MapCache<File, ImageFile> imagesCache;
+    private final StackCache<MoveAction> movesCache;
     
     public ImageFolder(File folder){
+        imagesCache = new MapCache<>(IMAGE_CACHE_SIZE);
+        movesCache = new StackCache<>(MOVE_CACHE_SIZE);
         parentFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	subFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	images = new LinkedList<>();
@@ -220,8 +222,12 @@ public class ImageFolder {
         return images.isEmpty();
     }
     
-    public String getFolderPath() {
+    public String getPath(){
         return folder.getPath();
+    }
+    
+    public File getFolder(){
+        return folder;
     }
     // </editor-fold>
 }

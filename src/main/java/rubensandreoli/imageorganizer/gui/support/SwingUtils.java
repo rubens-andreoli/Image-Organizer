@@ -52,7 +52,12 @@ public final class SwingUtils {
     private SwingUtils(){}
     
     public static File selectFile(Component parent, int mode){
+        return selectFile(null, parent, mode);
+    }
+    
+    public static File selectFile(File folder, Component parent, int mode){
         getChooser(mode);
+        chooser.setCurrentDirectory(folder);
         if(chooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){
             return chooser.getSelectedFile();
         }

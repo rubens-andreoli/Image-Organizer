@@ -101,8 +101,12 @@ public final class SwingUtils {
             default:
                 type = JOptionPane.INFORMATION_MESSAGE;
         }
-        if(beep) Toolkit.getDefaultToolkit().beep();
+        if(beep) beep();
         JOptionPane.showMessageDialog(parent, msg, title, type);
+    }
+    
+    public static void beep(){
+        Toolkit.getDefaultToolkit().beep();
     }
     
     public static void showMessageDialog(Component parent, Exception ex, Level lvl, boolean beep){

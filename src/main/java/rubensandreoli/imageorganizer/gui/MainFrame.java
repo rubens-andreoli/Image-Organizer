@@ -21,6 +21,7 @@ import java.awt.Cursor;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -192,9 +193,9 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> { //reacts to shortcuts.
             //without isActive() shortcut will work even from a dialog.
-            if(imageFolder != null && isActive() && !pnlTools.isTyping()){
-                final int code = evt.getExtendedKeyCode();
-                if(settings.containsShortcut(code) && evt.paramString().startsWith("KEY_RELEASED")){
+            if(imageFolder != null && evt.getID() == KeyEvent.KEY_RELEASED && isActive() && !pnlTools.isTyping()){
+                int code = evt.getExtendedKeyCode();
+                if(settings.containsShortcut(code)){
                     final Shortcut shortcut = settings.getShortcut(code);
                     switch(shortcut.action){
                         case NEXT:
@@ -215,6 +216,17 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
                         case MOVE:
                             moveImage(shortcut.description);
                             break;
+                    }
+                }else if(evt.isControlDown() && code == KeyEvent.VK_Z){
+                    try {
+                        if(imageFolder.undoLastTransfer()){
+                            System.out.println("undo"); //TODO: remove.
+                            loadImage();
+                        }else{
+                            SwingUtils.beep();
+                        }
+                    } catch (IOException ex) {
+                        SwingUtils.showMessageDialog(this, ex.getMessage(), "Undo Move", Level.ERROR, true);
                     }
                 }
             }

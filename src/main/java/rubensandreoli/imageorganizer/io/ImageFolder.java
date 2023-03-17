@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.TreeSet;
 import rubensandreoli.imageorganizer.io.support.FileUtils;
 import static rubensandreoli.imageorganizer.io.support.FileUtils.DIRECTORIES_ONLY;
@@ -31,13 +32,14 @@ import static rubensandreoli.imageorganizer.io.support.FileUtils.FILES_AND_DIREC
 public class ImageFolder {
     
     private static final int IMAGE_CACHE_SIZE = 5;
+    private static final int MOVE_CACHE_SIZE = 10;
     
-    //<editor-fold defaultstate="collapsed" desc="CACHE">
-    private static class Cache<K, V> extends LinkedHashMap<K, V> {
+    //<editor-fold defaultstate="collapsed" desc="CACHES">
+    private static class MapCache<K, V> extends LinkedHashMap<K, V> {
 
         private final int size;
         
-        public Cache(int size){
+        public MapCache(int size){
             super(4, 0.75f, true);
             this.size = size;
         }
@@ -46,6 +48,36 @@ public class ImageFolder {
         public boolean removeEldestEntry(Map.Entry eldest) { //invoked by put and putAll after insert.
              return size() > size;
         }		  
+    }
+    
+    private static class StackCache<E> extends Stack<E>{
+        
+        private final int size;
+        
+        public StackCache(int size){
+            this.size = size;
+        }
+        
+        @Override
+        public E push(E item) {
+            if (this.size() == size) {
+                this.removeElementAt(0);
+            }
+            return super.push(item);
+        }
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="MOVE ACTION">
+    private static class MoveAction{
+        private final File image;
+        private final int pos;
+
+        public MoveAction(File image, int pos) {
+            this.image = image;
+            this.pos = pos;
+        }
+
     }
     //</editor-fold>
     
@@ -56,7 +88,8 @@ public class ImageFolder {
     private final Collection<String> subFolders;
     private final List<File> images;
     
-    private final Cache<File, ImageFile> cachedImages = new Cache<>(IMAGE_CACHE_SIZE);
+    private final MapCache<File, ImageFile> imagesCache = new MapCache<>(IMAGE_CACHE_SIZE);
+    private final StackCache<MoveAction> movesCache = new StackCache<>(MOVE_CACHE_SIZE);
     
     public ImageFolder(File folder){
         parentFolders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -122,10 +155,25 @@ public class ImageFolder {
 
     public void transferImageTo(int imagePos, String folder) throws IOException{
         if(this.folder.getPath().equals(folder)) throw new IOException("Move destination is the same as the origin!");
-        if(FileUtils.moveFileTo(images.get(imagePos), folder)){
+        File dest = FileUtils.moveFileTo(images.get(imagePos), folder);
+        if(dest != null){
             images.remove(imagePos);
+            movesCache.push(new MoveAction(dest, imagePos));
         }else{
             throw new IOException("Image could not be moved to destination!\n"+folder);
+        }
+    }
+
+    public boolean undoLastTransfer() throws IOException{
+        if(movesCache.isEmpty()) return false;
+        MoveAction ma = movesCache.pop();
+        if(!ma.image.isFile()) throw new IOException("Moved image could not be found!\n"+ma.image);
+        File dest = FileUtils.moveFileTo(ma.image, folder.getPath());
+        if(dest == null){
+            throw new IOException("Moved image could not be restored!\n"+folder);
+        }else{
+            images.add(ma.pos, dest);
+            return true;
         }
     }
     
@@ -153,13 +201,13 @@ public class ImageFolder {
     
     public ImageFile getImage(int pos){
         File image = images.get(pos);
-        if(cachedImages.containsKey(image)){
+        if(imagesCache.containsKey(image)){
             System.out.println("image recovered from cache"); //TODO: remove.
-            return cachedImages.get(image);
+            return imagesCache.get(image);
         }else{
             System.out.println("loaded new image"); //TODO: remove.
             ImageFile cImage = ImageFile.load(images.get(pos), pos, images.size());
-            cachedImages.put(image, cImage);
+            imagesCache.put(image, cImage);
             return cImage;
         }
     }

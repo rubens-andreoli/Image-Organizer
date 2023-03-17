@@ -94,14 +94,8 @@ public class FileUtils {
         return false;
     }
 
-    public static boolean moveFileTo(File file, String folder){
+    public static File moveFileTo(File file, String folder){
         File tempDest = new File(folder, file.getName());
-        
-        //FIX DUPLICATED NAME
-        for(int n=1; tempDest.exists(); n++){
-            String t[] = FileUtils.splitFilename(file);
-            tempDest = new File(folder, (t[0]+" ("+n+")"+t[1]));
-        }
         
         //FIX FILEPATH LENGTH
         int tempLength = tempDest.getPath().length();
@@ -113,15 +107,22 @@ public class FileUtils {
                 t[0] = t[0].substring(0, nameLength - toRemove);
                 tempDest = new File(folder, (t[0] + t[1]));
             }else{
-                return false;
+                return null;
             }
         }
         
-        try{
-            return file.renameTo(tempDest);
-        }catch(Exception ex){
-            return false;
+        //FIX DUPLICATED NAME
+        for(int n=1; tempDest.exists(); n++){
+            String t[] = FileUtils.splitFilename(file);
+            tempDest = new File(folder, (t[0]+" ("+n+")"+t[1]));
         }
+        
+        try{
+            if(file.renameTo(tempDest)){
+                return tempDest;
+            }
+        }catch(Exception ex){}
+        return null;
     }
 
     public static boolean removeFile(File file) throws UnsupportedOperationException {

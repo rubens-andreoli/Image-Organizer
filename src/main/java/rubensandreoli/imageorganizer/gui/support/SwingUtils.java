@@ -18,16 +18,22 @@ package rubensandreoli.imageorganizer.gui.support;
 
 import rubensandreoli.imageorganizer.io.Logger;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -57,7 +63,7 @@ public final class SwingUtils {
     
     public static File selectFile(File folder, Component parent, int mode){
         getChooser(mode);
-        chooser.setCurrentDirectory(folder);
+        if(folder != null) chooser.setCurrentDirectory(folder);
         if(chooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){
             return chooser.getSelectedFile();
         }
@@ -121,6 +127,49 @@ public final class SwingUtils {
     public static void registerKeyAction(JComponent c, String name, int key, AbstractAction action){
         c.getActionMap().put(name, action);
         c.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(key, 0), name);
+    }
+    
+    public static ImageIcon getIcon(String url) {
+        try {
+            return new ImageIcon(SwingUtils.class.getClassLoader().getResource("images/" + url));
+        } catch (NullPointerException ex) {
+            return new ImageIcon();
+        }
+    }
+    
+    public static BufferedImage getImage(String url){
+        try {
+            return ImageIO.read(SwingUtils.class.getResource("/images/"+url));
+        } catch (IOException ex) {
+            return null;
+        }
+    }
+    
+    public static void addClickableLink(Component c, final String url){
+        c.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        c.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String os = System.getProperty("os.name").toLowerCase();
+                Runtime runtime = Runtime.getRuntime();
+                IOException exception = null;
+
+                if(os.contains("win")){
+                    try { runtime.exec("rundll32 url.dll,FileProtocolHandler " + url);
+                    } catch (IOException ex) {exception = ex;}
+                }else if(os.contains("mac")){
+                    try { runtime.exec("open " + url);
+                    } catch (IOException ex) {exception = ex;}
+                }else if(os.contains("nix") || os.contains("nux")){
+                    try { runtime.exec("xdg-open " + url);
+                    } catch (IOException ex) {exception = ex;}
+                }
+
+                if(exception != null){
+                   //TODO: copy link to clipboard, and warn user
+                }
+            }
+        });
     }
     
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,11 @@
  */
 package rubensandreoli.imageorganizer.gui;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Frame;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import rubensandreoli.imageorganizer.gui.support.IconLoader;
+import rubensandreoli.imageorganizer.gui.support.SwingUtils;
 
 public class AboutDialog extends javax.swing.JDialog {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     
     public static final String LICENSE = "<html><body style=\"text-align:justify\">"
 	    + "This program is free software: you can redistribute it and/or modify "
@@ -39,14 +34,14 @@ public class AboutDialog extends javax.swing.JDialog {
 	    + "<p>You should have received a copy of the GNU General Public License "
 	    + "along with this program.  If not, see http://www.gnu.org/licenses.</p></body></html>";
     
-    // <editor-fold defaultstate="collapsed" desc=" PROGRAM INFO "> 
-    public static class ProgramInfo {
+    // <editor-fold defaultstate="collapsed" desc="PROGRAM DETAILS"> 
+    public static class ProgramDetails {
        public final String name;
        public final String description;
        public final String version;
        public final String year;
 
-        public ProgramInfo(String name, String description, String version, String year) {
+        public ProgramDetails(String name, String description, String version, String year) {
             this.name = name;
             this.description = description;
             this.version = version;
@@ -55,14 +50,14 @@ public class AboutDialog extends javax.swing.JDialog {
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" AUTHOR INFO "> 
-    public static class AuthorInfo {
+    // <editor-fold defaultstate="collapsed" desc="AUTHOR DETAILS"> 
+    public static class AuthorDetails {
         public final String name;
         public final String logo_path;
         public final String site;
         public final String donate_site;
 
-        public AuthorInfo(String name, String logo_path, String site, String donate_site) {
+        public AuthorDetails(String name, String logo_path, String site, String donate_site) {
             this.name = name;
             this.logo_path = logo_path;
             this.site = site;
@@ -73,7 +68,7 @@ public class AboutDialog extends javax.swing.JDialog {
     
     private StringBuilder atributions;
     
-    public AboutDialog(Frame parent, ProgramInfo programInfo, AuthorInfo authorInfo) {
+    public AboutDialog(Frame parent, ProgramDetails pd, AuthorDetails ad) {
 	super(parent);
 	initComponents();
         btnClose.addActionListener(e -> dispose());
@@ -83,24 +78,23 @@ public class AboutDialog extends javax.swing.JDialog {
             setIconImage(parent.getIconImage());
         }
 
-        lblLogo.setIcon(IconLoader.getIcon(authorInfo.logo_path));
-        lblProgram.setText(programInfo.name);
-        lblVersion.setText("Version: "+ programInfo.version);
-        if(programInfo.description!=null){
-            lblDescription.setText("<html><p style=\"width:200px\">"+programInfo.description+"</p></html>");
+        lblLogo.setIcon(SwingUtils.getIcon(ad.logo_path));
+        lblProgram.setText(pd.name);
+        lblVersion.setText("Version: "+ pd.version);
+        if(pd.description!=null){
+            lblDescription.setText("<html><p style=\"width:200px\">"+pd.description+"</p></html>");
             pack();
         }
-        lblCopyright.setText("Copyright (C) "+programInfo.year+" "+authorInfo.name);
+        lblCopyright.setText("Copyright (C) "+pd.year+" "+ad.name);
         txpLicense.setText("<html><body style=\"text-align:justify\">"+LICENSE+"</body></html>");
         txpLicense.setCaretPosition(0);
         
-        addClickableLink(lblLogo, authorInfo.site);
-        addClickableLink(lblHere, authorInfo.donate_site);
-
+        SwingUtils.addClickableLink(lblLogo, ad.site);
+        SwingUtils.addClickableLink(lblHere, ad.donate_site);
     }
     
-    public AboutDialog(Frame parent, ProgramInfo programInfo){
-        this(parent, programInfo, new AuthorInfo(
+    public AboutDialog(Frame parent, ProgramDetails pd){
+        this(parent, pd, new AuthorDetails(
                 "Rubens A. Andreoli Junior", 
                 "logo.png", 
                 "https://github.com/rubens-andreoli", 
@@ -278,44 +272,17 @@ public class AboutDialog extends javax.swing.JDialog {
             }
             btnClose.requestFocus();
         }
-        this.setLocationRelativeTo(this.getParent()); //super call on constructor not doing the job.
+        this.setLocationRelativeTo(this.getParent()); //super call on constructor not doing the job
         super.setVisible(b);
     }
     
-    public AboutDialog addAtribution(String item, String creator, String site){
+    AboutDialog addAtribution(String item, String creator, String site){
         if(atributions == null) atributions = new StringBuilder();
         else atributions.append("<br/>");
         atributions.append("<span style=\"font-size:9px;\">&#8226; ")
                 .append(item).append(" made by <b>").append(creator)
                 .append("</b> at:<br/><i>").append(site).append("</i></span>");
         return this;
-    }
-    
-    private static void addClickableLink(Component c, final String url){
-        c.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        c.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                String os = System.getProperty("os.name").toLowerCase();
-                Runtime runtime = Runtime.getRuntime();
-                IOException exception = null;
-
-                if(os.contains("win")){
-                    try { runtime.exec("rundll32 url.dll,FileProtocolHandler " + url);
-                    } catch (IOException ex) {exception = ex;}
-                }else if(os.contains("mac")){
-                    try { runtime.exec("open " + url);
-                    } catch (IOException ex) {exception = ex;}
-                }else if(os.contains("nix") || os.contains("nux")){
-                    try { runtime.exec("xdg-open " + url);
-                    } catch (IOException ex) {exception = ex;}
-                }
-
-                if(exception != null){
-                   //TODO: copy link to clipboard, and warn user.
-                }
-            }
-        });
     }
     
 }

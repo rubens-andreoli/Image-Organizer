@@ -22,25 +22,29 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import rubensandreoli.imageorganizer.io.Logger.Level;
 import rubensandreoli.imageorganizer.io.support.FileUtils;
 
 public class ImageFile {
 
-    public static int INFO_SIZE = 5;
+    public static final int DETAILS_SIZE = 4;
 
-    private final String path, name, extension, size;
-    private String dimensions, position;
-    private int height, width;
+    private final String path;
     private Image image;
+    private final String[] details;
+    private int height, width;
     private boolean failed;
+    private final boolean gif;
     
     private ImageFile(File file){
         path = file.getPath();
+        details = new String[DETAILS_SIZE];
         
         String[] t = FileUtils.splitFilename(file);
-        name = t[0];
-        extension = t[1];
-        size = FileUtils.getFormattedFileSize(file);
+        details[0] = ("Name: " + t[0]);
+        details[1] = ("Extension: " + t[1]);
+        gif = t[1].equals(".gif");
+        details[3] = ("Size: " + FileUtils.getFormattedFileSize(file));
     }
     
     public void locateOnDisk() {
@@ -49,18 +53,11 @@ public class ImageFile {
     
     //<editor-fold defaultstate="collapsed" desc="GETTERS">
     private boolean isGIF(){
-        return extension.equals(".gif");
+        return gif;
     }
     
-    public String getInfo(int i) {
-        switch(i){
-            case 0: return "Name: " + name;
-            case 1: return "Extension: " + extension;
-            case 2: return "Dimensions: " + dimensions;
-            case 3: return "Size: " + size;
-            case 4: return "Position: " + position;
-            default: return "";
-        }
+    public String[] getDetails() {
+        return details;
     }
     
     public String getPath() {
@@ -82,25 +79,17 @@ public class ImageFile {
     public boolean isFailed() {
         return failed;
     }
-    
-    private boolean isLoaded(){
-        return (image != null || failed);
-    }
     //</editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="SETTERS">
     private void setImage(Image image){
         this.image = image;
     }
-    
-    private void setPosition(int pos, int total){
-        position = ++pos + " of " + total;
-    }
-    
+
     private void setDimensions(int width, int height){
         this.width = width;
         this.height = height;
-        dimensions = (width==0? "?":width) + "x" + (height==0? "?":height);
+        details[2] = ("Dimensions: " + (width==0? "?":width) + "x" + (height==0? "?":height));
     }
     
     private void setFailed(){
@@ -109,9 +98,8 @@ public class ImageFile {
     }
     // </editor-fold>
 
-    static ImageFile load(File file, int pos, int total){
+    static ImageFile load(File file, int pos){
         ImageFile fImage = new ImageFile(file);
-        fImage.setPosition(pos, total);
         
         if(fImage.isGIF()){
             try{
@@ -122,11 +110,11 @@ public class ImageFile {
                     fImage.setDimensions(iImage.getIconWidth(), iImage.getIconHeight());
                 }else{
                     fImage.setFailed();
-//                    Logger.log.print(Level.WARNING, new IOException("failed loading gif"));
+                    Logger.log.print(Level.WARNING, new IOException("failed loading gif"));
                 }
             }catch (SecurityException ex) {//if can't access
                 fImage.setFailed();
-//                Logger.log.print(Level.WARNING, ex);
+                Logger.log.print(Level.WARNING, ex);
             }
         }else{
             try {
@@ -136,11 +124,11 @@ public class ImageFile {
                     fImage.setDimensions(bImage.getWidth(), bImage.getHeight());
                 }else{
                     fImage.setFailed();
-//                    Logger.log.print(Level.WARNING, new IOException("unsupported image codification"));
+                    Logger.log.print(Level.WARNING, new IOException("unsupported image codification"));
                 }
             } catch (IOException ex) { //can't read or failure reading
                 fImage.setFailed();
-//                Logger.log.print(Level.WARNING, ex);
+                Logger.log.print(Level.WARNING, ex);
             }
         }
         return fImage;

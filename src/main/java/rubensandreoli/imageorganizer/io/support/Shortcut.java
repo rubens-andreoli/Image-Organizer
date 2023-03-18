@@ -42,7 +42,7 @@ public class Shortcut {
         return sb.toString();
     }
         
-    public static Shortcut parseShortcut(String entry){
+    static Shortcut parseShortcut(String entry){
         String[] tokens = entry.split(SEPARATOR);
         try{
             int k = Integer.parseInt(tokens[0].trim());

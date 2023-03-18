@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,11 +27,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import rubensandreoli.imageorganizer.gui.support.SwingUtils;
 import rubensandreoli.imageorganizer.io.ImageFile;
@@ -46,32 +42,25 @@ import rubensandreoli.imageorganizer.io.ImageFile;
  * @author Rubens A. Andreoli Jr.
  */
 public class ImagePanel extends javax.swing.JPanel {
-    private static final long serialVersionUID = 2L;
-    
-    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS "> 
+    private static final long serialVersionUID = 3L;
+
+    // <editor-fold defaultstate="collapsed" desc="STATIC FIELDS"> 
     private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     private static final Cursor DEFAULT_CURSOR = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
     private static final Font SCALE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 18);
-    private static final Font INFO_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+    private static final Font DETAILS_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
     private static final float SCALE_RATE = 40; //higher = smaller increments
-    private static final BufferedImage BROKEN_IMAGE = loadImage("/images/broken_image.png");
-    public static BufferedImage loadImage(String url){
-        try {
-            return ImageIO.read(ImagePanel.class.getResource(url));
-        } catch (IOException ex) {
-            return null;
-        }
-    }
+    private static final BufferedImage BROKEN_IMAGE = SwingUtils.getImage("broken_image.png");
     private static final String BROKEN_MSG = "ERRORx";
-    private static final int INFO_X = 5;
+    private static final int DETAILS_X = 5;
     private static final int SCALE_X_RECOIL = 75;
-    private static final int INFO_LINE_SPACING = 4; //higher = lines are closer
+    private static final int DETAILS_LINE_SPACING = 4; //higher = lines are closer
     private static final int TEXT_BOTTOM_PADDING = 1;
     // </editor-fold>
     
     private ImageFile image;
     private float clickX, clickY, xOffset, yOffset, scale;
-    private boolean click, showInfo;
+    private boolean click, showDetails;
     private int fontHeight;
     
     public ImagePanel() {
@@ -137,16 +126,13 @@ public class ImagePanel extends javax.swing.JPanel {
             }
         });
 	
-	addMouseWheelListener(new MouseWheelListener(){
-	    @Override
-	    public void mouseWheelMoved(MouseWheelEvent e) {
-		float inc = -e.getWheelRotation()/SCALE_RATE;
-		if(scale+inc > 0){
-		    scale += inc;
-		    repaint();
-		}
-	    }
-	});
+	addMouseWheelListener(e -> {
+            float inc = -e.getWheelRotation()/SCALE_RATE;
+            if(scale+inc > 0){
+                scale += inc;
+                repaint();
+            }
+        });
         
         SwingUtils.registerKeyAction(this, "ZOOM_IN", KeyEvent.VK_ADD, new AbstractAction() {
             @Override
@@ -179,7 +165,7 @@ public class ImagePanel extends javax.swing.JPanel {
 	g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 
         String scaleMsg;
-        if(image.isFailed()){
+        if(image.isFailed()){ //need to check every time to keep image centered
             g2d.drawImage(BROKEN_IMAGE,
                     getWidth()/2 - BROKEN_IMAGE.getWidth()/2, 
                     getHeight()/2 - BROKEN_IMAGE.getHeight()/2,
@@ -202,26 +188,16 @@ public class ImagePanel extends javax.swing.JPanel {
         g2d.setFont(SCALE_FONT);
         g2d.drawString(scaleMsg, getWidth()-SCALE_X_RECOIL, getHeight() - TEXT_BOTTOM_PADDING);
         
-        if(showInfo){
-            g2d.setFont(INFO_FONT);
-            if(fontHeight == 0) fontHeight = g.getFontMetrics().getHeight() - INFO_LINE_SPACING;
-            int infoY = getHeight()- ImageFile.INFO_SIZE*fontHeight - TEXT_BOTTOM_PADDING;
-            for (int i = 0; i < ImageFile.INFO_SIZE; i++) {
-                g2d.drawString(image.getInfo(i), INFO_X, infoY += fontHeight);  
+        if(showDetails){
+            g2d.setFont(DETAILS_FONT);
+            if(fontHeight == 0) fontHeight = g.getFontMetrics().getHeight() - DETAILS_LINE_SPACING;
+            int infoY = getHeight()- ImageFile.DETAILS_SIZE*fontHeight - TEXT_BOTTOM_PADDING;
+            for (String detail : image.getDetails()) {
+                g2d.drawString(detail, DETAILS_X, infoY += fontHeight);  
             }
         }
         
         g2d.dispose();
-    }
-    
-    
-    public void setImage(ImageFile image) {
-        if(image != null){
-            this.image = image;
-            fit();
-        }else{
-            clear();
-        }
     }
 
     private void fit(){
@@ -236,13 +212,22 @@ public class ImagePanel extends javax.swing.JPanel {
 	repaint();
     }
     
-    public void clear(){
+    void setImage(ImageFile image) {
+        if(image != null){
+            this.image = image;
+            fit();
+        }else{
+            clear();
+        }
+    }
+    
+    void clear(){
 	image = null;
 	repaint();
     }
 
-    public void toggleShowInfo() {
-        this.showInfo = !this.showInfo;
+    void toggleShowDetails() {
+        showDetails = !showDetails;
         repaint();
     }
 

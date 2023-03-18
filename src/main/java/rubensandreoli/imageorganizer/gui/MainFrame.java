@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
-import rubensandreoli.imageorganizer.gui.support.IconLoader;
+import rubensandreoli.imageorganizer.io.ImageLoader;
 import rubensandreoli.imageorganizer.io.Logger;
 import rubensandreoli.imageorganizer.io.Logger.Level;
 import rubensandreoli.imageorganizer.gui.support.SwingUtils;
@@ -53,23 +53,23 @@ import rubensandreoli.imageorganizer.io.History;
  *
  * @author Rubens A. Andreoli Jr.
  */
-public class MainFrame extends javax.swing.JFrame implements ToolsListener, SettingsListener{
+public class MainFrame extends javax.swing.JFrame implements ToolsListener{
     private static final long serialVersionUID = 1L;
 
-    // <editor-fold defaultstate="collapsed" desc=" STATIC FIELDS ">
+    // <editor-fold defaultstate="collapsed" desc="STATIC FIELDS">
     private static final String PROGRAM_NAME = "Image Organizer";
     private static final String PROGRAM_VERSION = "v1.1.0";
     private static final String PROGRAM_YEAR = "2021";
     private static final String PROGRAM_ICON = "icon.png";
 
+    private static final String IMAGE_PANEL_TOOTIP = "<html>\nImage preview<hr>  \n<b>Double-Click:</b> fit to panel<br> \n<b>Shift+Left-Click:</b> "
+            + "locate on disk<br>\n<b>Right-Click:</b> choose folder<br>  \n<b>Drag-and-Drop:</b> load folder\n</html>";
     private static final String DELETE_ALERT_TITLE = "Delete Image";
-    private static final String DELETE_ALERT_MSG = "Are you sure that you want to permanently delete the "
-            + "current image?";
+    private static final String DELETE_ALERT_MSG = "Are you sure that you want to permanently delete the current image?";
     private static final String REMOVE_ALERT_TITLE = "Delete Image";
     private static final String REMOVE_ALERT_MSG = "Are you sure that you want to delete the current image?";
     private static final String FOLDER_FAIL_TITLE = "Shortcut Failed";
-    private static final String FOLDER_FAIL_MSG_MASK = "Folder \"%s\" couldn't be found, all associated shortcuts "
-            + "were removed!";
+    private static final String FOLDER_FAIL_MSG_MASK = "Folder \"%s\" couldn't be found, all associated shortcuts were removed!";
     private static final String FOLDER_NAME_TITLE = "Folder Creation";
     private static final String FOLDER_NAME_MSG = "Type the new folder name:";
     private static final String UNSUPPORTED_TITLE = "Unsupported Operation";
@@ -81,23 +81,24 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
     private final Settings settings;
     private final History history;
     private ImageFolder imageFolder;
+    private ImageLoader imageLoader;
     private int currentPos = -1;
-    private boolean deleteAgreed;
+    private boolean deleteAgreed, toolsHiden;
 
-    @SuppressWarnings("LeakingThisInConstructor")
     public MainFrame() {
-        //LOAD SETTINGS:
         settings = new Settings();
-        settings.setListener(this);
+        settings.setListener(evt -> {
+            if(imageFolder != null && evt.isSetting(Settings.KEY_SHOW_HIDDEN)){
+                loadFolder(imageFolder.getPath());
+            }
+        });
         Logger.log.setVerbose(settings.isDebug());
         
-        //LOAD HISTORY:
         history = new History();
 	try {
 	    history.load();
 	} catch (IOException ex) {
-            //TODO: better warning
-	    showException(ex);
+	    showException(ex); //TODO: better warning; cannot store and read history file
 	}
         
         initComponents();
@@ -116,7 +117,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(PROGRAM_NAME);
-        setIconImage(IconLoader.getIcon(PROGRAM_ICON).getImage());
+        setIconImage(SwingUtils.getIcon(PROGRAM_ICON).getImage());
         setLocation(new java.awt.Point(0, 0));
         setMinimumSize(new java.awt.Dimension(695, 300));
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -130,7 +131,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
         pnlSplit.setOneTouchExpandable(true);
 
         pnlImage.setBackground(new java.awt.Color(255, 255, 255));
-        pnlImage.setToolTipText("<html>\nImage preview<hr>  \n<b>Double-Click:</b> fit to panel<br> \n<b>Shift+Left-Click:</b> locate on disk<br>\n<b>Right-Click:</b> choose folder<br>  \n<b>Drag-and-Drop:</b> load folder\n</html>");
+        pnlImage.setToolTipText(IMAGE_PANEL_TOOTIP);
 
         javax.swing.GroupLayout pnlImageLayout = new javax.swing.GroupLayout(pnlImage);
         pnlImage.setLayout(pnlImageLayout);
@@ -173,7 +174,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
     // End of variables declaration//GEN-END:variables
 
     private void initListeners(){
-        SwingUtils.setDropTarget(pnlImage, file -> { //loads folder.
+        SwingUtils.setDropTarget(pnlImage, file -> {
             if(file.isDirectory()){
                 MainFrame.this.loadFolder(file.getPath());
                 return true;
@@ -181,7 +182,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
             return false;
         });
 
-        pnlImage.addMouseListener(new MouseAdapter() { //loads folder.
+        pnlImage.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if(evt.getButton() == MouseEvent.BUTTON3){
@@ -191,12 +192,12 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
             }
         });
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> { //reacts to shortcuts.
-            //without isActive() shortcut will work even from a dialog.
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(evt -> {
+            //without isActive() shortcut will work even from a dialog
             if(imageFolder != null && evt.getID() == KeyEvent.KEY_RELEASED && isActive() && !pnlTools.isTyping()){
                 int code = evt.getExtendedKeyCode();
                 if(settings.containsShortcut(code)){
-                    final Shortcut shortcut = settings.getShortcut(code);
+                    Shortcut shortcut = settings.getShortcut(code);
                     switch(shortcut.action){
                         case NEXT:
                             nextImage();
@@ -211,23 +212,14 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
                             loadFolder(imageFolder.getPath());
                             break;
                         case INFO:
-                            pnlImage.toggleShowInfo();
+                            pnlImage.toggleShowDetails();
                             break;
                         case MOVE:
                             moveImage(shortcut.description);
                             break;
                     }
                 }else if(evt.isControlDown() && code == KeyEvent.VK_Z){
-                    try {
-                        if(imageFolder.undoLastTransfer()){
-                            System.out.println("undo"); //TODO: remove.
-                            loadImage();
-                        }else{
-                            SwingUtils.beep();
-                        }
-                    } catch (IOException ex) {
-                        SwingUtils.showMessageDialog(this, ex.getMessage(), "Undo Move", Level.ERROR, true);
-                    }
+                    undoMove();
                 }
             }
             return false;
@@ -236,13 +228,21 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
     
     private void initSplitPane(){
         //enable=false & onetouch=true: disables cursor changes of subcomponents, improper solution
-        final BasicSplitPaneDivider divider = ((BasicSplitPaneUI) pnlSplit.getUI()).getDivider();
+        BasicSplitPaneDivider divider = ((BasicSplitPaneUI) pnlSplit.getUI()).getDivider();
         divider.setEnabled(false); //disables dragging cursor only
         divider.removeMouseListener(divider.getMouseListeners()[0]);//disables dragging, not working
         pnlSplit.removeMouseListener(pnlSplit.getMouseListeners()[0]); //possible solution
         
-        final JButton btnUp = (JButton)divider.getComponent(0);
-        final JButton btnDown = (JButton)divider.getComponent(1);
+        JButton btnUp = (JButton)divider.getComponent(0);
+        JButton btnDown = (JButton)divider.getComponent(1);
+        btnUp.addActionListener((e) -> {
+            toolsHiden = false;
+            this.setTitle(PROGRAM_NAME);
+        });
+        btnDown.addActionListener((e) -> {
+            toolsHiden = true;
+            if(imageFolder != null && !imageFolder.isEmpty()) this.setTitle(PROGRAM_NAME + " ["+(currentPos+1)+" : "+imageFolder.getNumImages()+"]");
+        });
 
         addComponentListener(new ComponentAdapter() { //fixes restore after the frame is resized while minimized 
             @Override
@@ -262,81 +262,77 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
         });
     }
 
-    private void showException(Exception ex){
-        SwingUtils.showMessageDialog(this, ex, Level.WARNING, true);
-    }
-
+    //<editor-fold defaultstate="collapsed" desc="ACTIONS">
     private void loadFolder(String folderPath){
-        if(imageFolder != null){ //save position before changing folders
+        if(imageFolder != null){
             history.addEntry(imageFolder.getPath(), currentPos);
+            imageLoader.shutdown();
         }
-
-        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
         imageFolder = new ImageFolder(folderPath);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         imageFolder.load(settings.isShowHidden());
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        int numImages = imageFolder.getNumImages();
 
-        final int numImages = imageFolder.getNumImages();
         pnlTools.setFolderPath(folderPath);
         pnlTools.setImageTotal(numImages);
         fillRelatedFolders();
 
-        final int historyPos = history.getPosition(folderPath);
+        int historyPos = history.getPosition(folderPath);
         currentPos = historyPos >= numImages? 0:historyPos; //old history with more files than actual folder
+        
+        imageLoader = new ImageLoader(imageFolder);
         loadImage();
     }
-
-
+    
     @Override
-    public void loadRelatedFolder(String folderName, boolean subfolder) {
-        final String folder = imageFolder.buildRelatedFolderPath(folderName, subfolder);
-        if(!imageFolder.checkRelatedFolder(folder, subfolder)){ //refresh if folder from list doesn't exist anymore
-            fillRelatedFolder(subfolder);
-        }
-        loadFolder(folder);
-    }
-
-    private void fillRelatedFolders(){
-        pnlTools.setRootFolders(imageFolder.getParentFolders());
-        pnlTools.setSubFolders(imageFolder.getSubFolders());
-    }
-
-    private void fillRelatedFolder(boolean subfolder){
-        if(subfolder){
-            pnlTools.setSubFolders(imageFolder.getSubFolders());
+    public void loadImage(int pos) {
+        if(imageFolder == null){ //toolsPanel doesn't know if a folder is set (pos=0)
+            pnlTools.setImagePosition(0);
         }else{
-            pnlTools.setRootFolders(imageFolder.getParentFolders());
+           currentPos = Math.max(0, pos-1); //negative position will load the first one
+           loadImage();
         }
     }
-
+    
     private void loadImage(){
-        final int numImages = imageFolder.getNumImages();
+        int numImages = imageFolder.getNumImages();
         if(numImages == 0){ //no images or all images got deleted
             pnlImage.clear();
-            pnlTools.setImagePosition(0);
-            pnlTools.setImageName("");
+            pnlTools.clearImageDetails();
+            this.setTitle(PROGRAM_NAME);
 	}else{
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            final ImageFile image = imageFolder.getImage(currentPos);
+            ImageFile image = imageLoader.loadImage(currentPos);
             pnlImage.setImage(image);
-            pnlTools.setImageName(image.getPath());
-            pnlTools.setImagePosition(currentPos+1); //0 indexed; for user readability
+            pnlTools.setImageDetails(image.getPath(), currentPos+1); //0 indexed; for user readability
+            if(toolsHiden) this.setTitle(PROGRAM_NAME + " ["+(currentPos+1)+" : "+imageFolder.getNumImages()+"]");
             history.addEntry(imageFolder.getPath(), currentPos);
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-
+            
         pnlTools.setButtonsEnabled(false);
         if(numImages > 1){
             pnlTools.setButtonsEnabled(true);
         }else if(numImages == 1){
             pnlTools.setDeleteEnabled(true);
+        }       
+    }
+    
+    @Override
+    public void loadRelatedFolder(String folderName, boolean subfolder) {
+        if(imageFolder.checkRelatedFolder(folderName, subfolder)){
+            loadFolder(imageFolder.buildRelatedFolderPath(folderName, subfolder));
+        }else{
+            fillRelatedFolder(subfolder); //refresh if folder from list doesn't exist anymore
         }
     }
-
+    
     @Override
     public void createRelatedFolder(boolean subfolder) {
         if(imageFolder == null) return; //toolsPanel doesn't know if a folder is set
-        final String folderName = JOptionPane.showInputDialog(this, FOLDER_NAME_MSG, FOLDER_NAME_TITLE, JOptionPane.PLAIN_MESSAGE);
+        String folderName = JOptionPane.showInputDialog(this, FOLDER_NAME_MSG, FOLDER_NAME_TITLE, JOptionPane.PLAIN_MESSAGE);
         if(folderName != null && !folderName.isBlank()){
             try {
                 imageFolder.createRelatedFolder(folderName, subfolder);
@@ -346,43 +342,19 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
             }
         }
     }
-
-    @Override
-    public void nextImage() {
-        if(currentPos >= imageFolder.getNumImages()-1) currentPos = 0;
-	else currentPos++;
-	loadImage();
-    }
-
-    @Override
-    public void previousImage() {
-        if(currentPos > 0) currentPos--;
-	else currentPos = imageFolder.getNumImages()-1;
-	loadImage();
-    }
-
-    @Override
-    public void loadImage(int pos) {
-        if(imageFolder == null){ //toolsPanel doesn't know if a folder is set (pos=0)
-            pnlTools.setImagePosition(0);
-        }else{
-           currentPos = Math.max(0, pos-1);
-           loadImage();
-        }
-    }
-
-    public void moveImage(String folder){ //shortcuts move
+    
+    private void moveImage(String folderPath){ //shortcuts move
         if(imageFolder.isEmpty()) return;
-        if(ImageFolder.checkFolder(folder)){
+        if(ImageFolder.checkFolder(folderPath)){
             try {
-                imageFolder.transferImageTo(currentPos, folder);
+                imageFolder.moveImageTo(currentPos, folderPath);
                 imageRemoved();
             } catch (IOException ex) {
                 showException(ex);
             }
         }else{
-            settings.removeShortcuts(folder);
-            SwingUtils.showMessageDialog(this, String.format(FOLDER_FAIL_MSG_MASK, folder), FOLDER_FAIL_TITLE, Level.INFO, true);
+            settings.removeShortcuts(folderPath); //removes shortcuts if folder couldn't be found
+            SwingUtils.showMessageDialog(this, String.format(FOLDER_FAIL_MSG_MASK, folderPath), FOLDER_FAIL_TITLE, Level.INFO, true);
         }
     }
 
@@ -391,7 +363,7 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
         if(imageFolder.isEmpty()) return;
         if(imageFolder.checkRelatedFolder(folderName, subfolder)){
             try {
-                imageFolder.transferImageTo(currentPos, folderName, subfolder);
+                imageFolder.moveImageTo(currentPos, folderName, subfolder);
                 imageRemoved();
             } catch (IOException ex) {
                 showException(ex);
@@ -401,19 +373,22 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
         }
     }
     
-    private void delete(){
+    private void undoMove(){
         try {
-            imageFolder.deleteImage(currentPos);
-            imageRemoved();
+            if(imageFolder.undoLastMove()){
+                loadImage();
+            }else{
+                SwingUtils.beep();
+            }
         } catch (IOException ex) {
-            showException(ex);
+            SwingUtils.showMessageDialog(this, ex.getMessage(), "Undo Move", Level.ERROR, true); //TODO: better warning; failed to move image back
         }
     }
-    
+      
     @Override
     public void deleteImage() {
         if(imageFolder.isEmpty()) return;
-        if(deleteAgreed){ //not a good solution but seems to be working
+        if(deleteAgreed){ //show warning if cannot be recycled only once
             if(!settings.isShowAlert() || JOptionPane.showConfirmDialog(this, DELETE_ALERT_MSG, DELETE_ALERT_TITLE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
                 delete();
             }
@@ -434,9 +409,47 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
             }
         }
     }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="HELPERS">
+    private void fillRelatedFolders(){
+        pnlTools.setRootFolders(imageFolder.getParentFolders());
+        pnlTools.setSubFolders(imageFolder.getSubFolders());
+    }
+
+    private void fillRelatedFolder(boolean subfolder){
+        if(subfolder){
+            pnlTools.setSubFolders(imageFolder.getSubFolders());
+        }else{
+            pnlTools.setRootFolders(imageFolder.getParentFolders());
+        }
+    }
+
+    @Override
+    public void nextImage() {
+        if(currentPos >= imageFolder.getNumImages()-1) currentPos = 0;
+	else currentPos++;
+	loadImage();
+    }
+
+    @Override
+    public void previousImage() {
+        if(currentPos > 0) currentPos--;
+	else currentPos = imageFolder.getNumImages()-1;
+	loadImage();
+    }
+    
+    private void delete(){
+        try {
+            imageFolder.deleteImage(currentPos);
+            imageRemoved();
+        } catch (IOException ex) {
+            showException(ex); //TODO: better warning; failed to delete image
+        }
+    }
 
     private void imageRemoved(){
-        final int size = imageFolder.getNumImages();
+        int size = imageFolder.getNumImages();
     	pnlTools.setImageTotal(size);
         if(currentPos >= size){
             currentPos = 0;
@@ -449,22 +462,19 @@ public class MainFrame extends javax.swing.JFrame implements ToolsListener, Sett
         new SettingsDialog(this, settings).setVisible(true);
     }
 
+    private void showException(Exception ex){
+        SwingUtils.showMessageDialog(this, ex, Level.WARNING, true);
+    }
+
     @Override
     public void about() {
-        new AboutDialog(this,
-                new AboutDialog.ProgramInfo(PROGRAM_NAME, null, PROGRAM_VERSION, PROGRAM_YEAR))
+        new AboutDialog(this, new AboutDialog.ProgramDetails(PROGRAM_NAME, null, PROGRAM_VERSION, PROGRAM_YEAR))
                 .addAtribution("Program icon", "Iconshock", "https://www.iconshock.com/")
                 .addAtribution("About icon", "Gregor Cresnar", "https://www.flaticon.com/authors/gregor-cresnar")
                 .addAtribution("Settings icons", "Vectors Market", "https://www.flaticon.com/authors/vectors-market")
                 .addAtribution("Broken image icon", "Google", "https://www.flaticon.com/authors/google")
                 .setVisible(true);
     }
-
-    @Override
-    public void settingsChanged(SettingsChangeEvent evt) {
-        if(imageFolder != null && evt.isSetting(Settings.KEY_SHOW_HIDDEN)){
-            loadFolder(imageFolder.getPath());
-        }
-    }
+    //</editor-fold>
 
 }

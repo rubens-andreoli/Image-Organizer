@@ -18,6 +18,7 @@ package rubensandreoli.imageorganizer;
 
 import javax.swing.SwingUtilities;
 import rubensandreoli.imageorganizer.gui.MainFrame;
+import rubensandreoli.imageorganizer.io.Logger;
 
 public class Launcher {
     
@@ -36,7 +37,8 @@ public class Launcher {
         //</editor-fold>
          
         Thread.UncaughtExceptionHandler exHandler = (t, ex) -> {
-            ex.printStackTrace(); //TODO: log instead.
+            Logger.log.print((Exception) ex);
+            ex.printStackTrace(); //TODO: remove
             System.exit(1);
         };
         Thread.setDefaultUncaughtExceptionHandler(exHandler);

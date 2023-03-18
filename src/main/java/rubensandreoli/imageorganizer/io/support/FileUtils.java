@@ -151,14 +151,14 @@ public class FileUtils {
         if(extIndex != -1) {
             String[] tokens = new String[2];
             tokens[0] = filename.substring(0, extIndex);
-            tokens[1] = filename.substring(extIndex);
+            tokens[1] = filename.substring(extIndex).toLowerCase();
             return tokens;
         }
         return new String[]{filename, ""};
     }
     
     public static boolean isImage(File file){
-        return IMAGES_EXT.contains(splitFilename(file)[1].toLowerCase());
+        return IMAGES_EXT.contains(splitFilename(file)[1]);
     }
     
     public static String getFormattedFileSize(File file){

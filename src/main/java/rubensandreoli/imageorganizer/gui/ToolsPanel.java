@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Rubens A. Andreoli Jr.
+ * Copyright (C) 2023 Rubens A. Andreoli Jr.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ import rubensandreoli.imageorganizer.gui.support.SwingUtils;
 public class ToolsPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
 
-    // <editor-fold defaultstate="collapsed" desc=" RENDERER "> 
+    // <editor-fold defaultstate="collapsed" desc="RENDERER"> 
     private class ListRenderer implements ListCellRenderer<String>{
 
         private final JLabel label;
@@ -419,48 +419,54 @@ public class ToolsPanel extends javax.swing.JPanel {
     }
     
     // <editor-fold defaultstate="collapsed" desc=" GETTERS "> 
-    public boolean isTyping() {
+    boolean isTyping() {
         return txfImagePos.isFocusOwner();
     }
     // </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc=" SETTERS "> 
-    public void setListener(ToolsListener l){
+    void setListener(ToolsListener l){
         listener = l;
     }
         
-    public void setRootFolders(Collection<String> folders){
+    void setRootFolders(Collection<String> folders){
 	fillFolders(folders, lstRootFolders);
     }
         
-    public void setSubFolders(Collection<String> folders){
+    void setSubFolders(Collection<String> folders){
         fillFolders(folders, lstSubFolders);
     }
         
-    public void setFolderPath(String path){
+    void setFolderPath(String path){
         txfFolderPath.setText(path);
     }
         
-    public void setImageTotal(int amount){
+    void setImageTotal(int amount){
         txfNumImages.setText(String.valueOf(amount));
         txfImagePos.setInterval(0, amount);
     }
        
-    public void setImagePosition(int pos){
+    void setImagePosition(int pos){
         txfImagePos.setValue(pos);
     }
-       
-    public void setImageName(String name){
+
+    void setImageDetails(String name, int pos){
         txfImageName.setText(name);
+        txfImagePos.setValue(pos);
     }
     
-    public void setButtonsEnabled(boolean b){
+    void clearImageDetails(){
+        txfImagePos.setValue(0);
+        txfImageName.setText("");
+    }
+    
+    void setButtonsEnabled(boolean b){
         btnNext.setEnabled(b);
 	btnBack.setEnabled(b);
 	btnDelete.setEnabled(b);
     }
         
-    public void setDeleteEnabled(boolean b){
+    void setDeleteEnabled(boolean b){
         btnDelete.setEnabled(b);
     }
     // </editor-fold>

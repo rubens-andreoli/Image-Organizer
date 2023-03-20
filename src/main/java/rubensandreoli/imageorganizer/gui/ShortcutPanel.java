@@ -27,6 +27,14 @@ public class ShortcutPanel extends javax.swing.JPanel {
     private static final int ACTION_FIELD_WIDTH = 140; //design layout size
     // </editor-fold>
     
+    public ShortcutPanel(String action, String key){ //fake non-removable shortcut
+        initComponents();
+        
+        txfAction.setText(action);
+        txfKey.setText(key);
+        btnDelete.setEnabled(false);
+    }
+    
     public ShortcutPanel(Shortcut shortcut, ActionListener listener){
         initComponents();
         

@@ -49,7 +49,8 @@ public class SettingsDialog extends javax.swing.JDialog implements PickyConsumer
         chbHidden.setSelected(settings.isShowHidden());
         chbAlert.setSelected(settings.isShowAlert());
         
-        shortcuts = settings.copyShortcutMap(); //copy
+        shortcuts = settings.copyShortcutMap();
+        pnlShortcuts.add(new ShortcutPanel("UNDO MOVE", "Ctrl+Z"));
         shortcuts.values().forEach(s -> addShortcut(s));
     }
 

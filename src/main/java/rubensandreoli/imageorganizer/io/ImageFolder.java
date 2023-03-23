@@ -217,5 +217,9 @@ public class ImageFolder {
     public File getFolder(){
         return folder;
     }
+    
+    public boolean hasMoveCached(){
+        return !moveCache.isEmpty();
+    }
     // </editor-fold>
 }

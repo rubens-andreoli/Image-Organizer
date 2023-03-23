@@ -29,7 +29,8 @@ public class ImageFile {
 
     public static final int DETAILS_SIZE = 4;
 
-    private final String path;
+    private final String filename;
+    private final File file;
     private Image image;
     private final String[] details;
     private int height, width;
@@ -37,10 +38,11 @@ public class ImageFile {
     private final boolean gif;
     
     private ImageFile(File file){
-        path = file.getPath();
+        this.file = file;
+        filename = file.getName();
         details = new String[DETAILS_SIZE];
         
-        String[] t = FileUtils.splitFilename(file);
+        String[] t = FileUtils.splitFilename(filename);
         details[0] = ("Name: " + t[0]);
         details[1] = ("Extension: " + t[1]);
         gif = t[1].equals(".gif");
@@ -48,7 +50,7 @@ public class ImageFile {
     }
     
     public void locateOnDisk() {
-        FileUtils.locateOnDisk(path);
+        FileUtils.locateOnDisk(file);
     }
     
     //<editor-fold defaultstate="collapsed" desc="GETTERS">
@@ -60,8 +62,8 @@ public class ImageFile {
         return details;
     }
     
-    public String getPath() {
-        return path;
+    public String getFilename() {
+        return filename;
     }
 
     public int getHeight() {
@@ -98,7 +100,7 @@ public class ImageFile {
     }
     // </editor-fold>
 
-    static ImageFile load(File file, int pos){
+    static ImageFile load(File file){
         ImageFile fImage = new ImageFile(file);
         
         if(fImage.isGIF()){

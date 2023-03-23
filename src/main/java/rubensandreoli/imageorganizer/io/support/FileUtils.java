@@ -95,12 +95,13 @@ public class FileUtils {
     }
 
     public static File moveFileTo(File file, String folder){
-        File tempDest = new File(folder, file.getName());
+        String filename = file.getName();
+        File tempDest = new File(folder, filename);
         
         //FILEPATH LENGTH
         int tempLength = tempDest.getPath().length();
         if(tempLength > FILEPATH_MAX_LENGTH){
-            String t[] = FileUtils.splitFilename(file);
+            String t[] = FileUtils.splitFilename(filename);  //don't do it if it's not needed; don't move outside
             int toRemove = FILEPATH_MAX_LENGTH - tempLength;
             int nameLength = t[0].length();
             if(nameLength > toRemove){
@@ -113,7 +114,7 @@ public class FileUtils {
         
         //DUPLICATED NAME
         for(int n=1; tempDest.exists(); n++){
-            String t[] = FileUtils.splitFilename(file);
+            String t[] = FileUtils.splitFilename(filename);  //don't do it if it's not needed; don't move outside
             tempDest = new File(folder, (t[0]+" ("+n+")"+t[1]));
         }
         
@@ -145,8 +146,7 @@ public class FileUtils {
         }
     }
     
-    public static String[] splitFilename(File file){
-        String filename = file.getName();
+    public static String[] splitFilename(String filename){ // String.split is approximately 2x slower; with the same return
         int extIndex = filename.lastIndexOf(".");
         if(extIndex != -1) {
             String[] tokens = new String[2];
@@ -158,7 +158,7 @@ public class FileUtils {
     }
     
     public static boolean isImage(File file){
-        return IMAGES_EXT.contains(splitFilename(file)[1]);
+        return IMAGES_EXT.contains(splitFilename(file.getName())[1]);
     }
     
     public static String getFormattedFileSize(File file){
@@ -179,12 +179,12 @@ public class FileUtils {
         return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + SIZE_UNITS[digitGroups];
     }
     
-    public static void locateOnDisk(String path) throws UnsupportedOperationException {
+    public static void locateOnDisk(File file) throws UnsupportedOperationException {
         if(desktop == null){
             throw new UnsupportedOperationException("locate on disk action not supported");
         }else{
             try{
-                desktop.browseFileDirectory(new File(path));
+                desktop.browseFileDirectory(file);
             }catch(Exception exD){
                 Logger.log.print(Level.INFO, "failed to use desktop browse file method", exD);
                 String os = System.getProperty("os.name").toLowerCase();
@@ -192,13 +192,13 @@ public class FileUtils {
                 IOException exception = null;
 
                 if(os.contains("win")){
-                    try { runtime.exec("explorer.exe /select," + path);
+                    try { runtime.exec("explorer.exe /select," + file.getPath());
                     } catch (IOException ex) {exception = ex;}
                 }else if(os.contains("mac")){
-                    try { runtime.exec("open -R "+path); //not tested
+                    try { runtime.exec("open -R " + file.getPath()); //not tested
                     } catch (IOException ex) {exception = ex;}
                 }else if(os.contains("nix") || os.contains("nux")){
-                    try { runtime.exec("nautilus --select " + path); //not tested
+                    try { runtime.exec("nautilus --select " + file.getPath()); //not tested
                     } catch (IOException ex) {exception = ex;}
                 }
 

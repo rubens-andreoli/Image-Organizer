@@ -75,14 +75,14 @@ public class ToolsPanel extends javax.swing.JPanel {
     
     private ToolsListener listener;
 
-    public ToolsPanel() { //kept empty for design tool
+    public ToolsPanel() { //kept empty beacause of the design tool
         initComponents();
         
         SwingUtils.registerKeyAction(txfImagePos, "LOAD", KeyEvent.VK_ENTER, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final Integer pos = txfImagePos.getValue();
-                if(pos != null) listener.loadImage(pos);  //if not an empty field
+                Integer pos = txfImagePos.getValue();
+                if(pos != null) listener.loadImage(pos);  //pos is null if field fails to parse the number; shouldn't happen
                 btnNext.requestFocus();
             }
         });
@@ -296,12 +296,13 @@ public class ToolsPanel extends javax.swing.JPanel {
 
         txfImageName.setEditable(false);
         txfImageName.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        txfImageName.setToolTipText("Image path");
+        txfImageName.setToolTipText("Image name");
         txfImageName.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         txfImageName.setEnabled(false);
 
         txfImagePos.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txfImagePos.setToolTipText("Position of the image within the folder");
+        txfImagePos.setEnabled(false);
 
         javax.swing.GroupLayout pnlRightLayout = new javax.swing.GroupLayout(pnlRight);
         pnlRight.setLayout(pnlRightLayout);
@@ -388,7 +389,7 @@ public class ToolsPanel extends javax.swing.JPanel {
     private rubensandreoli.imageorganizer.gui.support.IntegerField txfImagePos;
     private javax.swing.JTextField txfNumImages;
     // End of variables declaration//GEN-END:variables
-    
+
     private void listTyped(JList<String> list, boolean subfolder){
         if(!list.isSelectionEmpty()){
            listener.moveImage(list.getSelectedValue(), subfolder);
@@ -396,7 +397,7 @@ public class ToolsPanel extends javax.swing.JPanel {
     }
     
     private void listClicked(MouseEvent evt, boolean subfolder){
-        final JList<String> list = (JList<String>)evt.getSource();
+        JList<String> list = (JList<String>)evt.getSource();
 	if (evt.getButton() == 1 && evt.getClickCount() == 2 && !list.isSelectionEmpty()){
             listener.moveImage(list.getSelectedValue(), subfolder);
 	} else if(evt.getButton() == 3){
@@ -407,7 +408,7 @@ public class ToolsPanel extends javax.swing.JPanel {
     }
 
     private void fillFolders(Collection<String> folders, JList list){
-        final DefaultListModel<String> model = new DefaultListModel<>();
+        DefaultListModel<String> model = new DefaultListModel<>();
         list.setModel(model);
         folders.stream().forEach((folder) -> {
 	    model.addElement(folder);
@@ -436,20 +437,17 @@ public class ToolsPanel extends javax.swing.JPanel {
     void setSubFolders(Collection<String> folders){
         fillFolders(folders, lstSubFolders);
     }
-        
-    void setFolderPath(String path){
+
+    void setFolderDetails(String path, int total){
         txfFolderPath.setText(path);
+        setImageTotal(total);
     }
-        
+  
     void setImageTotal(int amount){
         txfNumImages.setText(String.valueOf(amount));
         txfImagePos.setInterval(0, amount);
     }
-       
-    void setImagePosition(int pos){
-        txfImagePos.setValue(pos);
-    }
-
+    
     void setImageDetails(String name, int pos){
         txfImageName.setText(name);
         txfImagePos.setValue(pos);
@@ -460,12 +458,16 @@ public class ToolsPanel extends javax.swing.JPanel {
         txfImageName.setText("");
     }
     
-    void setButtonsEnabled(boolean b){
+    void setImageButtonsEnabled(boolean b){
         btnNext.setEnabled(b);
 	btnBack.setEnabled(b);
 	btnDelete.setEnabled(b);
     }
-        
+    
+    void setImagePositionEnabled(boolean b){
+        txfImagePos.setEnabled(b);
+    }
+    
     void setDeleteEnabled(boolean b){
         btnDelete.setEnabled(b);
     }

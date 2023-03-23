@@ -38,12 +38,12 @@ public class ImageLoader {
     //<editor-fold defaultstate="collapsed" desc="LOADER">
     private static class Loader{
         
-//        private final int imagePos;
+//        private final int imagePos; //TODO: remove debug
         private final Future<ImageFile> future;
 
-        public Loader(ExecutorService e, File file, int pos) {
-//            imagePos = pos+1;
-            future = e.submit(() -> ImageFile.load(file, pos));
+        public Loader(ExecutorService e, File file/*, int pos*/) {
+//            imagePos = pos+1; //TODO: remove debug
+            future = e.submit(() -> ImageFile.load(file));
         }
 
         public ImageFile get() throws InterruptedException, ExecutionException{
@@ -51,7 +51,7 @@ public class ImageLoader {
         }
 
 //        @Override
-//        public String toString() {//TODO: remove
+//        public String toString() {//TODO: remove debug
 //            return ""+imagePos;
 //        }
     }
@@ -67,19 +67,16 @@ public class ImageLoader {
             this.size = size;
         }
 
+//        @Override
+//        public boolean containsKey(Object key) {
+//            return this.get(key) != null;
+//        }
+
         @Override
         public boolean removeEldestEntry(Map.Entry eldest) { //invoked by put and putAll after insert
             return size() > size;
         }
-	  
-//        public void print(){ //TODO: remove
-//            System.out.print("[");
-//            for(Loader l : this.values()){
-//                System.out.print(l+", ");
-//            }
-//            System.out.println("]");
-//        }
-        
+ 
     }
     //</editor-fold>
     
@@ -89,6 +86,7 @@ public class ImageLoader {
     private final ImageFolder imageFolder;
     private final Cache imageCache;
     private final ExecutorService executor;
+    private ImageFile currentImage;
     
     public ImageLoader(ImageFolder imageFolder){
         executor = Executors.newFixedThreadPool(THREAD_COUNT);
@@ -97,38 +95,36 @@ public class ImageLoader {
         this.imageFolder = imageFolder;
     }
     
-    public ImageFile loadImage(int pos){
+    public void loadImage(int pos) throws InterruptedException, ExecutionException{
         File file = imageFolder.getImage(pos);
         
         Loader loader;
         if(imageCache.containsKey(file)){
-//            System.out.println("Main <cached> ["+file+"]");
             loader = imageCache.get(file);
         }else{
-//            System.out.println("Main <new> ["+file+"]");
-            loader = new Loader(executor, file, pos);
+            loader = new Loader(executor, file);
             imageCache.put(file, loader);
         }
 
         loadAround(pos);
         
-//        imageCache.print();
-        try {
-            return loader.get(); //will wait here if not loaded
-        } catch (InterruptedException | ExecutionException ex) {
-            return null; //TODO: handle exception
-        }
+        System.out.println(imageCache.values()); //TODO: remove debug
+        currentImage = loader.get(); //blocking
+    }
+    
+    public ImageFile getImage(){
+        return currentImage;
     }
 
     private void loadAround(int pos){
-        loadImageAt(fixPosition(pos+1));
         loadImageAt(fixPosition(pos-1));
+        loadImageAt(fixPosition(pos+1));
     }
 	
     private void loadImageAt(int pos){
             File file = imageFolder.getImage(pos);
             if(!imageCache.containsKey(file)){
-            Loader loader = new Loader(executor, file, pos);
+            Loader loader = new Loader(executor, file);
             imageCache.put(file, loader);
         }
     }
